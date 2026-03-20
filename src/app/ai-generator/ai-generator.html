@@ -1,0 +1,81 @@
+<section class="py-20 bg-slate-50 dark:bg-slate-950 min-h-screen transition-colors duration-300">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-16">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-wider mb-4">
+        <mat-icon class="!text-sm">auto_awesome</mat-icon>
+        AI Powered
+      </div>
+      <h1 class="text-4xl md:text-5xl font-display font-bold text-slate-900 dark:text-white mb-4">AI Website Generator</h1>
+      <p class="text-slate-600 dark:text-slate-400">Tell us about your business, and our AI will suggest the perfect theme for you.</p>
+    </div>
+
+    <div class="bg-white dark:bg-slate-900 p-8 rounded-3xl border border-slate-100 dark:border-white/5 shadow-xl mb-12">
+      <div class="mb-8">
+        <label for="business-type" class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">What kind of business do you have?</label>
+        <textarea 
+          id="business-type"
+          [(ngModel)]="businessType"
+          placeholder="e.g. I have a small organic coffee shop in Bangalore that also sells handmade pastries..." 
+          class="w-full px-4 py-4 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none h-32 resize-none transition-all"
+        ></textarea>
+      </div>
+      <button 
+        (click)="generateSuggestions()" 
+        [disabled]="loading() || !businessType()"
+        class="w-full btn-primary flex items-center justify-center gap-2 shadow-lg shadow-primary/20"
+      >
+        @if (loading()) {
+          <div class="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+          Analyzing Your Business...
+        } @else {
+          <mat-icon>magic_button</mat-icon>
+          Generate Suggestions
+        }
+      </button>
+    </div>
+
+    @if (suggestions().length > 0) {
+      <div class="space-y-8 animate-fade-in">
+        <div class="flex items-center gap-4">
+          <div class="h-px flex-grow bg-slate-200 dark:bg-white/10"></div>
+          <h2 class="text-2xl font-display font-bold text-slate-900 dark:text-white text-center">Recommended for You</h2>
+          <div class="h-px flex-grow bg-slate-200 dark:bg-white/10"></div>
+        </div>
+        
+        <div class="grid md:grid-cols-2 gap-8">
+          @for (suggestion of suggestions(); track suggestion.themeId) {
+            @let theme = getTheme(suggestion.themeId);
+            @if (theme) {
+              <div class="bg-white dark:bg-slate-900 rounded-2xl overflow-hidden border border-primary/20 dark:border-primary/30 shadow-lg shadow-primary/5 group">
+                <div class="aspect-video relative overflow-hidden">
+                  <img [src]="theme.previewUrl" [alt]="theme.name" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" referrerpolicy="no-referrer" />
+                  <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/20 to-transparent"></div>
+                  <div class="absolute bottom-4 left-4 text-white">
+                    <h3 class="font-bold text-lg">{{ theme.name }}</h3>
+                    <p class="text-xs opacity-80 uppercase tracking-widest">{{ theme.category }}</p>
+                  </div>
+                </div>
+                <div class="p-6">
+                  <div class="flex items-start gap-3 mb-6 bg-slate-50 dark:bg-white/5 p-4 rounded-xl border border-slate-100 dark:border-white/5">
+                    <mat-icon class="text-primary !text-sm mt-1">info</mat-icon>
+                    <p class="text-xs text-slate-600 dark:text-slate-400 italic leading-relaxed">"{{ suggestion.reason }}"</p>
+                  </div>
+                  <div class="grid grid-cols-2 gap-3">
+                    <button [routerLink]="['/preview', theme.id]" class="btn-secondary !py-2.5 !text-xs flex items-center justify-center gap-1">
+                      <mat-icon class="!text-sm">visibility</mat-icon>
+                      Preview
+                    </button>
+                    <button [routerLink]="['/cart']" class="btn-primary !py-2.5 !text-xs flex items-center justify-center gap-1">
+                      <mat-icon class="!text-sm">rocket_launch</mat-icon>
+                      Get Started
+                    </button>
+                  </div>
+                </div>
+              </div>
+            }
+          }
+        </div>
+      </div>
+    }
+  </div>
+</section>

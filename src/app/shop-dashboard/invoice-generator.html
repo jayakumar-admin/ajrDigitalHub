@@ -1,0 +1,325 @@
+<div class="space-y-6">
+  <div class="flex items-center justify-between">
+    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Create Invoice</h1>
+    <div class="flex gap-3">
+      <button (click)="saveInvoice()" class="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-zinc-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 text-sm font-medium rounded-md hover:bg-gray-50 dark:hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-600">
+        <mat-icon class="text-sm">save</mat-icon>
+        Save Draft
+      </button>
+      <button (click)="downloadPDF()" class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-600">
+        <mat-icon class="text-sm">download</mat-icon>
+        Download PDF
+      </button>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Editor Form -->
+    <div class="lg:col-span-1 space-y-6">
+      <div class="bg-white dark:bg-zinc-800 shadow sm:rounded-lg p-6 space-y-4">
+        <h3 class="text-lg font-medium text-gray-900 dark:text-white border-b border-gray-200 dark:border-white/10 pb-2">Customer Details</h3>
+        
+        <div>
+          <label for="customerName" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Customer Name</label>
+          <input type="text" id="customerName" [(ngModel)]="customerName" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-zinc-700 dark:text-white" placeholder="John Doe">
+        </div>
+        
+        <div>
+          <label for="customerEmail" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Customer Email</label>
+          <input type="email" id="customerEmail" [(ngModel)]="customerEmail" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-zinc-700 dark:text-white" placeholder="john&#64;example.com">
+        </div>
+
+        <div>
+          <label for="customerAddress" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Customer Address</label>
+          <textarea id="customerAddress" [(ngModel)]="customerAddress" rows="2" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-zinc-700 dark:text-white" placeholder="123 Main St..."></textarea>
+        </div>
+      </div>
+
+      <div class="bg-white dark:bg-zinc-800 shadow sm:rounded-lg p-6 space-y-4">
+        <div class="flex items-center justify-between border-b border-gray-200 dark:border-white/10 pb-2">
+          <h3 class="text-lg font-medium text-gray-900 dark:text-white">Items</h3>
+          <button (click)="addItem()" class="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 flex items-center gap-1">
+            <mat-icon class="text-sm">add_circle</mat-icon> Add Item
+          </button>
+        </div>
+        
+        <div class="space-y-4">
+          @for (item of items(); track item.id; let i = $index) {
+            <div class="bg-gray-50 dark:bg-zinc-900/50 p-4 rounded-md relative border border-gray-200 dark:border-gray-700">
+              <button (click)="removeItem(i)" class="absolute top-2 right-2 text-gray-400 hover:text-red-500">
+                <mat-icon class="text-sm">close</mat-icon>
+              </button>
+              <div class="grid grid-cols-1 gap-y-4 gap-x-4 sm:grid-cols-6">
+                <div class="sm:col-span-6">
+                  <label [for]="'desc-' + i" class="block text-xs font-medium text-gray-700 dark:text-gray-300">Description</label>
+                  <input type="text" [id]="'desc-' + i" [(ngModel)]="item.name" (ngModelChange)="updateTotals()" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-zinc-700 dark:text-white">
+                </div>
+                <div class="sm:col-span-2">
+                  <label [for]="'qty-' + i" class="block text-xs font-medium text-gray-700 dark:text-gray-300">Qty</label>
+                  <input type="number" [id]="'qty-' + i" [(ngModel)]="item.quantity" (ngModelChange)="updateTotals()" min="1" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-zinc-700 dark:text-white">
+                </div>
+                <div class="sm:col-span-2">
+                  <label [for]="'price-' + i" class="block text-xs font-medium text-gray-700 dark:text-gray-300">Price</label>
+                  <input type="number" [id]="'price-' + i" [(ngModel)]="item.price" (ngModelChange)="updateTotals()" min="0" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-zinc-700 dark:text-white">
+                </div>
+                <div class="sm:col-span-2">
+                  <label [for]="'tax-' + i" class="block text-xs font-medium text-gray-700 dark:text-gray-300">Tax %</label>
+                  <input type="number" [id]="'tax-' + i" [(ngModel)]="item.taxRate" (ngModelChange)="updateTotals()" min="0" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-zinc-700 dark:text-white">
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="bg-white dark:bg-zinc-800 shadow sm:rounded-lg p-6 space-y-4">
+        <h3 class="text-lg font-medium text-gray-900 dark:text-white border-b border-gray-200 dark:border-white/10 pb-2">Theme Selection</h3>
+        <div class="grid grid-cols-2 gap-4">
+          <button (click)="selectedTheme.set('modern')" [class.ring-2]="selectedTheme() === 'modern'" [class.ring-indigo-500]="selectedTheme() === 'modern'" class="p-4 border border-gray-200 dark:border-gray-700 rounded-md hover:bg-gray-50 dark:hover:bg-zinc-700 text-left">
+            <span class="block text-sm font-medium text-gray-900 dark:text-white">Modern</span>
+            <span class="block text-xs text-gray-500 dark:text-gray-400 mt-1">Clean and minimal</span>
+          </button>
+          <button (click)="selectedTheme.set('classic')" [class.ring-2]="selectedTheme() === 'classic'" [class.ring-indigo-500]="selectedTheme() === 'classic'" class="p-4 border border-gray-200 dark:border-gray-700 rounded-md hover:bg-gray-50 dark:hover:bg-zinc-700 text-left">
+            <span class="block text-sm font-medium text-gray-900 dark:text-white">Classic</span>
+            <span class="block text-xs text-gray-500 dark:text-gray-400 mt-1">Traditional layout</span>
+          </button>
+          <button (click)="selectedTheme.set('bold')" [class.ring-2]="selectedTheme() === 'bold'" [class.ring-indigo-500]="selectedTheme() === 'bold'" class="p-4 border border-gray-200 dark:border-gray-700 rounded-md hover:bg-gray-50 dark:hover:bg-zinc-700 text-left">
+            <span class="block text-sm font-medium text-gray-900 dark:text-white">Bold</span>
+            <span class="block text-xs text-gray-500 dark:text-gray-400 mt-1">High contrast</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Live Preview -->
+    <div class="lg:col-span-2">
+      <div class="sticky top-6">
+        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Live Preview</h3>
+        
+        <!-- Invoice Container (This will be captured for PDF) -->
+        <div #invoicePreview class="bg-[#ffffff] shadow-xl rounded-lg overflow-hidden w-full max-w-[800px] mx-auto min-h-[1000px] text-[#111827]" [ngClass]="getThemeClasses()">
+          
+          <!-- Modern Theme -->
+          @if (selectedTheme() === 'modern') {
+            <div class="p-12">
+              <div class="flex justify-between items-start border-b-2 border-[#f3f4f6] pb-8">
+                <div>
+                  <h1 class="text-4xl font-bold text-[#111827] tracking-tight">INVOICE</h1>
+                  <p class="text-sm text-[#6b7280] mt-2">INV-{{ invoiceNumber() }}</p>
+                </div>
+                <div class="text-right">
+                  <h2 class="text-xl font-bold text-[#111827]">{{ shopName() }}</h2>
+                  <p class="text-sm text-[#6b7280] mt-1">{{ shopAddress() }}</p>
+                  <p class="text-sm text-[#6b7280]">{{ shopEmail() }}</p>
+                </div>
+              </div>
+
+              <div class="flex justify-between items-start mt-8">
+                <div>
+                  <p class="text-xs font-bold text-[#9ca3af] uppercase tracking-wider">Bill To</p>
+                  <h3 class="text-lg font-medium text-[#111827] mt-1">{{ customerName() || 'Customer Name' }}</h3>
+                  <p class="text-sm text-[#6b7280]">{{ customerAddress() || 'Customer Address' }}</p>
+                  <p class="text-sm text-[#6b7280]">{{ customerEmail() || 'customer@example.com' }}</p>
+                </div>
+                <div class="text-right">
+                  <p class="text-xs font-bold text-[#9ca3af] uppercase tracking-wider">Date</p>
+                  <p class="text-sm text-[#111827] mt-1">{{ currentDate | date:'longDate' }}</p>
+                  <p class="text-xs font-bold text-[#9ca3af] uppercase tracking-wider mt-4">Due Date</p>
+                  <p class="text-sm text-[#111827] mt-1">{{ dueDate | date:'longDate' }}</p>
+                </div>
+              </div>
+
+              <div class="mt-12">
+                <table class="w-full text-left border-collapse">
+                  <thead>
+                    <tr class="border-b-2 border-[#f3f4f6]">
+                      <th class="py-3 text-xs font-bold text-[#9ca3af] uppercase tracking-wider">Description</th>
+                      <th class="py-3 text-xs font-bold text-[#9ca3af] uppercase tracking-wider text-right">Qty</th>
+                      <th class="py-3 text-xs font-bold text-[#9ca3af] uppercase tracking-wider text-right">Price</th>
+                      <th class="py-3 text-xs font-bold text-[#9ca3af] uppercase tracking-wider text-right">Amount</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (item of items(); track item.id) {
+                      <tr class="border-b border-[#f9fafb]">
+                        <td class="py-4 text-sm text-[#111827]">{{ item.name || 'Item Description' }}</td>
+                        <td class="py-4 text-sm text-[#111827] text-right">{{ item.quantity }}</td>
+                        <td class="py-4 text-sm text-[#111827] text-right">{{ item.price | currency:'INR':'symbol':'1.0-0' }}</td>
+                        <td class="py-4 text-sm text-[#111827] text-right">{{ (item.quantity * item.price) | currency:'INR':'symbol':'1.0-0' }}</td>
+                      </tr>
+                    }
+                    @if (items().length === 0) {
+                      <tr class="border-b border-[#f9fafb]">
+                        <td class="py-4 text-sm text-[#9ca3af] italic" colspan="4">Add items to your invoice</td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="mt-8 flex justify-end">
+                <div class="w-64 space-y-3">
+                  <div class="flex justify-between text-sm text-[#6b7280]">
+                    <span>Subtotal</span>
+                    <span>{{ subtotal() | currency:'INR':'symbol':'1.0-0' }}</span>
+                  </div>
+                  <div class="flex justify-between text-sm text-[#6b7280]">
+                    <span>Tax</span>
+                    <span>{{ taxTotal() | currency:'INR':'symbol':'1.0-0' }}</span>
+                  </div>
+                  <div class="flex justify-between text-lg font-bold text-[#111827] border-t-2 border-[#f3f4f6] pt-3">
+                    <span>Total</span>
+                    <span>{{ total() | currency:'INR':'symbol':'1.0-0' }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-24 border-t border-[#f3f4f6] pt-8 text-center">
+                <p class="text-sm text-[#6b7280]">Thank you for your business!</p>
+              </div>
+            </div>
+          }
+
+          <!-- Classic Theme -->
+          @if (selectedTheme() === 'classic') {
+            <div class="p-12 font-serif">
+              <div class="text-center border-b-4 border-double border-[#d1d5db] pb-8">
+                <h2 class="text-3xl font-bold text-[#111827] uppercase tracking-widest">{{ shopName() }}</h2>
+                <p class="text-sm text-[#4b5563] mt-2">{{ shopAddress() }} | {{ shopEmail() }}</p>
+              </div>
+
+              <div class="flex justify-between items-start mt-12">
+                <div>
+                  <h1 class="text-2xl font-bold text-[#111827] uppercase tracking-widest">Invoice</h1>
+                  <p class="text-sm text-[#4b5563] mt-1">No. {{ invoiceNumber() }}</p>
+                  <p class="text-sm text-[#4b5563]">Date: {{ currentDate | date:'mediumDate' }}</p>
+                </div>
+                <div class="text-right bg-[#f9fafb] p-4 border border-[#e5e7eb]">
+                  <p class="text-xs font-bold text-[#6b7280] uppercase tracking-wider">Billed To:</p>
+                  <h3 class="text-lg font-medium text-[#111827] mt-1">{{ customerName() || 'Customer Name' }}</h3>
+                  <p class="text-sm text-[#4b5563]">{{ customerAddress() || 'Customer Address' }}</p>
+                  <p class="text-sm text-[#4b5563]">{{ customerEmail() || 'customer@example.com' }}</p>
+                </div>
+              </div>
+
+              <div class="mt-12">
+                <table class="w-full text-left border-collapse border border-[#d1d5db]">
+                  <thead class="bg-[#f3f4f6]">
+                    <tr>
+                      <th class="py-2 px-4 text-sm font-bold text-[#111827] border border-[#d1d5db]">Description</th>
+                      <th class="py-2 px-4 text-sm font-bold text-[#111827] border border-[#d1d5db] text-center">Quantity</th>
+                      <th class="py-2 px-4 text-sm font-bold text-[#111827] border border-[#d1d5db] text-right">Unit Price</th>
+                      <th class="py-2 px-4 text-sm font-bold text-[#111827] border border-[#d1d5db] text-right">Total</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (item of items(); track item.id) {
+                      <tr>
+                        <td class="py-2 px-4 text-sm text-[#111827] border border-[#d1d5db]">{{ item.name || 'Item Description' }}</td>
+                        <td class="py-2 px-4 text-sm text-[#111827] border border-[#d1d5db] text-center">{{ item.quantity }}</td>
+                        <td class="py-2 px-4 text-sm text-[#111827] border border-[#d1d5db] text-right">{{ item.price | currency:'INR':'symbol':'1.0-0' }}</td>
+                        <td class="py-2 px-4 text-sm text-[#111827] border border-[#d1d5db] text-right">{{ (item.quantity * item.price) | currency:'INR':'symbol':'1.0-0' }}</td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="mt-8 flex justify-end">
+                <table class="w-64 border-collapse border border-[#d1d5db]">
+                  <tbody>
+                    <tr>
+                      <td class="py-2 px-4 text-sm font-bold text-[#111827] border border-[#d1d5db] bg-[#f9fafb]">Subtotal</td>
+                      <td class="py-2 px-4 text-sm text-[#111827] border border-[#d1d5db] text-right">{{ subtotal() | currency:'INR':'symbol':'1.0-0' }}</td>
+                    </tr>
+                    <tr>
+                      <td class="py-2 px-4 text-sm font-bold text-[#111827] border border-[#d1d5db] bg-[#f9fafb]">Tax</td>
+                      <td class="py-2 px-4 text-sm text-[#111827] border border-[#d1d5db] text-right">{{ taxTotal() | currency:'INR':'symbol':'1.0-0' }}</td>
+                    </tr>
+                    <tr>
+                      <td class="py-2 px-4 text-lg font-bold text-[#111827] border border-[#d1d5db] bg-[#f3f4f6]">Total Due</td>
+                      <td class="py-2 px-4 text-lg font-bold text-[#111827] border border-[#d1d5db] text-right bg-[#f3f4f6]">{{ total() | currency:'INR':'symbol':'1.0-0' }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          }
+
+          <!-- Bold Theme -->
+          @if (selectedTheme() === 'bold') {
+            <div class="p-0 flex flex-col min-h-[1000px]">
+              <div class="bg-[#111827] text-[#ffffff] p-12">
+                <div class="flex justify-between items-center">
+                  <h2 class="text-3xl font-black tracking-tighter uppercase">{{ shopName() }}</h2>
+                  <h1 class="text-5xl font-black tracking-tighter text-[#374151] uppercase">Invoice</h1>
+                </div>
+                <div class="mt-8 grid grid-cols-2 gap-8">
+                  <div>
+                    <p class="text-xs font-bold text-[#6b7280] uppercase tracking-widest">From</p>
+                    <p class="text-sm mt-1">{{ shopAddress() }}</p>
+                    <p class="text-sm">{{ shopEmail() }}</p>
+                  </div>
+                  <div class="text-right">
+                    <p class="text-xs font-bold text-[#6b7280] uppercase tracking-widest">Invoice Details</p>
+                    <p class="text-sm mt-1">No: <span class="font-mono">{{ invoiceNumber() }}</span></p>
+                    <p class="text-sm">Date: <span class="font-mono">{{ currentDate | date:'shortDate' }}</span></p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="p-12 flex-1">
+                <div class="bg-[#f3f4f6] p-6 border-l-4 border-[#111827]">
+                  <p class="text-xs font-bold text-[#6b7280] uppercase tracking-widest">Billed To</p>
+                  <h3 class="text-xl font-black text-[#111827] mt-2 uppercase">{{ customerName() || 'Customer Name' }}</h3>
+                  <p class="text-sm text-[#374151] mt-1">{{ customerAddress() || 'Customer Address' }}</p>
+                  <p class="text-sm text-[#374151]">{{ customerEmail() || 'customer@example.com' }}</p>
+                </div>
+
+                <div class="mt-12">
+                  <table class="w-full text-left">
+                    <thead>
+                      <tr class="bg-[#111827] text-[#ffffff]">
+                        <th class="py-3 px-4 text-xs font-bold uppercase tracking-widest">Description</th>
+                        <th class="py-3 px-4 text-xs font-bold uppercase tracking-widest text-center">Qty</th>
+                        <th class="py-3 px-4 text-xs font-bold uppercase tracking-widest text-right">Price</th>
+                        <th class="py-3 px-4 text-xs font-bold uppercase tracking-widest text-right">Total</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (item of items(); track item.id; let even = $even) {
+                        <tr [class.bg-[#f9fafb]]="even">
+                          <td class="py-4 px-4 text-sm font-medium text-[#111827]">{{ item.name || 'Item Description' }}</td>
+                          <td class="py-4 px-4 text-sm text-[#374151] text-center">{{ item.quantity }}</td>
+                          <td class="py-4 px-4 text-sm text-[#374151] text-right">{{ item.price | currency:'INR':'symbol':'1.0-0' }}</td>
+                          <td class="py-4 px-4 text-sm font-bold text-[#111827] text-right">{{ (item.quantity * item.price) | currency:'INR':'symbol':'1.0-0' }}</td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+
+                <div class="mt-12 flex justify-end">
+                  <div class="w-72">
+                    <div class="flex justify-between py-2 border-b border-[#e5e7eb]">
+                      <span class="text-sm font-bold text-[#6b7280] uppercase tracking-widest">Subtotal</span>
+                      <span class="text-sm font-medium text-[#111827]">{{ subtotal() | currency:'INR':'symbol':'1.0-0' }}</span>
+                    </div>
+                    <div class="flex justify-between py-2 border-b border-[#e5e7eb]">
+                      <span class="text-sm font-bold text-[#6b7280] uppercase tracking-widest">Tax</span>
+                      <span class="text-sm font-medium text-[#111827]">{{ taxTotal() | currency:'INR':'symbol':'1.0-0' }}</span>
+                    </div>
+                    <div class="flex justify-between py-4 mt-2 bg-[#111827] text-[#ffffff] px-4">
+                      <span class="text-lg font-black uppercase tracking-widest">Total</span>
+                      <span class="text-lg font-black">{{ total() | currency:'INR':'symbol':'1.0-0' }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,112 @@
+<div class="h-screen flex flex-col bg-slate-50 overflow-hidden">
+  <!-- Demo Header -->
+  <header class="h-16 glass border-b border-slate-200 flex items-center justify-between px-6 z-10">
+    <div class="flex items-center gap-4">
+      <button routerLink="/" class="text-slate-400 hover:text-primary transition-colors">
+        <mat-icon>home</mat-icon>
+      </button>
+      <div class="h-6 w-px bg-slate-200"></div>
+      <div class="text-slate-900">
+        <h1 class="font-bold leading-none capitalize">{{ demoType() }} Demo</h1>
+        <span class="text-[10px] text-slate-400 uppercase tracking-widest">Interactive Preview</span>
+      </div>
+    </div>
+
+    <nav class="hidden md:flex items-center gap-6">
+      @for (demo of availableDemos; track demo.type) {
+        <a 
+          [routerLink]="['/demo', demo.type]"
+          [class.text-primary]="demoType() === demo.type"
+          [class.font-bold]="demoType() === demo.type"
+          class="text-sm text-slate-600 hover:text-primary transition-all"
+        >
+          {{ demo.label }}
+        </a>
+      }
+    </nav>
+
+    <div class="flex items-center gap-4">
+      <button routerLink="/themes" class="btn-primary !py-2 !px-4 !text-xs">Use This Theme</button>
+    </div>
+  </header>
+
+  <!-- Demo Content -->
+  <div class="flex-1 flex overflow-hidden">
+    <!-- Sidebar Navigation (Simulated) -->
+    <aside class="w-64 bg-white border-r border-slate-200 hidden lg:flex flex-col p-6">
+      <div class="mb-8">
+        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">Navigation</div>
+        <ul class="space-y-2">
+          @for (item of navItems; track item) {
+            <li>
+              <a href="javascript:void(0)" class="flex items-center gap-3 p-2 rounded-lg text-sm text-slate-600 hover:bg-slate-50 hover:text-primary transition-all">
+                <mat-icon class="!text-sm">chevron_right</mat-icon>
+                {{ item }}
+              </a>
+            </li>
+          }
+        </ul>
+      </div>
+      <div class="mt-auto p-4 bg-slate-50 rounded-xl">
+        <p class="text-[10px] text-slate-500 leading-relaxed">
+          This is a live interactive demo. All features like forms, buttons, and navigation are functional.
+        </p>
+      </div>
+    </aside>
+
+    <!-- Main Preview Area -->
+    <main class="flex-1 bg-slate-100 p-4 md:p-8 overflow-auto">
+      <div class="max-w-5xl mx-auto bg-white rounded-2xl shadow-2xl shadow-slate-200 min-h-full overflow-hidden border border-slate-200">
+        <!-- Simulated Browser UI -->
+        <div class="h-10 bg-slate-50 border-b border-slate-200 flex items-center px-4 gap-4">
+          <div class="flex gap-1.5">
+            <div class="w-3 h-3 rounded-full bg-slate-200"></div>
+            <div class="w-3 h-3 rounded-full bg-slate-200"></div>
+            <div class="w-3 h-3 rounded-full bg-slate-200"></div>
+          </div>
+          <div class="flex-1 bg-white border border-slate-200 rounded-md h-6 px-3 flex items-center text-[10px] text-slate-400">
+            https://demo.ajrdigitalhub.com/{{ demoType() }}
+          </div>
+        </div>
+
+        <!-- Demo Content (Placeholder for real demo) -->
+        <div class="p-12">
+          <div class="max-w-2xl mx-auto text-center py-20">
+            <div class="w-20 h-20 bg-primary/10 text-primary rounded-3xl flex items-center justify-center mx-auto mb-8">
+              <mat-icon class="!text-4xl">{{ getIcon() }}</mat-icon>
+            </div>
+            <h2 class="text-4xl font-display font-bold text-slate-900 mb-6">Welcome to the {{ demoType() }} Demo</h2>
+            <p class="text-slate-600 mb-10 leading-relaxed">
+              Experience how your future website will look and feel. This template is fully customizable to match your brand identity.
+            </p>
+            <div class="grid grid-cols-2 gap-4 mb-12">
+              <div class="p-6 bg-slate-50 rounded-2xl text-left border border-slate-100">
+                <mat-icon class="text-primary mb-2">speed</mat-icon>
+                <h4 class="font-bold text-slate-900 text-sm">Ultra Fast</h4>
+                <p class="text-xs text-slate-500">Optimized for Core Web Vitals.</p>
+              </div>
+              <div class="p-6 bg-slate-50 rounded-2xl text-left border border-slate-100">
+                <mat-icon class="text-primary mb-2">devices</mat-icon>
+                <h4 class="font-bold text-slate-900 text-sm">Responsive</h4>
+                <p class="text-xs text-slate-500">Looks great on all screen sizes.</p>
+              </div>
+            </div>
+            <button class="btn-primary">Explore More Features</button>
+          </div>
+
+          <!-- Sample Content Grid -->
+          <div class="grid md:grid-cols-3 gap-8 mt-20">
+            @for (i of [1,2,3]; track i) {
+              <div class="space-y-4">
+                <div class="aspect-video bg-slate-100 rounded-xl"></div>
+                <div class="h-4 w-2/3 bg-slate-100 rounded"></div>
+                <div class="h-3 w-full bg-slate-50 rounded"></div>
+                <div class="h-3 w-5/6 bg-slate-50 rounded"></div>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
