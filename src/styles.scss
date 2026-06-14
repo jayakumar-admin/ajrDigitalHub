@@ -1,0 +1,187 @@
+@import "tailwindcss";
+
+:root {
+  --primary: #6366f1;
+  --secondary: #22d3ee;
+  --background: #0b0f14;
+  --card-bg: rgba(255, 255, 255, 0.04);
+  --text-primary: #ffffff;
+  --text-muted: #9ca3af;
+  --border-color: rgba(255, 255, 255, 0.08);
+  --glow-color: rgba(99, 102, 241, 0.25);
+}
+
+.light {
+  --primary: #4f46e5;
+  --secondary: #7c3aed;
+  --background: #f8fafc;
+  --card-bg: #ffffff;
+  --text-primary: #0f172a;
+  --text-muted: #64748b;
+  --border-color: rgba(15, 23, 42, 0.08);
+  --glow-color: rgba(79, 70, 229, 0.15);
+}
+
+.neon {
+  --primary: #39ff14;
+  --secondary: #ff007f;
+  --background: #040408;
+  --card-bg: rgba(57, 255, 20, 0.02);
+  --text-primary: #39ff14;
+  --text-muted: #39ff14;
+  --border-color: rgba(57, 255, 20, 0.2);
+  --glow-color: rgba(57, 255, 20, 0.55);
+}
+
+@theme {
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --color-app-bg: var(--background);
+  --color-app-card: var(--card-bg);
+  --color-app-text: var(--text-primary);
+  --color-app-muted: var(--text-muted);
+  --color-app-border: var(--border-color);
+  --color-app-glow: var(--glow-color);
+
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Space Grotesk", var(--font-sans);
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-float-slow: float 12s ease-in-out infinite;
+  --animate-orbit: orbit 20s linear infinite;
+  --animate-pulse-soft: pulse-soft 4s ease-in-out infinite;
+  --animate-data-stream: data-stream 2s linear infinite;
+  --animate-grid-pan: grid-pan 30s linear infinite;
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-20px) rotate(2deg); }
+  }
+  @keyframes orbit {
+    from { transform: rotate(0deg) translateX(50px) rotate(0deg); }
+    to { transform: rotate(360deg) translateX(50px) rotate(-360deg); }
+  }
+  @keyframes pulse-soft {
+    0%, 100% { opacity: 0.4; filter: blur(40px); transform: scale(1); }
+    50% { opacity: 0.8; filter: blur(60px); transform: scale(1.1); }
+  }
+  @keyframes data-stream {
+    0% { stroke-dashoffset: 100; }
+    100% { stroke-dashoffset: 0; }
+  }
+  @keyframes grid-pan {
+    0% { background-position: 0 0; }
+    100% { background-position: 50px 50px; }
+  }
+}
+
+@layer utilities {
+  .tech-grid {
+    background-size: 50px 50px;
+    background-image: 
+      linear-gradient(to right, rgba(0, 245, 255, 0.03) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(0, 245, 255, 0.03) 1px, transparent 1px);
+    animation: grid-pan 30s linear infinite;
+  }
+  
+  .neon-border {
+    position: relative;
+    z-index: 1;
+  }
+  .neon-border::after {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    background: linear-gradient(45deg, var(--primary), var(--secondary), var(--primary));
+    background-size: 200% 200%;
+    z-index: -1;
+    border-radius: inherit;
+    opacity: 0.45;
+    animation: gradient-flow 4s ease infinite;
+    filter: blur(4px);
+  }
+
+  @keyframes gradient-flow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+}
+
+@layer base {
+  body {
+    background-color: var(--background) !important;
+    color: var(--text-primary) !important;
+    transition: background-color 300ms ease, color 300ms ease, border-color 300ms ease;
+    font-family: var(--font-sans);
+    min-height: 100vh;
+  }
+
+  h1, h2, h3, h4, .font-display {
+    @apply font-display tracking-tight transition-all duration-300;
+  }
+}
+
+/* Glassmorphism */
+.glass {
+  background: var(--card-bg) !important;
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border-color) !important;
+}
+
+/* Custom Input Focus */
+input:focus, textarea:focus, select:focus {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 10px var(--glow-color) !important;
+  outline: none;
+}
+
+/* Route transitions */
+.router-container {
+  @apply relative w-full min-h-screen;
+}
+
+.router-container > * {
+  display: block;
+  animation: fade-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary);
+}
+
+/* Material Icons Integration */
+mat-icon, .material-icons {
+  font-family: 'Material Icons' !important;
+  font-weight: normal;
+  font-style: normal;
+  display: inline-block;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+  direction: ltr;
+  -webkit-font-smoothing: antialiased;
+}

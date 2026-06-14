@@ -1,0 +1,297 @@
+<div class="min-h-screen bg-app-bg overflow-hidden">
+      <!-- Announcement Banner -->
+      <div class="bg-indigo-600 text-app-text text-sm py-2 px-4 text-center font-medium flex items-center justify-center gap-2">
+        <span class="bg-app-card/20 px-2 py-0.5 rounded text-xs uppercase tracking-wider">New</span>
+        Smart Invoice Builder is now live! 
+        <a routerLink="/invoice-builder" class="underline hover:text-indigo-100 transition-colors">Try it free &rarr;</a>
+      </div>
+
+      <!-- Hero Section -->
+      <section class="relative pt-20 pb-32 lg:pt-32 lg:pb-40 overflow-hidden">
+        <!-- Background Gradients -->
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] opacity-30 pointer-events-none">
+          <div class="absolute inset-0 bg-gradient-to-r from-indigo-400 to-purple-400 blur-[100px] rounded-full mix-blend-multiply"></div>
+        </div>
+        
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div class="text-center max-w-4xl mx-auto">
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-700 text-sm font-medium mb-8 shadow-sm">
+              <mat-icon class="text-[18px] w-[18px] h-[18px] text-indigo-500">auto_awesome</mat-icon>
+              The #1 Invoicing Platform for Creators
+            </div>
+            <h1 class="text-5xl md:text-7xl font-extrabold tracking-tight text-app-text mb-8 leading-tight">
+              Create Beautiful Invoices <br class="hidden md:block" />
+              <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">In Seconds.</span>
+            </h1>
+            <p class="text-xl text-app-muted mb-10 max-w-2xl mx-auto leading-relaxed">
+              Stop wasting time on manual billing. Our smart invoice builder helps you get paid faster with professional templates, automated reminders, and seamless payments.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <a routerLink="/invoice-builder" class="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 text-base font-medium rounded-xl text-app-text bg-indigo-600 hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-600/30 hover:shadow-indigo-600/50 hover:-translate-y-1">
+                Start Building Free
+                <mat-icon class="ml-2 text-[20px] w-[20px] h-[20px]">rocket_launch</mat-icon>
+              </a>
+              <a href="#demo" class="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 text-base font-medium rounded-xl text-app-text bg-app-card border border-app-border hover:bg-app-bg hover:border-app-border transition-all shadow-sm">
+                <mat-icon class="mr-2 text-[20px] w-[20px] h-[20px] text-app-muted">play_circle</mat-icon>
+                Watch Demo
+              </a>
+            </div>
+            <p class="mt-4 text-sm text-app-muted flex items-center justify-center gap-2">
+              <mat-icon class="text-emerald-500 text-[16px] w-[16px] h-[16px]">check_circle</mat-icon> No credit card required. 14-day free trial.
+            </p>
+          </div>
+
+          <!-- Hero Image / Demo Preview -->
+          <div class="mt-20 relative max-w-5xl mx-auto" id="demo">
+            <div class="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-[2rem] blur opacity-30"></div>
+            <div class="relative bg-app-card/80 backdrop-blur-xl rounded-3xl border border-white/40 shadow-2xl overflow-hidden">
+              <div class="flex items-center px-4 py-3 bg-app-bg/50 border-b border-app-border/50">
+                <div class="flex space-x-2">
+                  <div class="w-3 h-3 rounded-full bg-rose-400"></div>
+                  <div class="w-3 h-3 rounded-full bg-amber-400"></div>
+                  <div class="w-3 h-3 rounded-full bg-emerald-400"></div>
+                </div>
+                <div class="mx-auto bg-app-card px-4 py-1 rounded-md text-xs text-app-muted shadow-sm border border-app-border">ajrdigital.hub/invoice/INV-2026-001</div>
+              </div>
+              <img src="https://picsum.photos/seed/dashboard/1200/600" alt="Invoice Builder Dashboard" class="w-full h-auto object-cover" referrerpolicy="no-referrer">
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Social Proof -->
+      <section class="py-10 border-y border-app-border bg-app-card">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <p class="text-center text-sm font-semibold text-app-muted uppercase tracking-wider mb-8">Trusted by 10,000+ freelancers and agencies</p>
+          <div class="flex flex-wrap justify-center gap-8 md:gap-16 opacity-60 grayscale">
+            <!-- Mock Logos -->
+            <div class="flex items-center gap-2 text-xl font-bold font-serif"><mat-icon>ac_unit</mat-icon> AJR Corp</div>
+            <div class="flex items-center gap-2 text-xl font-bold font-mono"><mat-icon>eco</mat-icon> Globex</div>
+            <div class="flex items-center gap-2 text-xl font-bold"><mat-icon>water_drop</mat-icon> Soylent</div>
+            <div class="flex items-center gap-2 text-xl font-bold font-sans italic"><mat-icon>bolt</mat-icon> Initech</div>
+            <div class="flex items-center gap-2 text-xl font-bold"><mat-icon>public</mat-icon> Massive Dynamic</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Features Grid -->
+      <section class="py-24 bg-app-bg relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="text-center max-w-3xl mx-auto mb-16">
+            <h2 class="text-3xl md:text-4xl font-bold text-app-text tracking-tight mb-4">Everything you need to bill like a pro</h2>
+            <p class="text-lg text-app-muted">Powerful features designed to save you time and help you get paid faster.</p>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- Feature 1 -->
+            <div class="bg-app-card rounded-2xl p-8 border border-app-border shadow-sm hover:shadow-xl transition-all duration-300 group">
+              <div class="w-14 h-14 bg-indigo-50 rounded-xl flex items-center justify-center mb-6 text-indigo-600 group-hover:scale-110 transition-transform">
+                <mat-icon>edit_document</mat-icon>
+              </div>
+              <h3 class="text-xl font-semibold text-app-text mb-3">Smart Builder</h3>
+              <p class="text-app-muted leading-relaxed">Drag-and-drop interface with real-time preview. Auto-fill products and customer details instantly.</p>
+            </div>
+
+            <!-- Feature 2 -->
+            <div class="bg-app-card rounded-2xl p-8 border border-app-border shadow-sm hover:shadow-xl transition-all duration-300 group">
+              <div class="w-14 h-14 bg-purple-50 rounded-xl flex items-center justify-center mb-6 text-purple-600 group-hover:scale-110 transition-transform">
+                <mat-icon>palette</mat-icon>
+              </div>
+              <h3 class="text-xl font-semibold text-app-text mb-3">Premium Themes</h3>
+              <p class="text-app-muted leading-relaxed">Choose from dozens of professionally designed templates. Customize colors and fonts to match your brand.</p>
+            </div>
+
+            <!-- Feature 3 -->
+            <div class="bg-app-card rounded-2xl p-8 border border-app-border shadow-sm hover:shadow-xl transition-all duration-300 group">
+              <div class="w-14 h-14 bg-emerald-50 rounded-xl flex items-center justify-center mb-6 text-emerald-600 group-hover:scale-110 transition-transform">
+                <mat-icon>payments</mat-icon>
+              </div>
+              <h3 class="text-xl font-semibold text-app-text mb-3">Fast Payments</h3>
+              <p class="text-app-muted leading-relaxed">Accept credit cards, PayPal, and bank transfers directly from your invoice. Get paid up to 3x faster.</p>
+            </div>
+
+            <!-- Feature 4 -->
+            <div class="bg-app-card rounded-2xl p-8 border border-app-border shadow-sm hover:shadow-xl transition-all duration-300 group">
+              <div class="w-14 h-14 bg-amber-50 rounded-xl flex items-center justify-center mb-6 text-amber-600 group-hover:scale-110 transition-transform">
+                <mat-icon>notifications_active</mat-icon>
+              </div>
+              <h3 class="text-xl font-semibold text-app-text mb-3">Automated Reminders</h3>
+              <p class="text-app-muted leading-relaxed">Set up automatic email and SMS reminders for overdue invoices. Never chase a payment again.</p>
+            </div>
+
+            <!-- Feature 5 -->
+            <div class="bg-app-card rounded-2xl p-8 border border-app-border shadow-sm hover:shadow-xl transition-all duration-300 group">
+              <div class="w-14 h-14 bg-rose-50 rounded-xl flex items-center justify-center mb-6 text-rose-600 group-hover:scale-110 transition-transform">
+                <mat-icon>insights</mat-icon>
+              </div>
+              <h3 class="text-xl font-semibold text-app-text mb-3">Advanced Analytics</h3>
+              <p class="text-app-muted leading-relaxed">Track revenue, outstanding balances, and client payment history with beautiful visual dashboards.</p>
+            </div>
+
+            <!-- Feature 6 -->
+            <div class="bg-app-card rounded-2xl p-8 border border-app-border shadow-sm hover:shadow-xl transition-all duration-300 group">
+              <div class="w-14 h-14 bg-cyan-50 rounded-xl flex items-center justify-center mb-6 text-cyan-600 group-hover:scale-110 transition-transform">
+                <mat-icon>share</mat-icon>
+              </div>
+              <h3 class="text-xl font-semibold text-app-text mb-3">One-Click Sharing</h3>
+              <p class="text-app-muted leading-relaxed">Share invoices instantly via email, WhatsApp, or secure link. Download as PDF with a single click.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Pricing Section -->
+      <section class="py-24 bg-app-card" id="pricing">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="text-center max-w-3xl mx-auto mb-16">
+            <h2 class="text-3xl md:text-4xl font-bold text-app-text tracking-tight mb-4">Simple, transparent pricing</h2>
+            <p class="text-lg text-app-muted">Start for free, upgrade when you need more power.</p>
+            
+            <div class="mt-8 inline-flex bg-app-bg rounded-xl p-1">
+              <button class="px-6 py-2.5 rounded-lg text-sm font-medium bg-app-card text-app-text shadow-sm">Monthly</button>
+              <button class="px-6 py-2.5 rounded-lg text-sm font-medium text-app-muted hover:text-app-text">Annually <span class="text-emerald-500 ml-1">-20%</span></button>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            <!-- Free Plan -->
+            <div class="bg-app-card rounded-3xl p-8 border border-app-border shadow-sm flex flex-col">
+              <h3 class="text-xl font-semibold text-app-text mb-2">Starter</h3>
+              <p class="text-app-muted text-sm mb-6">Perfect for freelancers just starting out.</p>
+              <div class="mb-6">
+                <span class="text-4xl font-bold text-app-text">₹0</span>
+                <span class="text-app-muted">/mo</span>
+              </div>
+              <a routerLink="/dashboard" class="w-full py-3 px-4 bg-indigo-50 text-indigo-700 font-medium rounded-xl hover:bg-indigo-100 transition-colors text-center mb-8">Get Started</a>
+              <ul class="space-y-4 flex-grow">
+                <li class="flex items-start gap-3 text-app-muted text-sm"><mat-icon class="text-emerald-500 text-[20px] w-[20px] h-[20px]">check</mat-icon> Up to 5 invoices/month</li>
+                <li class="flex items-start gap-3 text-app-muted text-sm"><mat-icon class="text-emerald-500 text-[20px] w-[20px] h-[20px]">check</mat-icon> 2 basic themes</li>
+                <li class="flex items-start gap-3 text-app-muted text-sm"><mat-icon class="text-emerald-500 text-[20px] w-[20px] h-[20px]">check</mat-icon> PDF downloads</li>
+                <li class="flex items-start gap-3 text-app-muted text-sm"><mat-icon class="text-app-text text-[20px] w-[20px] h-[20px]">close</mat-icon> Online payments</li>
+              </ul>
+            </div>
+
+            <!-- Pro Plan (Highlighted) -->
+            <div class="bg-app-bg rounded-3xl p-8 border border-indigo-500 shadow-2xl shadow-indigo-900/50 flex flex-col relative transform md:-translate-y-4">
+              <div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-gradient-to-r from-indigo-500 to-purple-500 text-app-text px-4 py-1 rounded-full text-xs font-bold uppercase tracking-wider">Most Popular</div>
+              <h3 class="text-xl font-semibold text-app-text mb-2">Professional</h3>
+              <p class="text-app-muted text-sm mb-6">For growing businesses and agencies.</p>
+              <div class="mb-6">
+                <span class="text-4xl font-bold text-app-text">₹1499</span>
+                <span class="text-app-muted">/mo</span>
+              </div>
+              <a routerLink="/dashboard" class="w-full py-3 px-4 bg-indigo-500 text-app-text font-medium rounded-xl hover:bg-indigo-600 transition-colors text-center mb-8 shadow-lg shadow-indigo-500/30">Start 14-Day Free Trial</a>
+              <ul class="space-y-4 flex-grow">
+                <li class="flex items-start gap-3 text-app-text text-sm"><mat-icon class="text-emerald-400 text-[20px] w-[20px] h-[20px]">check</mat-icon> Unlimited invoices</li>
+                <li class="flex items-start gap-3 text-app-text text-sm"><mat-icon class="text-emerald-400 text-[20px] w-[20px] h-[20px]">check</mat-icon> All premium themes</li>
+                <li class="flex items-start gap-3 text-app-text text-sm"><mat-icon class="text-emerald-400 text-[20px] w-[20px] h-[20px]">check</mat-icon> Accept online payments</li>
+                <li class="flex items-start gap-3 text-app-text text-sm"><mat-icon class="text-emerald-400 text-[20px] w-[20px] h-[20px]">check</mat-icon> Automated reminders</li>
+                <li class="flex items-start gap-3 text-app-text text-sm"><mat-icon class="text-emerald-400 text-[20px] w-[20px] h-[20px]">check</mat-icon> Remove AJR branding</li>
+              </ul>
+            </div>
+
+            <!-- Business Plan -->
+            <div class="bg-app-card rounded-3xl p-8 border border-app-border shadow-sm flex flex-col">
+              <h3 class="text-xl font-semibold text-app-text mb-2">Business</h3>
+              <p class="text-app-muted text-sm mb-6">Advanced features for large teams.</p>
+              <div class="mb-6">
+                <span class="text-4xl font-bold text-app-text">₹3999</span>
+                <span class="text-app-muted">/mo</span>
+              </div>
+              <a routerLink="/dashboard" class="w-full py-3 px-4 bg-app-card border border-app-border text-app-text font-medium rounded-xl hover:bg-app-bg transition-colors text-center mb-8">Contact Sales</a>
+              <ul class="space-y-4 flex-grow">
+                <li class="flex items-start gap-3 text-app-muted text-sm"><mat-icon class="text-emerald-500 text-[20px] w-[20px] h-[20px]">check</mat-icon> Everything in Pro</li>
+                <li class="flex items-start gap-3 text-app-muted text-sm"><mat-icon class="text-emerald-500 text-[20px] w-[20px] h-[20px]">check</mat-icon> Multiple team members</li>
+                <li class="flex items-start gap-3 text-app-muted text-sm"><mat-icon class="text-emerald-500 text-[20px] w-[20px] h-[20px]">check</mat-icon> Custom domain</li>
+                <li class="flex items-start gap-3 text-app-muted text-sm"><mat-icon class="text-emerald-500 text-[20px] w-[20px] h-[20px]">check</mat-icon> API access</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Testimonials -->
+      <section class="py-24 bg-app-bg overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
+          <div class="text-center">
+            <h2 class="text-3xl font-bold text-app-text tracking-tight">Loved by creators worldwide</h2>
+          </div>
+        </div>
+        
+        <div class="relative w-full flex overflow-x-hidden">
+          <div class="flex gap-8 px-4 animate-marquee whitespace-nowrap min-w-min" style="width: max-content;">
+            @for (t of duplicatedTestimonials(); track $index) {
+              <div class="bg-app-card p-8 rounded-2xl shadow-sm border border-app-border flex-shrink-0 w-80 md:w-96 whitespace-normal" style="display:-webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical;">
+                <div class="flex text-amber-400 mb-4">
+                  <mat-icon>star</mat-icon><mat-icon>star</mat-icon><mat-icon>star</mat-icon><mat-icon>star</mat-icon><mat-icon>star</mat-icon>
+                </div>
+                <p class="text-app-muted mb-6 italic min-h-[80px]">"{{ t.comment }}"</p>
+                <div class="flex items-center gap-4">
+                  <img [src]="t.image_url" alt="User" class="w-12 h-12 rounded-full object-cover" referrerpolicy="no-referrer">
+                  <div>
+                    <h4 class="font-semibold text-app-text">{{ t.name }}</h4>
+                    <p class="text-sm text-app-muted">Verified Customer</p>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </section>
+
+      <!-- FAQ & Contact -->
+      <section class="py-24 bg-app-card">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-16">
+            <!-- FAQ -->
+            <div>
+              <h2 class="text-3xl font-bold text-app-text mb-8">Frequently Asked Questions</h2>
+              <div class="space-y-6">
+                <div class="border-b border-app-border pb-6">
+                  <h4 class="text-lg font-semibold text-app-text mb-2">Can I cancel my subscription anytime?</h4>
+                  <p class="text-app-muted">Yes, you can cancel your subscription at any time from your account settings. You'll retain access until the end of your billing period.</p>
+                </div>
+                <div class="border-b border-app-border pb-6">
+                  <h4 class="text-lg font-semibold text-app-text mb-2">How do online payments work?</h4>
+                  <p class="text-app-muted">We integrate with Stripe and PayPal. When a client pays an invoice, the funds go directly to your connected account. We don't take any additional fees.</p>
+                </div>
+                <div class="border-b border-app-border pb-6">
+                  <h4 class="text-lg font-semibold text-app-text mb-2">Can I use my own logo and branding?</h4>
+                  <p class="text-app-muted">Absolutely. All paid plans allow you to upload your logo, set brand colors, and remove AJR branding from your invoices.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Contact Form -->
+            <div class="bg-app-bg rounded-3xl p-8 border border-app-border">
+              <h3 class="text-2xl font-bold text-app-text mb-2">Still have questions?</h3>
+              <p class="text-app-muted mb-8">Send us a message and we'll get back to you within 24 hours.</p>
+              
+              <form class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <label for="firstName" class="block text-sm font-medium text-app-text mb-1">First Name</label>
+                    <input id="firstName" type="text" class="w-full px-4 py-2.5 rounded-xl border border-app-border focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all bg-app-card" placeholder="John">
+                  </div>
+                  <div>
+                    <label for="lastName" class="block text-sm font-medium text-app-text mb-1">Last Name</label>
+                    <input id="lastName" type="text" class="w-full px-4 py-2.5 rounded-xl border border-app-border focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all bg-app-card" placeholder="Doe">
+                  </div>
+                </div>
+                <div>
+                  <label for="email" class="block text-sm font-medium text-app-text mb-1">Email Address</label>
+                  <input id="email" type="email" class="w-full px-4 py-2.5 rounded-xl border border-app-border focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all bg-app-card" placeholder="john@example.com">
+                </div>
+                <div>
+                  <label for="message" class="block text-sm font-medium text-app-text mb-1">Message</label>
+                  <textarea id="message" rows="4" class="w-full px-4 py-2.5 rounded-xl border border-app-border focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all bg-app-card resize-none" placeholder="How can we help you?"></textarea>
+                </div>
+                <button type="button" (click)="sendMessage()" class="w-full py-3 bg-indigo-600 text-app-text font-medium rounded-xl hover:bg-indigo-700 transition-colors shadow-md shadow-indigo-600/20">
+                  {{ isMessageSent() ? 'Message Sent!' : 'Send Message' }}
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>

@@ -1,0 +1,94 @@
+<div class="min-h-screen bg-app-bg pt-24 pb-16">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 border-b border-app-border pb-8">
+          <div>
+            <h1 class="text-4xl font-bold text-app-text tracking-tight mb-4">Marketplace</h1>
+            <p class="text-lg text-app-muted max-w-2xl">Discover premium website themes, templates, and digital assets to kickstart your next project.</p>
+          </div>
+          
+          <div class="mt-6 md:mt-0 flex gap-4">
+            <div class="relative">
+              <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-app-muted">search</mat-icon>
+              <input type="text" placeholder="Search assets..." class="pl-10 pr-4 py-2 border border-app-border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all bg-app-card shadow-sm w-full md:w-64">
+            </div>
+            <button class="flex items-center gap-2 px-4 py-2 bg-app-card border border-app-border rounded-lg text-app-text hover:bg-app-bg transition-colors shadow-sm">
+              <mat-icon>filter_list</mat-icon>
+              Filter
+            </button>
+          </div>
+        </div>
+
+        <!-- Categories -->
+        <div class="flex gap-4 overflow-x-auto pb-6 mb-8 scrollbar-hide">
+          @for (category of categories(); track category) {
+            <button 
+              (click)="activeCategory.set(category)"
+              [class.bg-indigo-600]="activeCategory() === category"
+              [class.text-app-text]="activeCategory() === category"
+              [class.bg-app-card]="activeCategory() !== category"
+              [class.text-app-text]="activeCategory() !== category"
+              class="px-6 py-2 rounded-full border border-app-border whitespace-nowrap font-medium transition-colors shadow-sm hover:border-indigo-300">
+              {{ category }}
+            </button>
+          }
+        </div>
+
+        <!-- Products Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+          @for (product of filteredProducts(); track product.id) {
+            <div class="bg-app-card rounded-2xl overflow-hidden border border-app-border shadow-sm hover:shadow-xl transition-all duration-300 group flex flex-col h-full">
+              <!-- Image -->
+              <div class="relative aspect-[4/3] overflow-hidden bg-app-bg">
+                <img [src]="product.imageUrl" [alt]="product.title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" referrerpolicy="no-referrer">
+                <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-4">
+                  <button class="w-12 h-12 bg-app-card rounded-full flex items-center justify-center text-app-text hover:bg-indigo-50 hover:text-indigo-600 transition-colors shadow-lg">
+                    <mat-icon>visibility</mat-icon>
+                  </button>
+                  <button class="w-12 h-12 bg-indigo-600 rounded-full flex items-center justify-center text-app-text hover:bg-indigo-700 transition-colors shadow-lg">
+                    <mat-icon>shopping_cart</mat-icon>
+                  </button>
+                </div>
+                <div class="absolute top-3 right-3 bg-app-card/90 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-semibold text-app-text shadow-sm">
+                  {{ product.category }}
+                </div>
+              </div>
+              
+              <!-- Content -->
+              <div class="p-5 flex flex-col flex-grow">
+                <h3 class="text-lg font-semibold text-app-text mb-1 line-clamp-1">{{ product.title }}</h3>
+                <p class="text-sm text-app-muted mb-4">by <span class="text-indigo-600 hover:underline cursor-pointer">{{ product.author }}</span></p>
+                
+                <div class="mt-auto">
+                  <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-1">
+                      <mat-icon class="text-amber-400 text-sm w-4 h-4">star</mat-icon>
+                      <span class="text-sm font-medium text-app-text">{{ product.rating }}</span>
+                      <span class="text-xs text-app-muted ml-1">({{ product.sales }})</span>
+                    </div>
+                    <div class="text-lg font-bold text-app-text">₹{{ product.price }}</div>
+                  </div>
+                  
+                  <button (click)="addToCart(product)" class="w-full py-2.5 border border-app-border rounded-xl text-app-text font-medium hover:bg-app-bg hover:border-app-border transition-colors flex items-center justify-center gap-2">
+                    <mat-icon class="text-sm">add_shopping_cart</mat-icon>
+                    {{ product.addedToCart ? 'Added!' : 'Add to Cart' }}
+                  </button>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+        
+        <!-- Empty State -->
+        @if (filteredProducts().length === 0) {
+          <div class="text-center py-20">
+            <div class="w-20 h-20 bg-app-bg rounded-full flex items-center justify-center mx-auto mb-6 text-app-muted">
+              <mat-icon class="text-4xl">search_off</mat-icon>
+            </div>
+            <h3 class="text-xl font-semibold text-app-text mb-2">No assets found</h3>
+            <p class="text-app-muted">Try adjusting your filters or search query.</p>
+          </div>
+        }
+      </div>
+    </div>

@@ -1,80 +1,53 @@
-import { Routes, Router } from '@angular/router';
-import { inject } from '@angular/core';
-import { AuthService } from './auth.service';
+import {Routes} from '@angular/router';
 
 export const routes: Routes = [
   {
     path: '',
-    loadComponent: () => import('./home/home').then(m => m.Home)
+    loadComponent: () => import('./pages/home/home').then(m => m.HomeComponent)
+  },
+  {
+    path: 'marketplace',
+    loadComponent: () => import('./pages/marketplace/marketplace').then(m => m.MarketplaceComponent)
+  },
+  {
+    path: 'seller',
+    loadComponent: () => import('./pages/seller/seller').then(m => m.SellerPortalComponent)
+  },
+  {
+    path: 'services',
+    loadComponent: () => import('./pages/services/services').then(m => m.ServicesComponent)
+  },
+  {
+    path: 'invoice-builder',
+    loadComponent: () => import('./pages/invoice-builder').then(m => m.InvoiceBuilderComponent)
   },
   {
     path: 'themes',
-    loadComponent: () => import('./themes/themes').then(m => m.Themes)
+    loadComponent: () => import('./pages/themes/themes').then(m => m.ThemesComponent)
   },
   {
-    path: 'preview/:id',
-    loadComponent: () => import('./preview/preview').then(m => m.Preview)
+    path: 'admin-login',
+    loadComponent: () => import('./pages/admin-login/admin-login').then(m => m.AdminLoginComponent)
   },
   {
-    path: 'cart',
-    loadComponent: () => import('./cart/cart').then(m => m.Cart)
+    path: 'admin/apps/:appId',
+    loadComponent: () => import('./pages/admin/project-detail/project-detail').then(m => m.ProjectDetailComponent)
   },
   {
-    path: 'demo/:type',
-    loadComponent: () => import('./demo-explorer/demo-explorer').then(m => m.DemoExplorer)
+    path: 'admin/system-core',
+    loadComponent: () => import('./pages/admin/system-core/system-core.component').then(m => m.SystemCoreComponent)
   },
   {
-    path: 'ai-generator',
-    loadComponent: () => import('./ai-generator/ai-generator').then(m => m.AiGenerator)
+    path: 'admin/marketplace-config',
+    loadComponent: () => import('./pages/admin/marketplace-config/marketplace-config.component').then(m => m.MarketplaceConfigComponent)
   },
   {
-    path: 'login',
-    loadComponent: () => import('./login/login').then(m => m.Login)
+    path: 'marketplace/preview/:id',
+    loadComponent: () => import('./pages/marketplace-preview/marketplace-preview.component').then(m => m.MarketplacePreviewComponent)
   },
   {
     path: 'admin',
-    loadComponent: () => import('./admin/admin').then(m => m.Admin),
-    canActivate: [() => {
-      const auth = inject(AuthService);
-      const router = inject(Router);
-      if (auth.isAdmin()) return true;
-      router.navigate(['/login']);
-      return false;
-    }]
-  },
-  {
-    path: 'my-orders',
-    loadComponent: () => import('./my-orders/my-orders').then(m => m.MyOrders),
-    canActivate: [() => {
-      const auth = inject(AuthService);
-      const router = inject(Router);
-      if (auth.user()) return true;
-      router.navigate(['/login']);
-      return false;
-    }]
-  },
-  {
-    path: 'invoice-saas',
-    loadComponent: () => import('./invoice-landing/invoice-landing').then(m => m.InvoiceLandingComponent)
-  },
-  {
-    path: 'shop-dashboard',
-    loadComponent: () => import('./shop-dashboard/shop-dashboard').then(m => m.ShopDashboardComponent),
-    canActivate: [() => {
-      const auth = inject(AuthService);
-      const router = inject(Router);
-      if (auth.user()) return true;
-      router.navigate(['/login']);
-      return false;
-    }],
-    children: [
-      { path: '', loadComponent: () => import('./shop-dashboard/shop-overview').then(m => m.ShopOverviewComponent) },
-      { path: 'invoices', loadComponent: () => import('./shop-dashboard/shop-invoices').then(m => m.ShopInvoicesComponent) },
-      { path: 'invoices/new', loadComponent: () => import('./shop-dashboard/invoice-generator').then(m => m.InvoiceGeneratorComponent) },
-      { path: 'products', loadComponent: () => import('./shop-dashboard/shop-products').then(m => m.ShopProductsComponent) },
-      { path: 'customers', loadComponent: () => import('./shop-dashboard/shop-customers').then(m => m.ShopCustomersComponent) },
-      { path: 'settings', loadComponent: () => import('./shop-dashboard/shop-settings').then(m => m.ShopSettingsComponent) }
-    ]
+    loadComponent: () => import('./pages/admin/admin').then(m => m.AdminComponent)
   },
   {
     path: '**',

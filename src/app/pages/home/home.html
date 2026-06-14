@@ -1,0 +1,365 @@
+<div class="min-h-screen overflow-hidden relative">
+  <ajr-tech-background></ajr-tech-background>
+
+  <!-- Announcement Banner -->
+      <div class="bg-indigo-600 text-app-text text-sm py-2 px-4 text-center font-medium flex items-center justify-center gap-2">
+        <span class="bg-app-card/20 px-2 py-0.5 rounded text-xs uppercase tracking-wider">New</span>
+        Smart Invoice Builder is now live! 
+        <a routerLink="/invoice-builder" class="underline hover:text-indigo-100 transition-colors">Try it free &rarr;</a>
+      </div>
+
+        <!-- Hero Section -->
+        <section class="relative pt-20 pb-20 lg:pt-32 lg:pb-32 overflow-hidden border-b border-white/5">
+          <ajr-data-flow class="absolute top-0 left-0 w-full h-full"></ajr-data-flow>
+          
+          <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <ajr-parallax-container>
+              <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
+                <div class="lg:col-span-7">
+                  @if (landingConfig()) {
+                    <h1 class="text-4xl md:text-5xl lg:text-7xl font-bold tracking-tighter text-app-text mb-8 leading-[1.1]">
+                      {{ landingConfig()!.heroText }}
+                    </h1>
+                    
+                    <div class="mb-16 flex flex-wrap gap-4 items-center">
+                      <ajr-glow-button [routerLink]="landingConfig()!.buttonLink">
+                        {{ landingConfig()!.buttonText }}
+                        <mat-icon class="text-sm">arrow_forward</mat-icon>
+                      </ajr-glow-button>
+                      <button routerLink="/marketplace" class="bg-app-card/5 backdrop-blur-xl border border-white/10 text-app-text font-black px-8 py-3 rounded-2xl hover:bg-app-card/10 transition-all uppercase tracking-widest text-xs">
+                        Explore Assets
+                      </button>
+                    </div>
+
+                    <div class="flex flex-wrap gap-12 md:gap-20 items-start">
+                      @for (stat of landingConfig()!.stats; track $index) {
+                        <div class="scale-110">
+                          <ajr-kpi-counter 
+                            class="text-app-text brightness-125"
+                            [value]="stat.value.includes('+') ? +stat.value.replace('+', '') : +stat.value" 
+                            [label]="stat.label"
+                            [suffix]="stat.value.includes('+') ? '+' : ''"
+                          ></ajr-kpi-counter>
+                        </div>
+                      }
+                    </div>
+                  } @else {
+                  <!-- Fallback Skeleton -->
+                  <div class="space-y-8 max-w-2xl">
+                    <ajr-skeleton className="h-20 w-full rounded-2xl"></ajr-skeleton>
+                    <ajr-skeleton className="h-20 w-3/4 rounded-2xl"></ajr-skeleton>
+                    <div class="flex gap-4 pt-4">
+                      <ajr-skeleton className="h-14 w-48 rounded-xl"></ajr-skeleton>
+                      <ajr-skeleton className="h-14 w-48 rounded-xl"></ajr-skeleton>
+                    </div>
+                    <div class="flex gap-16 pt-12">
+                      <ajr-skeleton className="h-20 w-24 rounded-lg"></ajr-skeleton>
+                      <ajr-skeleton className="h-20 w-24 rounded-lg"></ajr-skeleton>
+                      <ajr-skeleton className="h-20 w-24 rounded-lg"></ajr-skeleton>
+                    </div>
+                  </div>
+                }
+              </div>
+
+                <!-- Action Card / Countdown -->
+                <div class="lg:col-span-5">
+                  <ajr-floating-card>
+                    <div class="relative z-10 text-center">
+                      <span class="inline-block px-3 py-1 bg-indigo-500/20 text-indigo-300 text-[10px] font-bold uppercase tracking-widest rounded-full mb-6 border border-indigo-500/30">
+                        Launch Anniversary Offer
+                      </span>
+                      <h3 class="text-2xl font-bold text-app-text mb-8 tracking-tight uppercase">60% OFF Professional Plan</h3>
+                      
+                      <ajr-countdown-timer [endTime]="offerEndTime()" class="brightness-125"></ajr-countdown-timer>
+
+                      <p class="mt-8 text-sm text-indigo-200/60 font-medium leading-relaxed">
+                        Upgrade now to unlock all premium features, remove branding, and get priority support in our edge cluster.
+                      </p>
+
+                      <ajr-glow-button routerLink="/pricing" class="mt-10 block w-full">
+                        Claim Your Discount
+                      </ajr-glow-button>
+                    </div>
+                  </ajr-floating-card>
+                </div>
+              </div>
+            </ajr-parallax-container>
+          </div>
+        </section>
+
+      <!-- Social Proof -->
+      <section class="py-10 border-y border-app-border bg-app-card">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <p class="text-center text-sm font-semibold text-app-muted uppercase tracking-wider mb-8">Trusted by 10,000+ freelancers and agencies</p>
+          <div class="flex flex-wrap justify-center gap-8 md:gap-16 opacity-60 grayscale">
+            <!-- Mock Logos -->
+            <div class="flex items-center gap-2 text-xl font-bold font-serif"><mat-icon>ac_unit</mat-icon> AJR Corp</div>
+            <div class="flex items-center gap-2 text-xl font-bold font-mono"><mat-icon>eco</mat-icon> Globex</div>
+            <div class="flex items-center gap-2 text-xl font-bold"><mat-icon>water_drop</mat-icon> Soylent</div>
+            <div class="flex items-center gap-2 text-xl font-bold font-sans italic"><mat-icon>bolt</mat-icon> Initech</div>
+            <div class="flex items-center gap-2 text-xl font-bold"><mat-icon>public</mat-icon> Massive Dynamic</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Features Grid -->
+      <section class="py-24 bg-app-bg relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="text-center max-w-3xl mx-auto mb-16">
+            <h2 class="text-3xl md:text-4xl font-bold text-app-text tracking-tight mb-4">Everything you need to bill like a pro</h2>
+            <p class="text-lg text-app-muted">Powerful features designed to save you time and help you get paid faster.</p>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- Feature 1 -->
+            <ajr-floating-card>
+              <div class="w-14 h-14 bg-indigo-500/20 rounded-2xl flex items-center justify-center mb-6 text-indigo-400 border border-indigo-500/20 shadow-lg">
+                <mat-icon>edit_document</mat-icon>
+              </div>
+              <h3 class="text-xl font-bold text-app-text mb-3 tracking-tight uppercase">Smart Builder</h3>
+              <p class="text-indigo-200/60 leading-relaxed text-sm font-medium">Drag-and-drop interface with real-time preview. Auto-fill products and customer details instantly.</p>
+            </ajr-floating-card>
+
+            <!-- Feature 2 -->
+            <ajr-floating-card style="animation-delay: 0.1s">
+              <div class="w-14 h-14 bg-purple-500/20 rounded-2xl flex items-center justify-center mb-6 text-purple-400 border border-purple-500/20 shadow-lg">
+                <mat-icon>palette</mat-icon>
+              </div>
+              <h3 class="text-xl font-bold text-app-text mb-3 tracking-tight uppercase">Premium Themes</h3>
+              <p class="text-indigo-200/60 leading-relaxed text-sm font-medium">Choose from dozens of professionally designed templates. Customize colors and fonts to match your brand.</p>
+            </ajr-floating-card>
+
+            <!-- Feature 3 -->
+            <ajr-floating-card style="animation-delay: 0.2s">
+              <div class="w-14 h-14 bg-emerald-500/20 rounded-2xl flex items-center justify-center mb-6 text-emerald-400 border border-emerald-500/20 shadow-lg">
+                <mat-icon>payments</mat-icon>
+              </div>
+              <h3 class="text-xl font-bold text-app-text mb-3 tracking-tight uppercase">Fast Payments</h3>
+              <p class="text-indigo-200/60 leading-relaxed text-sm font-medium">Accept credit cards, PayPal, and bank transfers directly from your invoice. Get paid up to 3x faster.</p>
+            </ajr-floating-card>
+
+            <!-- Feature 4 -->
+            <ajr-animated-card>
+              <div class="w-14 h-14 bg-amber-50 rounded-2xl flex items-center justify-center mb-6 text-amber-600 transition-transform">
+                <mat-icon>notifications_active</mat-icon>
+              </div>
+              <h3 class="text-xl font-bold text-app-text mb-3 tracking-tight">Automated Reminders</h3>
+              <p class="text-app-muted leading-relaxed text-sm">Set up automatic email and SMS reminders for overdue invoices. Never chase a payment again.</p>
+            </ajr-animated-card>
+
+            <!-- Feature 5 -->
+            <ajr-animated-card>
+              <div class="w-14 h-14 bg-rose-50 rounded-2xl flex items-center justify-center mb-6 text-rose-600 transition-transform">
+                <mat-icon>insights</mat-icon>
+              </div>
+              <h3 class="text-xl font-bold text-app-text mb-3 tracking-tight">Advanced Analytics</h3>
+              <p class="text-app-muted leading-relaxed text-sm">Track revenue, outstanding balances, and client payment history with beautiful visual dashboards.</p>
+            </ajr-animated-card>
+
+            <!-- Feature 6 -->
+            <ajr-animated-card>
+              <div class="w-14 h-14 bg-cyan-50 rounded-2xl flex items-center justify-center mb-6 text-cyan-600 transition-transform">
+                <mat-icon>share</mat-icon>
+              </div>
+              <h3 class="text-xl font-bold text-app-text mb-3 tracking-tight">One-Click Sharing</h3>
+              <p class="text-app-muted leading-relaxed text-sm">Share invoices instantly via email, WhatsApp, or secure link. Download as PDF with a single click.</p>
+            </ajr-animated-card>
+          </div>
+        </div>
+      </section>
+
+      <!-- Pricing Section -->
+      <section class="py-24 bg-app-card" id="pricing">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="text-center max-w-3xl mx-auto mb-16">
+            <h2 class="text-3xl md:text-4xl font-bold text-app-text tracking-tight mb-4">Simple, transparent pricing</h2>
+            <p class="text-lg text-app-muted">Start for free, upgrade when you need more power.</p>
+            
+            <div class="mt-8 inline-flex bg-app-bg rounded-xl p-1 border border-app-border">
+              <button class="px-6 py-2.5 rounded-lg text-sm font-medium bg-app-card text-app-text shadow-sm">Monthly</button>
+              <button class="px-6 py-2.5 rounded-lg text-sm font-medium text-app-muted hover:text-app-text">Annually <span class="text-emerald-500 ml-1">-20%</span></button>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            <!-- Free Plan -->
+            <div class="bg-app-card rounded-3xl p-8 border border-app-border shadow-sm flex flex-col">
+              <h3 class="text-xl font-semibold text-app-text mb-2">Starter</h3>
+              <p class="text-app-muted text-sm mb-6">Perfect for freelancers just starting out.</p>
+              <div class="mb-6">
+                <span class="text-4xl font-bold text-app-text">₹0</span>
+                <span class="text-app-muted">/mo</span>
+              </div>
+              <a routerLink="/dashboard" class="w-full py-3 px-4 bg-indigo-50 text-indigo-700 font-medium rounded-xl hover:bg-indigo-100 transition-colors text-center mb-8">Get Started</a>
+              <ul class="space-y-4 flex-grow">
+                <li class="flex items-start gap-3 text-app-muted text-sm"><mat-icon class="text-emerald-500 text-[20px] w-[20px] h-[20px]">check</mat-icon> Up to 5 invoices/month</li>
+                <li class="flex items-start gap-3 text-app-muted text-sm"><mat-icon class="text-emerald-500 text-[20px] w-[20px] h-[20px]">check</mat-icon> 2 basic themes</li>
+                <li class="flex items-start gap-3 text-app-muted text-sm"><mat-icon class="text-emerald-500 text-[20px] w-[20px] h-[20px]">check</mat-icon> PDF downloads</li>
+                <li class="flex items-start gap-3 text-app-muted text-sm"><mat-icon class="text-app-text text-[20px] w-[20px] h-[20px]">close</mat-icon> Online payments</li>
+              </ul>
+            </div>
+
+            <!-- Pro Plan (Highlighted) -->
+            <div class="bg-app-bg rounded-3xl p-8 border border-indigo-500 shadow-2xl shadow-indigo-900/50 flex flex-col relative transform md:-translate-y-4">
+              <div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-gradient-to-r from-indigo-500 to-purple-500 text-app-text px-4 py-1 rounded-full text-xs font-bold uppercase tracking-wider">Most Popular</div>
+              <h3 class="text-xl font-semibold text-app-text mb-2">Professional</h3>
+              <p class="text-app-muted text-sm mb-6">For growing businesses and agencies.</p>
+              <div class="mb-6">
+                <span class="text-4xl font-bold text-app-text">₹1499</span>
+                <span class="text-app-muted">/mo</span>
+              </div>
+              <a routerLink="/dashboard" class="w-full py-3 px-4 bg-indigo-500 text-app-text font-medium rounded-xl hover:bg-indigo-600 transition-colors text-center mb-8 shadow-lg shadow-indigo-500/30">Start 14-Day Free Trial</a>
+              <ul class="space-y-4 flex-grow">
+                <li class="flex items-start gap-3 text-app-text text-sm"><mat-icon class="text-emerald-400 text-[20px] w-[20px] h-[20px]">check</mat-icon> Unlimited invoices</li>
+                <li class="flex items-start gap-3 text-app-text text-sm"><mat-icon class="text-emerald-400 text-[20px] w-[20px] h-[20px]">check</mat-icon> All premium themes</li>
+                <li class="flex items-start gap-3 text-app-text text-sm"><mat-icon class="text-emerald-400 text-[20px] w-[20px] h-[20px]">check</mat-icon> Accept online payments</li>
+                <li class="flex items-start gap-3 text-app-text text-sm"><mat-icon class="text-emerald-400 text-[20px] w-[20px] h-[20px]">check</mat-icon> Automated reminders</li>
+                <li class="flex items-start gap-3 text-app-text text-sm"><mat-icon class="text-emerald-400 text-[20px] w-[20px] h-[20px]">check</mat-icon> Remove AJR branding</li>
+              </ul>
+            </div>
+
+            <!-- Business Plan -->
+            <div class="bg-app-card rounded-3xl p-8 border border-app-border shadow-sm flex flex-col">
+              <h3 class="text-xl font-semibold text-app-text mb-2">Business</h3>
+              <p class="text-app-muted text-sm mb-6">Advanced features for large teams.</p>
+              <div class="mb-6">
+                <span class="text-4xl font-bold text-app-text">₹3999</span>
+                <span class="text-app-muted">/mo</span>
+              </div>
+              <a routerLink="/dashboard" class="w-full py-3 px-4 bg-app-bg border border-app-border text-app-text font-medium rounded-xl hover:bg-app-bg/50 transition-colors text-center mb-8">Contact Sales</a>
+              <ul class="space-y-4 flex-grow">
+                <li class="flex items-start gap-3 text-app-text text-sm"><mat-icon class="text-emerald-500 text-[20px] w-[20px] h-[20px]">check</mat-icon> Everything in Pro</li>
+                <li class="flex items-start gap-3 text-app-text text-sm"><mat-icon class="text-emerald-500 text-[20px] w-[20px] h-[20px]">check</mat-icon> Multiple team members</li>
+                <li class="flex items-start gap-3 text-app-text text-sm"><mat-icon class="text-emerald-500 text-[20px] w-[20px] h-[20px]">check</mat-icon> Custom domain</li>
+                <li class="flex items-start gap-3 text-app-text text-sm"><mat-icon class="text-emerald-500 text-[20px] w-[20px] h-[20px]">check</mat-icon> API access</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Testimonials -->
+      <section class="py-24 bg-app-bg overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
+          <div class="text-center">
+            <h2 class="text-3xl font-bold text-app-text tracking-tight">Loved by creators worldwide</h2>
+          </div>
+        </div>
+        
+        <div class="relative w-full flex overflow-x-hidden">
+          <div class="flex gap-6 px-4 animate-marquee whitespace-nowrap min-w-min hover:pause" style="width: max-content;">
+            @for (t of duplicatedTestimonials(); track $index) {
+              <div class="bg-app-card p-6 rounded-xl shadow-[0_2px_10px_rgba(0,0,0,0.05)] border border-app-border flex-shrink-0 w-80 flex flex-col whitespace-normal justify-between min-h-[260px]">
+                <div>
+                  <div class="flex items-center gap-3 mb-3">
+                    <span class="text-xl font-medium text-app-text">{{ t.rating | number:'1.1-1' }}</span>
+                    <div class="flex text-red-500">
+                      @for (i of [1,2,3,4,5]; track $index) {
+                        <mat-icon class="text-[18px] w-[18px] h-[18px]">star</mat-icon>
+                      }
+                    </div>
+                  </div>
+                  <p class="text-app-muted mb-6 leading-relaxed">"{{ t.comment }}"</p>
+                </div>
+                <div>
+                  <h4 class="text-sm font-medium text-app-muted">{{ t.role }}</h4>
+                  <div class="flex items-center gap-1.5 mt-3 text-emerald-500 text-xs font-medium">
+                    <mat-icon class="text-[16px] w-[16px] h-[16px]">verified_user</mat-icon>
+                    Verified Review
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </section>
+
+      <!-- FAQ & Contact -->
+      <section class="py-24 bg-app-card">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-16">
+            <!-- FAQ -->
+            <div>
+              <h2 class="text-3xl font-bold text-app-text mb-8">Frequently Asked Questions</h2>
+              <div class="space-y-6">
+                <div class="border-b border-app-border pb-6">
+                  <h4 class="text-lg font-semibold text-app-text mb-2">Can I cancel my subscription anytime?</h4>
+                  <p class="text-app-muted">Yes, you can cancel your subscription at any time from your account settings. You'll retain access until the end of your billing period.</p>
+                </div>
+                <div class="border-b border-app-border pb-6">
+                  <h4 class="text-lg font-semibold text-app-text mb-2">How do online payments work?</h4>
+                  <p class="text-app-muted">We integrate with Stripe and PayPal. When a client pays an invoice, the funds go directly to your connected account. We don't take any additional fees.</p>
+                </div>
+                <div class="border-b border-app-border pb-6">
+                  <h4 class="text-lg font-semibold text-app-text mb-2">Can I use my own logo and branding?</h4>
+                  <p class="text-app-muted">Absolutely. All paid plans allow you to upload your logo, set brand colors, and remove AJR branding from your invoices.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Contact Form -->
+            <div class="bg-app-bg rounded-3xl p-8 border border-app-border">
+              <h3 class="text-2xl font-bold text-app-text mb-2">Still have questions?</h3>
+              <p class="text-app-muted mb-8">Send us a message and we'll get back to you within 24 hours.</p>
+              
+              <form class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <label for="firstName" class="block text-sm font-medium text-app-text mb-1">First Name</label>
+                    <input id="firstName" type="text" class="w-full px-4 py-2.5 rounded-xl border border-app-border focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all bg-app-bg text-app-text" placeholder="John">
+                  </div>
+                  <div>
+                    <label for="lastName" class="block text-sm font-medium text-app-text mb-1">Last Name</label>
+                    <input id="lastName" type="text" class="w-full px-4 py-2.5 rounded-xl border border-app-border focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all bg-app-bg text-app-text" placeholder="Doe">
+                  </div>
+                </div>
+                <div>
+                  <label for="email" class="block text-sm font-medium text-app-text mb-1">Email Address</label>
+                  <input id="email" type="email" class="w-full px-4 py-2.5 rounded-xl border border-app-border focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all bg-app-bg text-app-text" placeholder="john@example.com">
+                </div>
+                <div>
+                  <label for="message" class="block text-sm font-medium text-app-text mb-1">Message</label>
+                  <textarea id="message" rows="4" class="w-full px-4 py-2.5 rounded-xl border border-app-border focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all bg-app-bg text-app-text resize-none" placeholder="How can we help you?"></textarea>
+                </div>
+                <button type="button" (click)="sendMessage()" class="w-full py-3 bg-indigo-600 text-app-text font-medium rounded-xl hover:bg-indigo-700 transition-colors shadow-md shadow-indigo-600/20">
+                  {{ isMessageSent() ? 'Message Sent!' : 'Send Message' }}
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Chat Widget -->
+      <div class="fixed bottom-6 right-6 z-50 flex flex-col items-end">
+        <!-- Chat Bubble -->
+        @if (isChatOpen()) {
+          <div class="bg-app-card w-72 md:w-80 rounded-2xl shadow-2xl border border-app-border mb-4 overflow-hidden origin-bottom-right transition-all">
+            <div class="p-4 bg-app-bg border-b border-app-border flex justify-between items-center">
+              <h4 class="font-semibold text-app-text">AJR Digital Team</h4>
+              <button (click)="toggleChat()" class="text-app-muted hover:text-app-muted"><mat-icon class="text-[18px] w-[18px] h-[18px]">close</mat-icon></button>
+            </div>
+            <div class="p-4 space-y-4 max-h-60 overflow-y-auto">
+              <div class="bg-indigo-50 border border-indigo-100 text-app-text text-sm p-3 rounded-lg rounded-tl-none">
+                Looking for Web/Mobile or Ecommerce Development Services for your business?
+              </div>
+              <div class="bg-indigo-50 border border-indigo-100 text-app-text text-sm p-3 rounded-lg rounded-tl-none">
+                Ping here and we'll connect you with the right person from our Team.
+              </div>
+            </div>
+            <div class="p-3 border-t border-app-border bg-app-card">
+              <input type="text" placeholder="Type a message..." class="w-full text-sm outline-none px-2 py-1 text-app-text">
+            </div>
+          </div>
+        }
+
+        <!-- Chat Trigger Button -->
+        <button (click)="toggleChat()" class="w-14 h-14 bg-app-bg text-app-text rounded-full shadow-xl flex items-center justify-center hover:bg-app-card hover:scale-105 transition-all relative">
+          <mat-icon>{{ isChatOpen() ? 'keyboard_arrow_down' : 'chat_bubble_outline' }}</mat-icon>
+          @if (!isChatOpen()) {
+            <span class="absolute -top-1 -right-1 w-4 h-4 bg-rose-500 rounded-full text-[9px] font-bold flex items-center justify-center border-2 border-white text-app-text">1</span>
+          }
+        </button>
+      </div>
+
+    </div>

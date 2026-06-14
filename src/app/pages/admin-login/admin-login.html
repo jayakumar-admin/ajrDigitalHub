@@ -1,0 +1,41 @@
+<div class="min-h-screen bg-app-bg flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+  <div class="sm:mx-auto sm:w-full sm:max-w-md text-center">
+    <h2 class="text-3xl font-extrabold text-app-text">Admin Login</h2>
+    <p class="mt-2 text-sm text-app-muted">Enter your credentials to access the admin portal</p>
+  </div>
+
+  <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+    <div class="bg-app-card py-8 px-4 shadow sm:rounded-lg sm:px-10 border border-app-border">
+      <form class="space-y-6" (submit)="login($event)">
+        <div>
+          <label for="username" class="block text-sm font-medium text-app-text">Username</label>
+          <div class="mt-1">
+            <input id="username" name="username" type="text" required [ngModel]="username()" (ngModelChange)="username.set($event)"
+                   class="appearance-none block w-full px-3 py-2 border border-app-border bg-app-bg text-app-text rounded-md shadow-sm placeholder-app-muted focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+          </div>
+        </div>
+
+        <div>
+          <label for="password" class="block text-sm font-medium text-app-text">Password</label>
+          <div class="mt-1">
+            <input id="password" name="password" type="password" required [ngModel]="password()" (ngModelChange)="password.set($event)"
+                   class="appearance-none block w-full px-3 py-2 border border-app-border bg-app-bg text-app-text rounded-md shadow-sm placeholder-app-muted focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+          </div>
+        </div>
+
+        @if (errorMsg()) {
+          <div class="text-sm text-rose-500 bg-rose-500/10 p-2 rounded border border-rose-500/20">
+            {{ errorMsg() }}
+          </div>
+        }
+
+        <div>
+          <button type="submit" [disabled]="loading()"
+                  class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-app-text bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50">
+            {{ loading() ? 'Signing in...' : 'Sign in' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

@@ -19,7 +19,7 @@ module.exports = defineConfig([
         'error',
         {
           type: 'attribute',
-          prefix: 'app',
+          prefix: ['app', 'ajr'],
           style: 'camelCase',
         },
       ],
@@ -27,10 +27,15 @@ module.exports = defineConfig([
         'error',
         {
           type: 'element',
-          prefix: 'app',
+          prefix: ['app', 'ajr'],
           style: 'kebab-case',
         },
       ],
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-unused-vars': 'off',
+      '@typescript-eslint/array-type': 'off',
+      'prefer-const': 'off',
+      '@angular-eslint/no-output-on-prefix': 'off',
     },
   },
   {
@@ -39,6 +44,11 @@ module.exports = defineConfig([
       angular.configs.templateRecommended,
       angular.configs.templateAccessibility,
     ],
-    rules: {},
+    rules: {
+      '@angular-eslint/template/click-events-have-key-events': 'off',
+      '@angular-eslint/template/interactive-supports-focus': 'off',
+      '@angular-eslint/template/label-has-associated-control': 'off',
+      '@angular-eslint/template/prefer-control-flow': 'off',
+    },
   }
 ]);

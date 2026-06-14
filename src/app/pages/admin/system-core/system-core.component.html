@@ -1,0 +1,172 @@
+<app-system-core-layout>
+  
+  <!-- TITLE & GLOBAL STATUS INDICATOR HEADER -->
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b border-app-border pb-5">
+    <div>
+      <span class="text-[9px] font-mono font-bold text-app-muted uppercase tracking-widest block">MONITORING_DASHBOARD</span>
+      <h2 class="text-3xl font-black text-app-text uppercase tracking-wider font-mono mt-1 flex items-center gap-3">
+        SYSTEM CORE: APP MONITOR
+      </h2>
+    </div>
+
+    <!-- Uptime status display -->
+    <div class="flex items-center gap-3.5 bg-app-card border border-app-border rounded px-4 py-2.5 font-mono">
+      <div class="flex flex-col items-end">
+        <span class="text-[8px] text-app-muted font-bold tracking-widest uppercase">SYSTEM_UPTIME</span>
+        <span class="text-lg font-black text-[#00f0ff] tracking-tight drop-shadow-[0_0_8px_rgba(0,240,255,0.4)]">
+          {{ service.globalTelemetry().uptimePercent | number:'1.3-3' }}%
+        </span>
+      </div>
+      <div class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse shadow-[0_0_8px_rgba(6,182,212,0.8)]"></div>
+    </div>
+  </div>
+
+  <!-- APPLICATIONS CARDS GRID -->
+  <div class="space-y-4">
+    <h3 class="text-xs font-black text-app-muted uppercase font-mono tracking-widest">ACTIVE CLUSTERS ({{ appsTelemetry().length }})</h3>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      @for (app of appsTelemetry(); track app.appId) {
+        <app-app-monitor-card [telemetry]="app"></app-app-monitor-card>
+      }
+    </div>
+  </div>
+
+  <!-- SYSTEM TELEMETRY FEED (CHART AND LIVE GRAPH) -->
+  <app-telemetry-chart></app-telemetry-chart>
+
+  <!-- ADVANCED TELEMETRY METRIC BENCHES (REDIS / ENDPOINTS / RATE LIMITER) -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    
+    <!-- API Monitoring & Endpoints -->
+    <div class="metrics-card backdrop-blur-md p-5 shadow-[0_4px_24px_rgba(0,0,0,0.5)] font-mono border border-app-border rounded-xl">
+      <div class="flex items-center justify-between border-b border-app-border pb-3 mb-4">
+        <h4 class="text-[11px] font-black text-app-text tracking-widest uppercase">ENDPOINT TELEMETRY</h4>
+        <span class="text-[9px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20 font-bold uppercase">LIVE</span>
+      </div>
+
+      <div class="space-y-3.5 text-xs">
+        <!-- endpoint 1 -->
+        <div class="flex items-center justify-between p-2 rounded bg-app-bg border border-app-border">
+          <span class="text-cyan-400 font-bold text-[11px]">/api/checkout</span>
+          <div class="flex items-center gap-3">
+            <span class="text-app-text font-bold">12.4K <span class="text-[9px] text-app-muted">/min</span></span>
+            <span class="w-1.5 h-1.5 bg-emerald-400 rounded-full"></span>
+          </div>
+        </div>
+
+        <!-- endpoint 2 -->
+        <div class="flex items-center justify-between p-2 rounded bg-app-bg border border-app-border">
+          <span class="text-indigo-400 font-bold text-[11px]">/api/auth</span>
+          <div class="flex items-center gap-3">
+            <span class="text-app-text font-bold">542 <span class="text-[9px] text-app-muted">/min</span></span>
+            <span class="w-1.5 h-1.5 bg-emerald-400 rounded-full"></span>
+          </div>
+        </div>
+
+        <!-- endpoint 3 -->
+        <div class="flex items-center justify-between p-2 rounded bg-app-bg border border-app-border">
+          <span class="text-purple-400 font-bold text-[11px]">/api/sync</span>
+          <div class="flex items-center gap-3">
+            <span class="text-app-text font-bold">1.2K <span class="text-[9px] text-app-muted">/min</span></span>
+            <span class="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-pulse"></span>
+          </div>
+        </div>
+
+        <!-- Blocked endpoint telemetry -->
+        <div class="flex items-center justify-between p-2 rounded bg-app-bg border border-app-border">
+          <span class="text-rose-500 font-bold text-[11px]">API_BLOCKED_REQUESTS</span>
+          <div class="flex items-center gap-3">
+            <span class="text-rose-400 font-bold">24 <span class="text-[9px] text-rose-500/40">/hr</span></span>
+            <span class="w-1.5 h-1.5 bg-rose-500 rounded-full animate-ping"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Central Rate Limiter -->
+    <div class="metrics-card backdrop-blur-md p-5 shadow-[0_4px_24px_rgba(0,0,0,0.5)] font-mono border border-app-border rounded-xl">
+      <div class="flex items-center justify-between border-b border-app-border pb-3 mb-4">
+        <h4 class="text-[11px] font-black text-app-text tracking-widest uppercase">RATE LIMITER STATUS</h4>
+        <span class="text-[9px] text-cyan-400 bg-cyan-500/10 px-2 py-0.5 rounded border border-cyan-500/20 font-bold uppercase">ACTIVE</span>
+      </div>
+
+      <div class="space-y-4">
+        <div class="bg-app-bg border border-app-border p-3.5 rounded flex items-center justify-between">
+          <div class="flex flex-col">
+            <span class="text-[9px] text-app-muted font-bold uppercase tracking-wider">CURRENT DEMAND</span>
+            <span class="text-md font-black text-app-text mt-1">
+              {{ service.globalTelemetry().cpuLoad * 12 + 640 | number }} <span class="text-[10px] text-app-muted">REQ/M</span>
+            </span>
+          </div>
+          <div class="w-px h-8 bg-app-border"></div>
+          <div class="flex flex-col items-end">
+            <span class="text-[9px] text-app-muted font-bold uppercase tracking-wider">RPM CEILING</span>
+            <span class="text-md font-black text-cyan-400 mt-1">100,000 <span class="text-[10px] text-app-muted">MAX</span></span>
+          </div>
+        </div>
+
+        <!-- Progress to rate limiter action -->
+        <div>
+          <div class="flex items-center justify-between text-[9px] font-bold tracking-wider text-app-text mb-1">
+            <span>THRESHOLD TRAFFIC BUFFER</span>
+            <span class="text-cyan-400">{{ (service.globalTelemetry().cpuLoad * 0.45 + 12).toFixed(1) }}% USED</span>
+          </div>
+          <div class="h-1 bg-app-bg rounded-full overflow-hidden p-[1px]">
+            <div [style.width.%]="service.globalTelemetry().cpuLoad * 0.45 + 12" class="h-full bg-cyan-500 rounded-full"></div>
+          </div>
+        </div>
+
+        <!-- Health summary metrics -->
+        <div class="flex items-center justify-between text-[10px] text-app-muted pt-1">
+          <span>ALERTS TRIGGERED: <strong class="text-rose-500">0</strong></span>
+          <span>PROTECTION CAP: <strong class="text-emerald-400">OPTIMAL</strong></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Redis Cache Cluster -->
+    <div class="metrics-card backdrop-blur-md p-5 shadow-[0_4px_24px_rgba(0,0,0,0.5)] font-mono border border-app-border rounded-xl">
+      <div class="flex items-center justify-between border-b border-app-border pb-3 mb-4">
+        <h4 class="text-[11px] font-black text-app-text tracking-widest uppercase">REDIS MEMORY CACHE</h4>
+        <span class="text-[9px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20 font-bold uppercase">CONNECTED</span>
+      </div>
+
+      <div class="space-y-4">
+        <div class="grid grid-cols-2 gap-3">
+          <div class="bg-app-bg border border-app-border p-2.5 rounded flex flex-col">
+            <span class="text-[8px] text-app-muted font-bold">TOTAL CACHED REQS</span>
+            <span class="text-sm font-black text-indigo-400 mt-1">
+              {{ service.globalTelemetry().cpuLoad * 45 + 1240 | number }}
+            </span>
+          </div>
+          <div class="bg-app-bg border border-app-border p-2.5 rounded flex flex-col">
+            <span class="text-[8px] text-app-muted font-bold font-mono">NODE HIT RATE</span>
+            <span class="text-sm font-black text-emerald-400 mt-1">99.85%</span>
+          </div>
+        </div>
+
+        <!-- Memory Consumption -->
+        <div>
+          <div class="flex items-center justify-between text-[9px] font-bold tracking-wider text-app-text mb-1">
+            <span>CACHED DATA VOLUME</span>
+            <span class="text-indigo-400">
+              {{ (service.globalTelemetry().memoryUsed * 0.12 * 72 + 115).toFixed(1) }} MB / 1024 MB
+            </span>
+          </div>
+          <div class="h-1 bg-app-bg rounded-full overflow-hidden p-[1px]">
+            <div [style.width.%]="(service.globalTelemetry().memoryUsed * 0.12 * 72 + 115) / 10.24" class="h-full bg-indigo-500 rounded-full"></div>
+          </div>
+        </div>
+
+        <!-- Bottom status stats -->
+        <div class="flex items-center justify-between text-[9px] text-app-muted pt-1">
+          <span>NODE: <strong class="text-app-text">REDIS_01_WEST</strong></span>
+          <span>TTL CLEANUP: <strong class="text-cyan-400 font-bold">ACTIVE</strong></span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</app-system-core-layout>

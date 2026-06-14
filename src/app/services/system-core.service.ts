@@ -1,0 +1,290 @@
+import { Injectable, inject, signal, computed, OnDestroy } from '@angular/core';
+import { AdminStoreService, ProjectData } from './admin-store.service';
+import { interval, Subscription } from 'rxjs';
+
+export interface AppTelemetry {
+  appId: string;
+  name: string;
+  domain: string;
+  status: 'ONLINE' | 'SCALING' | 'OFFLINE';
+  health: number;
+  apiHitsPerMin: number;
+  trafficGbps: number;
+  uptime: number;
+  errorRate: number;
+  cpuUsage: number;
+  memoryUsage: number;
+  latency: number;
+}
+
+export interface GlobalTelemetry {
+  cpuLoad: number;
+  memoryUsed: number;
+  memoryTotal: number;
+  latencyMs: number;
+  bandwidthTbps: number;
+  activeNodes: number;
+  uptimePercent: number;
+  trafficHistory: number[];
+}
+
+@Injectable({
+  providedIn: 'root'
+})
+export class SystemCoreService implements OnDestroy {
+  private store = inject(AdminStoreService);
+  private timerSub?: Subscription;
+
+  // Track loading state per app for control buttons
+  loadingStates = signal<Record<string, 'starting' | 'stopping' | 'restarting' | null>>({});
+
+  // Real-time telemetry map per app
+  appTelemetryMap = signal<Record<string, AppTelemetry>>({});
+
+  // Global system telemetry
+  globalTelemetry = signal<GlobalTelemetry>({
+    cpuLoad: 42,
+    memoryUsed: 8.4,
+    memoryTotal: 32,
+    latencyMs: 14,
+    bandwidthTbps: 1.2,
+    activeNodes: 42,
+    uptimePercent: 99.999,
+    trafficHistory: Array.from({ length: 30 }, (_, i) => 30 + Math.sin(i / 2) * 15 + Math.random() * 8)
+  });
+
+  constructor() {
+    this.initializeTelemetry();
+    this.startSimulation();
+  }
+
+  private initializeTelemetry() {
+    const currentProjects = this.store.projects();
+    const telemetry: Record<string, AppTelemetry> = {};
+
+    currentProjects.forEach(p => {
+      telemetry[p.id] = this.createInitialTelemetryForProject(p);
+    });
+
+    this.appTelemetryMap.set(telemetry);
+  }
+
+  private createInitialTelemetryForProject(p: ProjectData): AppTelemetry {
+    const statusMap = {
+      'live': 'ONLINE' as const,
+      'deploying': 'SCALING' as const,
+      'failed': 'OFFLINE' as const
+    };
+
+    const status = statusMap[p.status] || 'OFFLINE';
+    const isOnline = status === 'ONLINE';
+    const isScaling = status === 'SCALING';
+
+    const errRate = isOnline ? parseFloat((Math.random() * 0.05 + 0.01).toFixed(2)) : (isScaling ? 1.5 : 0);
+    const latency = isOnline ? Math.floor(Math.random() * 15 + 8) : (isScaling ? 120 : 0);
+
+    // Calculate Health: 100 - (errors * 10 + latency / 5)
+    const health = isOnline
+      ? Math.max(80, Math.floor(100 - (errRate * 20 + latency / 4)))
+      : (isScaling ? 65 : 0);
+
+    return {
+      appId: p.id,
+      name: p.name,
+      domain: p.domain,
+      status,
+      health,
+      apiHitsPerMin: isOnline ? parseFloat((Math.random() * 5 + 8.5).toFixed(1)) : (isScaling ? 1.2 : 0),
+      trafficGbps: isOnline ? parseFloat((Math.random() * 2 + 3.1).toFixed(2)) : (isScaling ? 0.4 : 0),
+      uptime: isOnline ? parseFloat((99.9 + Math.random() * 0.09).toFixed(2)) : (isScaling ? 100 : 0),
+      errorRate: errRate,
+      cpuUsage: isOnline ? Math.floor(Math.random() * 25 + 15) : (isScaling ? Math.floor(Math.random() * 40 + 40) : 0),
+      memoryUsage: isOnline ? parseFloat((Math.random() * 2 + 1.5).toFixed(1)) : (isScaling ? 4.2 : 0),
+      latency
+    };
+  }
+
+  private startSimulation() {
+    // Poll every 2 seconds for real-time simulation updates
+    this.timerSub = interval(2000).subscribe(() => {
+      this.simulateAppUpdates();
+      this.simulateGlobalUpdates();
+    });
+  }
+
+  private simulateAppUpdates() {
+    const nextTelemetry = { ...this.appTelemetryMap() };
+    const projects = this.store.projects();
+
+    projects.forEach(p => {
+      // Ensure key exists
+      if (!nextTelemetry[p.id]) {
+        nextTelemetry[p.id] = this.createInitialTelemetryForProject(p);
+        return;
+      }
+
+      const current = nextTelemetry[p.id];
+
+      // Sync status if edited in store
+      const statusMap = {
+        'live': 'ONLINE' as const,
+        'deploying': 'SCALING' as const,
+        'failed': 'OFFLINE' as const
+      };
+      const syncedStatus = statusMap[p.status] || 'OFFLINE';
+      
+      if (current.status !== syncedStatus) {
+        nextTelemetry[p.id] = {
+          ...current,
+          status: syncedStatus,
+          health: syncedStatus === 'ONLINE' ? 98 : (syncedStatus === 'SCALING' ? 92 : 0)
+        };
+        return;
+      }
+
+      if (current.status === 'ONLINE') {
+        // CPU & load spike simulation
+        const isSpike = Math.random() > 0.85;
+        const deltaHits = isSpike ? (Math.random() * 8 + 5) : (Math.random() * 2 - 1);
+        const nextHits = Math.max(3.5, parseFloat((current.apiHitsPerMin + deltaHits).toFixed(1)));
+        const nextTraffic = Math.max(1.2, parseFloat((current.trafficGbps + (deltaHits * 0.35)).toFixed(2)));
+
+        const nextErr = isSpike 
+          ? parseFloat((Math.random() * 0.15 + 0.05).toFixed(2)) 
+          : parseFloat((Math.random() * 0.03 + 0.01).toFixed(2));
+        
+        const nextLatency = isSpike 
+          ? Math.floor(Math.random() * 30 + 35) 
+          : Math.floor(Math.random() * 10 + 10);
+
+        const calculatedHealth = Math.min(100, Math.max(50, Math.floor(100 - (nextErr * 30 + nextLatency / 3))));
+
+        nextTelemetry[p.id] = {
+          ...current,
+          apiHitsPerMin: nextHits,
+          trafficGbps: nextTraffic,
+          errorRate: nextErr,
+          latency: nextLatency,
+          cpuUsage: isSpike ? Math.floor(Math.random() * 30 + 60) : Math.floor(Math.random() * 20 + 18),
+          memoryUsage: Math.max(1.0, parseFloat((current.memoryUsage + (Math.random() * 0.2 - 0.1)).toFixed(1))),
+          health: calculatedHealth
+        };
+      } else if (current.status === 'SCALING') {
+        nextTelemetry[p.id] = {
+          ...current,
+          cpuUsage: Math.floor(Math.random() * 20 + 50),
+          memoryUsage: parseFloat((3.5 + Math.random() * 0.5).toFixed(1)),
+          apiHitsPerMin: parseFloat((1.0 + Math.random() * 0.5).toFixed(1)),
+          trafficGbps: parseFloat((0.3 + Math.random() * 0.1).toFixed(2)),
+          health: Math.floor(80 + Math.random() * 15)
+        };
+      } else {
+        // OFFLINE
+        nextTelemetry[p.id] = {
+          ...current,
+          apiHitsPerMin: 0,
+          trafficGbps: 0,
+          errorRate: 0,
+          latency: 0,
+          cpuUsage: 0,
+          memoryUsage: 0,
+          health: 0
+        };
+      }
+    });
+
+    this.appTelemetryMap.set(nextTelemetry);
+  }
+
+  private simulateGlobalUpdates() {
+    const historical = [...this.globalTelemetry().trafficHistory];
+    historical.shift();
+
+    // Sum api hits across all online apps
+    const activeApps = Object.values(this.appTelemetryMap()).filter(t => t.status === 'ONLINE');
+    const totalHits = activeApps.reduce((acc, app) => acc + app.apiHitsPerMin, 0);
+
+    // Dynamic next point with some randomness
+    const nextPoint = Math.max(10, totalHits * 3 + Math.random() * 10);
+    historical.push(nextPoint);
+
+    const activeAppCount = activeApps.length;
+    const cpuAvg = activeAppCount > 0 
+      ? Math.floor(activeApps.reduce((acc, app) => acc + app.cpuUsage, 0) / activeAppCount) + 5
+      : Math.floor(Math.random() * 5 + 5);
+
+    const memAvg = activeAppCount > 0
+      ? parseFloat((activeApps.reduce((acc, app) => acc + app.memoryUsage, 0) + 4.2).toFixed(1))
+      : parseFloat((4.0 + Math.random() * 0.5).toFixed(1));
+
+    this.globalTelemetry.set({
+      cpuLoad: Math.min(99, Math.max(5, cpuAvg)),
+      memoryUsed: Math.min(31.5, Math.max(2.0, memAvg)),
+      memoryTotal: 32,
+      latencyMs: activeAppCount > 0 ? Math.floor(activeApps.reduce((acc, app) => acc + app.latency, 0) / activeAppCount) : 1,
+      bandwidthTbps: parseFloat((0.8 + (Math.random() * 0.5)).toFixed(1)),
+      activeNodes: 35 + activeAppCount * 3 + Math.floor(Math.random() * 4),
+      uptimePercent: parseFloat((99.99 + Math.random() * 0.009).toFixed(3)),
+      trafficHistory: historical
+    });
+  }
+
+  // DevOps Controller actions
+  startService(appId: string) {
+    this.updateAppState(appId, 'starting');
+    
+    // Simulate container deployment timeline
+    setTimeout(() => {
+      this.store.projects.update(projects =>
+        projects.map(p => p.id === appId ? { ...p, status: 'live' } : p)
+      );
+      this.updateAppState(appId, null);
+      this.store.showToast(`Ecosystem service launched for app ${appId}!`, 'success');
+    }, 3000);
+  }
+
+  stopService(appId: string) {
+    this.updateAppState(appId, 'stopping');
+
+    // Simulate system teardown timeline
+    setTimeout(() => {
+      this.store.projects.update(projects =>
+        projects.map(p => p.id === appId ? { ...p, status: 'failed' } : p)
+      );
+      this.updateAppState(appId, null);
+      this.store.showToast(`System core halt active for app ${appId}!`, 'info');
+    }, 2000);
+  }
+
+  restartService(appId: string) {
+    this.updateAppState(appId, 'restarting');
+
+    setTimeout(() => {
+      this.store.projects.update(projects =>
+        projects.map(p => p.id === appId ? { ...p, status: 'deploying' } : p)
+      );
+      
+      setTimeout(() => {
+        this.store.projects.update(projects =>
+          projects.map(p => p.id === appId ? { ...p, status: 'live' } : p)
+        );
+        this.updateAppState(appId, null);
+        this.store.showToast(`Service hot-restart successful on ${appId}!`, 'success');
+      }, 3000);
+
+    }, 1500);
+  }
+
+  private updateAppState(appId: string, state: 'starting' | 'stopping' | 'restarting' | null) {
+    this.loadingStates.update(states => ({
+      ...states,
+      [appId]: state
+    }));
+  }
+
+  ngOnDestroy() {
+    if (this.timerSub) {
+      this.timerSub.unsubscribe();
+    }
+  }
+}

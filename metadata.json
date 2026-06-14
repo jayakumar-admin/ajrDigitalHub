@@ -1,5 +1,8 @@
 {
   "name": "AJR Digital HUB",
-  "description": "Premium Web Development & Digital Solutions Agency. Explore themes, pricing, and AI-powered website generation.",
-  "requestFramePermissions": []
+  "description": "A production-ready SaaS platform and digital asset marketplace with built-in invoice generation, client dashboards, and advanced SaaS administration.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
 }
