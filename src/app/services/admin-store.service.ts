@@ -292,7 +292,7 @@ export class AdminStoreService {
   ]);
 
   websiteConfig = signal<WebsiteConfig>({
-    siteName: 'AJR Hub',
+    siteName: 'AJR Digital Hub',
     logoUrl: '',
     theme: 'light',
     globalFeatures: { maintenanceMode: false, userRegistration: true },
