@@ -1,8 +1,8 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { delay, tap, map } from 'rxjs/operators';
 import { AdminStoreService } from './admin-store.service';
+import { ApiService } from './api.service';
 
 export interface OverviewKpi {
   apps: number;
@@ -49,7 +49,7 @@ export interface AnalyticsTimelinePoint {
   providedIn: 'root'
 })
 export class AdminData {
-  private http = inject(HttpClient);
+  private apiService = inject(ApiService);
   private store = inject(AdminStoreService);
 
   constructor() {
@@ -58,7 +58,7 @@ export class AdminData {
   }
 
   loadWebsiteConfig() {
-    this.http.get<any>('/api/settings/website_config').subscribe({
+    this.apiService.get<any>('/settings/website_config').subscribe({
       next: (cfg) => {
         if (cfg) {
           this.store.websiteConfig.update(old => ({
@@ -79,7 +79,7 @@ export class AdminData {
   }
 
   loadRateLimiter() {
-    this.http.get<any>('/api/settings/rate_limiter').subscribe({
+    this.apiService.get<any>('/settings/rate_limiter').subscribe({
       next: (rl) => {
         if (rl) {
           this.store.rateLimiter.update(old => ({
@@ -255,7 +255,7 @@ export class AdminData {
    */
   updateConfig(newConfig: WebsiteConfig): Observable<WebsiteConfig> {
     this.isFetching.set(true);
-    return this.http.put<WebsiteConfig>('/api/admin/settings/website_config', newConfig).pipe(
+    return this.apiService.put<WebsiteConfig>('/admin/settings/website_config', newConfig).pipe(
       tap((cfg) => {
         if (cfg) {
           this.store.websiteConfig.set(cfg as any);
@@ -270,7 +270,7 @@ export class AdminData {
    */
   updateRateLimiter(newLimiter: RateLimiterConfig): Observable<RateLimiterConfig> {
     this.isFetching.set(true);
-    return this.http.put<RateLimiterConfig>('/api/admin/settings/rate_limiter', newLimiter).pipe(
+    return this.apiService.put<RateLimiterConfig>('/admin/settings/rate_limiter', newLimiter).pipe(
       tap((rl) => {
         if (rl) {
           this.store.rateLimiter.set(rl as any);

@@ -9,7 +9,7 @@ import app from './app';
 import { isPostgresEnabled, pool } from '../config/db';
 import { firebaseApp } from '../config/firebase';
 
-const PORT = process.env['DB_BACKEND_PORT'] || 5000;
+const PORT = process.env['DB_BACKEND_PORT'] || 4000;
 
 async function bootstrap() {
   console.log('🚀 Starting Backend Server Development...');

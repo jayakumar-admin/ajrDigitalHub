@@ -1,7 +1,7 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
+import { MarketplaceService } from '../../../services/marketplace.service';
 import { MatIconModule } from '@angular/material/icon';
 import { EditorComponent } from '../marketplace-editor/editor.component';
 import { PreviewComponent } from '../marketplace-preview/preview.component';
@@ -34,7 +34,7 @@ interface MarketplaceItem {
   templateUrl: './marketplace-config.component.html'
 })
 export class MarketplaceConfigComponent implements OnInit {
-  private http = inject(HttpClient);
+  private marketplaceService = inject(MarketplaceService);
   
   items = signal<MarketplaceItem[]>([]);
   activeItem = signal<Partial<MarketplaceItem> | null>(null);
@@ -48,7 +48,7 @@ export class MarketplaceConfigComponent implements OnInit {
   
   loadItems() {
     this.isLoading.set(true);
-    this.http.get<MarketplaceItem[]>('/api/admin/marketplace').subscribe({
+    this.marketplaceService.getAdminItems().subscribe({
       next: (res) => {
         this.items.set(res);
         this.isLoading.set(false);
@@ -84,7 +84,7 @@ export class MarketplaceConfigComponent implements OnInit {
   
   deleteItem(id: number) {
     if (confirm('Are you sure you want to delete this custom item?')) {
-      this.http.delete('/api/admin/marketplace/' + id).subscribe(() => {
+      this.marketplaceService.deleteAdminItem(id).subscribe(() => {
         this.loadItems();
         if (this.activeItem()?.id === id) {
           this.activeItem.set(null);
@@ -99,7 +99,7 @@ export class MarketplaceConfigComponent implements OnInit {
     
     this.isSaving.set(true);
     if (item.id) {
-      this.http.put('/api/admin/marketplace/' + item.id, item).subscribe({
+      this.marketplaceService.updateAdminItem(item.id, item).subscribe({
         next: () => {
           this.loadItems();
           this.isSaving.set(false);
@@ -107,7 +107,7 @@ export class MarketplaceConfigComponent implements OnInit {
         error: () => this.isSaving.set(false)
       });
     } else {
-      this.http.post('/api/admin/marketplace', item).subscribe({
+      this.marketplaceService.createAdminItem(item).subscribe({
         next: (res: any) => {
           this.activeItem.set(res);
           this.loadItems();

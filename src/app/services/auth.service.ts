@@ -1,7 +1,7 @@
 import { Injectable, signal, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { tap } from 'rxjs';
+import { ApiService } from './api.service';
 
 export interface User {
   id: number;
@@ -11,7 +11,7 @@ export interface User {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private http = inject(HttpClient);
+  private apiService = inject(ApiService);
   private router = inject(Router);
 
   currentUser = signal<User | null>(null);
@@ -29,7 +29,7 @@ export class AuthService {
   }
 
   login(credentials: { username: string; password: string }) {
-    return this.http.post<{ token: string; user: User }>('/api/auth/login', credentials).pipe(
+    return this.apiService.post<{ token: string; user: User }>('/auth/login', credentials).pipe(
       tap(res => {
         this.token.set(res.token);
         this.currentUser.set(res.user);
@@ -40,7 +40,7 @@ export class AuthService {
   }
 
   adminLogin(credentials: { username: string; password: string }) {
-    return this.http.post<{ token: string; user: User }>('/api/admin/login', credentials).pipe(
+    return this.apiService.post<{ token: string; user: User }>('/admin/login', credentials).pipe(
       tap(res => {
         this.token.set(res.token);
         this.currentUser.set(res.user);

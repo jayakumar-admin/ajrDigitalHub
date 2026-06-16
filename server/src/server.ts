@@ -1,11 +1,7 @@
 import app from './app';
 
-const PORT = 5000;
+const PORT = 3000;
 
-app.listen(PORT, () => {
-  console.log(`===============================================`);
-  console.log(`🚀 DECOUPLED BACKEND ENGINE IN SERVICE`);
-  console.log(`🌐 PORT: ${PORT}`);
-  console.log(`📄 Swagger UI: http://localhost:${PORT}/api/docs`);
-  console.log(`===============================================`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 Modern Backend running on http://0.0.0.0:${PORT}`);
 });

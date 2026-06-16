@@ -6,7 +6,7 @@
     "schematicCollections": [
       "angular-eslint"
     ],
-    "analytics": "73db648b-9c2c-42c0-b0dc-fdc731b21c0d"
+    "analytics": false
   },
   "newProjectRoot": "projects",
   "projects": {
@@ -42,6 +42,12 @@
           },
           "configurations": {
             "production": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.prod.ts"
+                }
+              ],
               "budgets": [
                 {
                   "type": "initial",

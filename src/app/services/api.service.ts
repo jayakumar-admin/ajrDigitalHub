@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { LandingConfigType } from '../pages/home/home';
+import { Observable } from 'rxjs';
 
 export interface Product {
   id: number;
@@ -15,13 +16,62 @@ export interface Product {
 export class ApiService {
   private http = inject(HttpClient);
 
+  // Generic dynamic helper methods
+  get<T>(endpoint: string, options?: {
+    headers?: any;
+    params?: any;
+    observe?: 'body';
+    responseType?: any;
+  }): Observable<T> {
+    const formattedEndpoint = this.formatEndpoint(endpoint);
+    return this.http.get(formattedEndpoint, options as any) as unknown as Observable<T>;
+  }
+
+  post<T>(endpoint: string, body: any, options?: {
+    headers?: any;
+    params?: any;
+    observe?: 'body';
+    responseType?: any;
+  }): Observable<T> {
+    const formattedEndpoint = this.formatEndpoint(endpoint);
+    return this.http.post(formattedEndpoint, body, options as any) as unknown as Observable<T>;
+  }
+
+  put<T>(endpoint: string, body: any, options?: {
+    headers?: any;
+    params?: any;
+    observe?: 'body';
+    responseType?: any;
+  }): Observable<T> {
+    const formattedEndpoint = this.formatEndpoint(endpoint);
+    return this.http.put(formattedEndpoint, body, options as any) as unknown as Observable<T>;
+  }
+
+  delete<T>(endpoint: string, options?: {
+    headers?: any;
+    params?: any;
+    observe?: 'body';
+    responseType?: any;
+  }): Observable<T> {
+    const formattedEndpoint = this.formatEndpoint(endpoint);
+    return this.http.delete(formattedEndpoint, options as any) as unknown as Observable<T>;
+  }
+
+  private formatEndpoint(endpoint: string): string {
+    if (endpoint.startsWith('/api') || endpoint.startsWith('api')) {
+      return endpoint.startsWith('/') ? endpoint : '/' + endpoint;
+    }
+    const clean = endpoint.startsWith('/') ? endpoint : '/' + endpoint;
+    return `/api${clean}`;
+  }
+
   // Landing Page
   getLandingConfig() {
-    return this.http.get<LandingConfigType>('/api/settings/landing_config');
+    return this.get<LandingConfigType>('/settings/landing_config');
   }
 
   saveLandingConfig(config: LandingConfigType | null) {
-    return this.http.put('/api/admin/settings/landing_config', config);
+    return this.put('/admin/settings/landing_config', config);
   }
 
   // Marketplace
@@ -29,122 +79,126 @@ export class ApiService {
     let params = new HttpParams();
     if (category) params = params.set('category', category);
     if (search) params = params.set('search', search);
-    return this.http.get<Product[]>('/api/dynamic/marketplace', { params });
+    return this.get<Product[]>('/dynamic/marketplace', { params });
   }
 
   purchaseProduct(productId: number, amount: number) {
-    return this.http.post('/api/dynamic/orders', { productId, amount, status: 'pending' });
+    return this.post('/dynamic/orders', { productId, amount, status: 'pending' });
   }
 
   // Client Dashboard
   getClientOrders() {
-    return this.http.get<unknown[]>('/api/dynamic/orders');
+    return this.get<unknown[]>('/dynamic/orders');
   }
 
   getClientTickets() {
-    return this.http.get<unknown[]>('/api/dynamic/tickets');
+    return this.get<unknown[]>('/dynamic/tickets');
   }
 
   getKanban() {
-    return this.http.get<unknown[]>('/api/dynamic/kanban_tasks');
+    return this.get<unknown[]>('/dynamic/kanban_tasks');
   }
 
   updateTaskStatus(id: string, status: string) {
-    return this.http.put(`/api/dynamic/kanban_tasks/${id}`, { status });
+    return this.put(`/dynamic/kanban_tasks/${id}`, { status });
   }
 
   // Seller
   createSellerProduct(product: Partial<Product>) {
-    return this.http.post('/api/dynamic/marketplace', product);
+    return this.post('/dynamic/marketplace', product);
   }
 
   // Admin SaaS
   getApps() {
-    return this.http.get<unknown[]>('/api/dynamic/apps');
+    return this.get<unknown[]>('/dynamic/apps');
   }
 
   provisionApp(payload: any) {
-    return this.http.post<any>('/api/admin/apps/provision', payload);
+    return this.post<any>('/admin/apps/provision', payload);
   }
 
   getPlans() {
-    return this.http.get<unknown[]>('/api/dynamic/plans');
+    return this.get<unknown[]>('/dynamic/plans');
   }
 
   getAnalytics(appId?: number, daysRange = 7) {
     let params = new HttpParams().set('daysRange', daysRange.toString());
     if (appId) params = params.set('appId', appId.toString());
-    return this.http.get<unknown>('/api/admin/analytics', { params });
+    return this.get<unknown>('/admin/analytics', { params });
   }
 
   getUsageLogs(appId: number) {
-    return this.http.get<unknown[]>(`/api/admin/apps/${appId}/usage-logs`);
+    return this.get<unknown[]>(`/admin/apps/${appId}/usage-logs`);
   }
 
   getWhatsappLogs(appId: number) {
-    return this.http.get<unknown[]>(`/api/admin/apps/${appId}/whatsapp-logs`);
+    return this.get<unknown[]>(`/admin/apps/${appId}/whatsapp-logs`);
   }
 
   // HTML Builder
   getTemplates(appId: number) {
-    return this.http.get<unknown[]>(`/api/admin/apps/${appId}/html-templates`);
+    return this.get<unknown[]>(`/admin/apps/${appId}/html-templates`);
   }
 
   saveTemplate(appId: number, template: unknown) {
-    return this.http.post(`/api/admin/apps/${appId}/html-templates`, template);
+    return this.post(`/admin/apps/${appId}/html-templates`, template);
+  }
+
+  onClickTemplate(appId: number, id: number) {
+    return this.post(`/admin/apps/${appId}/html-templates/${id}/publish`, {});
   }
 
   publishTemplate(appId: number, id: number) {
-    return this.http.post(`/api/admin/apps/${appId}/html-templates/${id}/publish`, {});
+    return this.post(`/admin/apps/${appId}/html-templates/${id}/publish`, {});
   }
 
   getTestimonials() {
-    return this.http.get<any[]>('/api/dynamic/testimonials');
+    return this.get<any[]>('/dynamic/testimonials');
   }
 
   // --- Dynamic Global Menus ---
   getMenus() {
-    return this.http.get<any[]>('/api/menus');
+    return this.get<any[]>('/menus');
   }
 
   createAdminMenu(menuItem: any) {
-    return this.http.post('/api/admin/menus', menuItem);
+    return this.post('/admin/menus', menuItem);
   }
 
   updateAdminMenu(id: number, menuItem: any) {
-    return this.http.put(`/api/admin/menus/${id}`, menuItem);
+    return this.put(`/admin/menus/${id}`, menuItem);
   }
 
   deleteAdminMenu(id: number) {
-    return this.http.delete(`/api/admin/menus/${id}`);
+    return this.delete(`/admin/menus/${id}`);
   }
 
   // --- Dynamic Categories ---
   getHttpCategories() {
-    return this.http.get<any[]>('/api/categories');
+    return this.get<any[]>('/categories');
   }
 
   createAdminCategory(category: any) {
-    return this.http.post('/api/admin/categories', category);
+    return this.post('/admin/categories', category);
   }
 
   // --- Custom Pages ---
   getPage(slug: string) {
-    return this.http.get<any>(`/api/pages/${slug}`);
+    return this.get<any>(`/pages/${slug}`);
   }
 
   getPagesSettings() {
-    return this.http.get<any[]>('/api/settings/pages');
+    return this.get<any[]>('/settings/pages');
   }
 
   savePageSettings(page: any) {
-    return this.http.post('/api/admin/pages', page);
+    return this.post('/admin/pages', page);
   }
 
   // --- Upload ---
   uploadImage(file: File) {
     const formData = new FormData();
     formData.append('image', file);
-    return this.http.post<{ url: string }>('/api/admin/upload', formData);
+    return this.post<{ url: string }>('/admin/upload', formData);
   }
 }

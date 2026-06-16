@@ -2,6 +2,7 @@ import {ChangeDetectionStrategy, Component, signal, ViewChild, ElementRef, After
 import {RouterOutlet, RouterLink, RouterLinkActive} from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { TechCursor } from './shared/tech-ui';
 import { ApiService } from './services/api.service';
@@ -84,6 +85,96 @@ export interface AppMenuItem {
             </div>
 
             <div class="hidden md:flex items-center space-x-4">
+              <!-- External API Settings Dropdown -->
+              <div class="relative">
+                <button (click)="toggleApiSettings()" class="w-10 h-10 rounded-full border border-app-border flex items-center justify-center text-app-muted hover:bg-app-bg dark:hover:bg-app-card hover:text-indigo-600 transition-colors relative" title="API Connection Settings">
+                  <mat-icon class="text-[20px] w-[20px] h-[20px]">dns</mat-icon>
+                  <!-- Status Indicator dot -->
+                  <span class="absolute top-1 right-1 w-2.5 h-2.5 rounded-full border border-app-card"
+                        [class.bg-emerald-500]="apiStatus() === 'online'"
+                        [class.bg-rose-500]="apiStatus() === 'offline'"
+                        [class.bg-amber-500]="apiStatus() === 'checking'"
+                        [class.bg-slate-400]="apiStatus() === 'default'">
+                  </span>
+                </button>
+
+                <!-- API Dropdown Panel -->
+                @if (isApiSettingsOpen()) {
+                  <div class="absolute right-0 mt-3 w-80 sm:w-96 bg-app-card dark:bg-app-card rounded-2xl shadow-xl border border-app-border/80 p-5 z-50">
+                    <div class="flex items-center justify-between border-b border-app-border pb-3 mb-4">
+                      <div class="flex items-center gap-2">
+                        <mat-icon class="text-indigo-500">settings_ethernet</mat-icon>
+                        <span class="font-bold text-sm text-app-text">External API Server</span>
+                      </div>
+                      <button (click)="isApiSettingsOpen.set(false)" class="text-app-muted hover:text-app-text">
+                        <mat-icon class="!text-[18px] !w-[18px] !h-[18px]">close</mat-icon>
+                      </button>
+                    </div>
+
+                    <p class="text-xs text-app-muted mb-4 leading-relaxed">
+                      Configure an external or locally running backend server (e.g. your local server started with <code class="bg-indigo-50 dark:bg-indigo-950/40 text-indigo-500 rounded px-1 py-0.5">npm start</code>).
+                    </p>
+
+                    <div class="space-y-4">
+                      <div>
+                        <label class="block text-xs font-semibold uppercase text-app-muted mb-1.5">Server Base URL</label>
+                        <input 
+                          type="text" 
+                          [ngModel]="externalApiUrl()"
+                          (ngModelChange)="externalApiUrl.set($event)"
+                          placeholder="e.g. http://localhost:3000" 
+                          class="w-full text-xs bg-app-bg border border-app-border focus:border-indigo-500 focus:ring-1 focus:ring-indigo-100 rounded-xl px-3 py-2 text-app-text"
+                          autocomplete="off"
+                        >
+                      </div>
+
+                      <!-- Current connection status badge -->
+                      <div class="rounded-xl p-3 bg-app-bg border border-app-border/40 text-xs">
+                        <div class="flex items-center justify-between">
+                          <span class="text-app-muted">Status:</span>
+                          <span class="font-semibold flex items-center gap-1.5"
+                                [class.text-emerald-500]="apiStatus() === 'online'"
+                                [class.text-rose-500]="apiStatus() === 'offline'"
+                                [class.text-amber-500]="apiStatus() === 'checking'"
+                                [class.text-slate-400]="apiStatus() === 'default'">
+                            @if (apiStatus() === 'online') {
+                              <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> ONLINE
+                            } @else if (apiStatus() === 'offline') {
+                              <span class="w-2 h-2 rounded-full bg-rose-500"></span> OFFLINE / UNREACHABLE
+                            } @else if (apiStatus() === 'checking') {
+                              <span class="w-2 h-2 rounded-full bg-amber-500 animate-ping"></span> TESTING...
+                            } @else {
+                              <span class="w-2 h-2 rounded-full bg-slate-400"></span> DEFAULT (Self-Hosted)
+                            }
+                          </span>
+                        </div>
+                        @if (apiStatus() === 'online') {
+                          <div class="text-[10px] text-emerald-500 mt-1">✓ Connected successfully! Everything is operational.</div>
+                        } @else if (apiStatus() === 'offline') {
+                          <div class="text-[10px] text-rose-500 mt-1">✗ Failed connection. Ensure your local server is running on the specified port.</div>
+                        } @else if (apiStatus() === 'default') {
+                          <div class="text-[10px] text-app-muted mt-1">Currently requesting through the unified build server.</div>
+                        }
+                      </div>
+
+                      <div class="flex items-center gap-2">
+                        <button (click)="saveApiUrl()" class="flex-grow bg-indigo-600 text-white font-medium text-xs px-3 py-2 rounded-xl hover:bg-indigo-700 transition" [disabled]="!externalApiUrl().trim()">
+                          Save & Apply
+                        </button>
+                        <button (click)="testConnection()" class="bg-app-bg border border-app-border text-app-text font-medium text-xs px-3 py-2 rounded-xl hover:bg-app-card transition" [disabled]="!externalApiUrl().trim()">
+                          Test Ping
+                        </button>
+                        @if (externalApiUrl()) {
+                          <button (click)="resetApiUrl()" class="border border-rose-500 px-3 py-2 rounded-xl text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/20 text-xs font-semibold" title="Reset base API">
+                            Reset
+                          </button>
+                        }
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
+
               <!-- Global Theme Switcher -->
               <button (click)="toggleTheme()" class="w-10 h-10 rounded-full border border-app-border  flex items-center justify-center text-app-muted hover:bg-app-bg dark:hover:bg-app-card hover:text-indigo-600 transition-colors" [attr.aria-label]="isDark() ? 'Switch to light theme' : 'Switch to dark theme'">
                 <mat-icon class="text-[20px] w-[20px] h-[20px]">{{ isDark() ? 'light_mode' : 'dark_mode' }}</mat-icon>
@@ -311,6 +402,7 @@ export class App implements AfterViewChecked, OnInit {
   private apiService = inject(ApiService);
   private adminData = inject(AdminData);
   private themeService = inject(ThemeService);
+  private http = inject(HttpClient);
   
   siteName = computed(() => this.adminData.websiteConfig().siteName);
   logoUrl = computed(() => this.adminData.websiteConfig().logoUrl);
@@ -322,6 +414,68 @@ export class App implements AfterViewChecked, OnInit {
   newMessage = signal('');
   isTyping = signal(false);
   isDark = computed(() => this.themeService.currentTheme() === 'dark' || this.themeService.currentTheme() === 'neon');
+
+  // External API Connection Configuration
+  isApiSettingsOpen = signal(false);
+  externalApiUrl = signal('');
+  apiStatus = signal<'checking' | 'online' | 'offline' | 'default'>('default');
+
+  toggleApiSettings() {
+    this.isApiSettingsOpen.update(v => !v);
+  }
+
+  saveApiUrl() {
+    let url = this.externalApiUrl().trim();
+    if (url) {
+      if (!url.startsWith('http://') && !url.startsWith('https://')) {
+        url = 'http://' + url;
+        this.externalApiUrl.set(url);
+      }
+      localStorage.setItem('AJR_EXTERNAL_API_URL', url);
+      this.testConnection();
+    } else {
+      this.resetApiUrl();
+    }
+  }
+
+  resetApiUrl() {
+    localStorage.removeItem('AJR_EXTERNAL_API_URL');
+    this.externalApiUrl.set('');
+    this.apiStatus.set('default');
+    if (typeof window !== 'undefined') {
+      window.location.reload();
+    }
+  }
+
+  testConnection() {
+    const url = this.externalApiUrl().trim();
+    if (!url) {
+      this.apiStatus.set('default');
+      return;
+    }
+
+    this.apiStatus.set('checking');
+    const base = url.endsWith('/') ? url.slice(0, -1) : url;
+
+    this.http.get(`${base}/health`).subscribe({
+      next: () => {
+        this.apiStatus.set('online');
+      },
+      error: (err) => {
+        console.warn('Health check failed, attempting base path...', err);
+        this.http.get(base).subscribe({
+          next: () => this.apiStatus.set('online'),
+          error: (err2) => {
+            if (err2.status > 0) {
+              this.apiStatus.set('online');
+            } else {
+              this.apiStatus.set('offline');
+            }
+          }
+        });
+      }
+    });
+  }
   
   parentMenus = computed(() => {
     const showMarketplace = this.features().marketplace;
@@ -412,6 +566,13 @@ export class App implements AfterViewChecked, OnInit {
     this.messages.set([
       { text: `Hi there! 👋 Welcome to ${this.siteName() || 'AJR DIGITAL HUB'}. How can we help you today?`, isUser: false, time: this.getCurrentTime() }
     ]);
+
+    const savedUrl = typeof window !== 'undefined' ? localStorage.getItem('AJR_EXTERNAL_API_URL') : null;
+    if (savedUrl) {
+      this.externalApiUrl.set(savedUrl);
+      this.testConnection();
+    }
+
     this.apiService.getMenus().subscribe({
       next: (data) => {
         this.menuItems.set(data);

@@ -19,9 +19,19 @@ export class InvoiceBuilderComponent implements OnInit {
   companyAddress = signal('123 Design Blvd, Suite 400\nSan Francisco, CA 94107\nhello@ajrdigital.hub');
   notesTemplate = signal('');
 
+  getResolvedUrl(path: string): string {
+    const override = typeof window !== 'undefined' ? localStorage.getItem('AJR_EXTERNAL_API_URL') : null;
+    if (override) {
+      const base = override.endsWith('/') ? override.slice(0, -1) : override;
+      const sub = path.startsWith('/') ? path : '/' + path;
+      return `${base}${sub}`;
+    }
+    return path;
+  }
+
   async ngOnInit() {
     try {
-      const res = await fetch('/api/shops/demo-shop-1/invoice-config');
+      const res = await fetch(this.getResolvedUrl('/api/shops/demo-shop-1/invoice-config'));
       if (res.ok) {
         const rawData = await res.json();
         const data = rawData && rawData.success && rawData.data !== undefined ? rawData.data : rawData;
@@ -41,7 +51,7 @@ export class InvoiceBuilderComponent implements OnInit {
   async saveConfig() {
     this.isSaving.set(true);
     try {
-      await fetch('/api/shops/demo-shop-1/invoice-config', {
+      await fetch(this.getResolvedUrl('/api/shops/demo-shop-1/invoice-config'), {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

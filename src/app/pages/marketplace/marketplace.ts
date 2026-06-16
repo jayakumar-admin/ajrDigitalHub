@@ -7,7 +7,6 @@ import { ApiService, Product } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
 import { AdminData } from '../../services/admin-data';
 import { TechBackground, FloatingCard, GlowButton } from '../../shared/tech-ui';
-import { HttpClient } from '@angular/common/http';
 import { forkJoin } from 'rxjs';
 
 @Component({
@@ -20,7 +19,6 @@ export class MarketplaceComponent implements OnInit {
   private apiService = inject(ApiService);
   private authService = inject(AuthService);
   private adminData = inject(AdminData);
-  private http = inject(HttpClient);
   private router = inject(Router);
 
   isMarketplaceFeatureActive = computed(() => this.adminData.websiteConfig().features.marketplace);
@@ -51,7 +49,7 @@ export class MarketplaceComponent implements OnInit {
     
     // We fetch both dynamic items from the CMS and standard products
     forkJoin({
-       dynamic: this.http.get<any[]>('/api/admin/marketplace-items'),
+       dynamic: this.apiService.get<any[]>('/admin/marketplace-items'),
        products: this.apiService.getProducts(cat, this.searchQuery())
     }).subscribe({
       next: (res) => {
