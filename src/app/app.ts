@@ -15,11 +15,11 @@ interface ChatMessage {
 }
 
 export interface AppMenuItem {
-  id: number;
+  id: string | number;
   label: string;
   icon?: string;
   link?: string;
-  parent_id: number | null;
+  parent_id: string | number | null;
   is_active: boolean;
 }
 
@@ -328,9 +328,12 @@ export class App implements AfterViewChecked, OnInit {
     const showServices = this.features().services;
     const showAnalytics = this.features().analytics;
 
-    return this.menuItems().filter(m => {
+    const items = this.menuItems();
+    if (!Array.isArray(items)) return [];
+
+    return items.filter(m => {
       if (!m.is_active) return false;
-      if (m.parent_id !== null) return false;
+      if (m.parent_id !== null && m.parent_id !== undefined && m.parent_id !== '') return false;
       
       const labelLower = m.label.toLowerCase();
       if (!showMarketplace && labelLower.includes('marketplace')) return false;
@@ -341,13 +344,16 @@ export class App implements AfterViewChecked, OnInit {
     });
   });
 
-  getChildren(parentId: number) {
+  getChildren(parentId: string | number) {
     const showMarketplace = this.features().marketplace;
     const showServices = this.features().services;
     const showAnalytics = this.features().analytics;
 
-    return this.menuItems().filter(m => {
-      if (!m.is_active || m.parent_id !== parentId) return false;
+    const items = this.menuItems();
+    if (!Array.isArray(items)) return [];
+
+    return items.filter(m => {
+      if (!m.is_active || m.parent_id != parentId) return false;
       
       const labelLower = m.label.toLowerCase();
       if (!showMarketplace && labelLower.includes('marketplace')) return false;
@@ -358,7 +364,7 @@ export class App implements AfterViewChecked, OnInit {
     });
   }
 
-  hasChildren(parentId: number): boolean {
+  hasChildren(parentId: string | number): boolean {
     return this.getChildren(parentId).length > 0;
   }
 

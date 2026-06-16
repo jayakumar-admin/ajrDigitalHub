@@ -29,42 +29,46 @@ export class ApiService {
     let params = new HttpParams();
     if (category) params = params.set('category', category);
     if (search) params = params.set('search', search);
-    return this.http.get<Product[]>('/api/marketplace/products', { params });
+    return this.http.get<Product[]>('/api/dynamic/marketplace', { params });
   }
 
   purchaseProduct(productId: number, amount: number) {
-    return this.http.post('/api/marketplace/purchase', { productId, amount });
+    return this.http.post('/api/dynamic/orders', { productId, amount, status: 'pending' });
   }
 
   // Client Dashboard
   getClientOrders() {
-    return this.http.get<unknown[]>('/api/client/orders');
+    return this.http.get<unknown[]>('/api/dynamic/orders');
   }
 
   getClientTickets() {
-    return this.http.get<unknown[]>('/api/client/tickets');
+    return this.http.get<unknown[]>('/api/dynamic/tickets');
   }
 
   getKanban() {
-    return this.http.get<unknown[]>('/api/client/kanban');
+    return this.http.get<unknown[]>('/api/dynamic/kanban_tasks');
   }
 
-  updateTaskStatus(id: number, status: string) {
-    return this.http.put(`/api/client/kanban/${id}`, { status });
+  updateTaskStatus(id: string, status: string) {
+    return this.http.put(`/api/dynamic/kanban_tasks/${id}`, { status });
   }
 
   // Seller
   createSellerProduct(product: Partial<Product>) {
-    return this.http.post('/api/seller/products', product);
+    return this.http.post('/api/dynamic/marketplace', product);
   }
 
   // Admin SaaS
   getApps() {
-    return this.http.get<unknown[]>('/api/admin/apps');
+    return this.http.get<unknown[]>('/api/dynamic/apps');
+  }
+
+  provisionApp(payload: any) {
+    return this.http.post<any>('/api/admin/apps/provision', payload);
   }
 
   getPlans() {
-    return this.http.get<unknown[]>('/api/admin/plans');
+    return this.http.get<unknown[]>('/api/dynamic/plans');
   }
 
   getAnalytics(appId?: number, daysRange = 7) {
@@ -92,6 +96,10 @@ export class ApiService {
 
   publishTemplate(appId: number, id: number) {
     return this.http.post(`/api/admin/apps/${appId}/html-templates/${id}/publish`, {});
+  }
+
+  getTestimonials() {
+    return this.http.get<any[]>('/api/dynamic/testimonials');
   }
 
   // --- Dynamic Global Menus ---
@@ -131,5 +139,12 @@ export class ApiService {
 
   savePageSettings(page: any) {
     return this.http.post('/api/admin/pages', page);
+  }
+
+  // --- Upload ---
+  uploadImage(file: File) {
+    const formData = new FormData();
+    formData.append('image', file);
+    return this.http.post<{ url: string }>('/api/admin/upload', formData);
   }
 }

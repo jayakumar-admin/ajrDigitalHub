@@ -23,7 +23,8 @@ export class InvoiceBuilderComponent implements OnInit {
     try {
       const res = await fetch('/api/shops/demo-shop-1/invoice-config');
       if (res.ok) {
-        const data = await res.json();
+        const rawData = await res.json();
+        const data = rawData && rawData.success && rawData.data !== undefined ? rawData.data : rawData;
         if (data) {
           if (data.company_name) this.companyName.set(data.company_name);
           if (data.company_address) this.companyAddress.set(data.company_address);

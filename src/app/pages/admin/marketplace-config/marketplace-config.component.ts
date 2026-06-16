@@ -48,7 +48,7 @@ export class MarketplaceConfigComponent implements OnInit {
   
   loadItems() {
     this.isLoading.set(true);
-    this.http.get<MarketplaceItem[]>('/api/admin/marketplace-items').subscribe({
+    this.http.get<MarketplaceItem[]>('/api/admin/marketplace').subscribe({
       next: (res) => {
         this.items.set(res);
         this.isLoading.set(false);
@@ -84,7 +84,7 @@ export class MarketplaceConfigComponent implements OnInit {
   
   deleteItem(id: number) {
     if (confirm('Are you sure you want to delete this custom item?')) {
-      this.http.delete('/api/admin/marketplace-items/' + id).subscribe(() => {
+      this.http.delete('/api/admin/marketplace/' + id).subscribe(() => {
         this.loadItems();
         if (this.activeItem()?.id === id) {
           this.activeItem.set(null);
@@ -99,7 +99,7 @@ export class MarketplaceConfigComponent implements OnInit {
     
     this.isSaving.set(true);
     if (item.id) {
-      this.http.put('/api/admin/marketplace-items/' + item.id, item).subscribe({
+      this.http.put('/api/admin/marketplace/' + item.id, item).subscribe({
         next: () => {
           this.loadItems();
           this.isSaving.set(false);
@@ -107,7 +107,7 @@ export class MarketplaceConfigComponent implements OnInit {
         error: () => this.isSaving.set(false)
       });
     } else {
-      this.http.post('/api/admin/marketplace-items', item).subscribe({
+      this.http.post('/api/admin/marketplace', item).subscribe({
         next: (res: any) => {
           this.activeItem.set(res);
           this.loadItems();

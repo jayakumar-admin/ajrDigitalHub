@@ -127,7 +127,7 @@ const defaultLandingConfig: MockLandingConfig = {
 };
 
 const defaultWebsiteConfig = {
-  siteName: "AJR Digital Hub",
+  siteName: "AJR Hub",
   logoUrl: "",
   theme: "light",
   globalFeatures: { maintenanceMode: false, userRegistration: true },

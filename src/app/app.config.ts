@@ -3,7 +3,8 @@ import {
   provideBrowserGlobalErrorListeners,
 } from '@angular/core';
 import {provideRouter} from '@angular/router';
-import {provideHttpClient, withInterceptors} from '@angular/common/http';
+import {provideHttpClient, withInterceptors, HttpResponse} from '@angular/common/http';
+import {map} from 'rxjs';
 
 import {routes} from './app.routes';
 
@@ -25,7 +26,17 @@ export const appConfig: ApplicationConfig = {
         }
         
         const authReq = req.clone({ headers });
-        return next(authReq);
+        return next(authReq).pipe(
+          map(event => {
+            if (event instanceof HttpResponse && event.body && typeof event.body === 'object') {
+              const body = event.body as any;
+              if (body.success === true && body.data !== undefined) {
+                return event.clone({ body: body.data });
+              }
+            }
+            return event;
+          })
+        );
       }
     ]))
   ],

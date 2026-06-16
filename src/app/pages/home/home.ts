@@ -68,11 +68,14 @@ export class HomeComponent implements OnInit {
   }
 
   private loadTestimonials() {
-    // We'll use the existing testimonials endpoint for now
-    fetch('/api/testimonials').then(r => r.json()).then(data => {
-      this.testimonials.set(data);
-      this.duplicatedTestimonials.set([...data, ...data, ...data, ...data]);
-    }).catch(err => console.error('Testimonials error:', err));
+    this.apiService.getTestimonials().subscribe({
+      next: (data) => {
+        const testimonials = Array.isArray(data) ? data : [];
+        this.testimonials.set(testimonials);
+        this.duplicatedTestimonials.set([...testimonials, ...testimonials, ...testimonials, ...testimonials]);
+      },
+      error: (err) => console.error('Testimonials error:', err)
+    });
   }
 
   sendMessage() {

@@ -6,7 +6,7 @@
     "schematicCollections": [
       "angular-eslint"
     ],
-    "analytics": "d0b19531-7954-4e2b-8363-b46960dde0be"
+    "analytics": "73db648b-9c2c-42c0-b0dc-fdc731b21c0d"
   },
   "newProjectRoot": "projects",
   "projects": {
@@ -59,7 +59,13 @@
             "development": {
               "optimization": false,
               "extractLicenses": false,
-              "sourceMap": true
+              "sourceMap": true,
+              "externalDependencies": [
+                "@google/genai",
+                "firebase-admin",
+                "pg",
+                "pdfkit"
+              ]
             }
           },
           "defaultConfiguration": "production"

@@ -1,4 +1,5 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal, computed, inject } from '@angular/core';
+import { ApiService } from './api.service';
 import { Observable, of, delay, tap } from 'rxjs';
 
 export interface AdminApp {
@@ -160,6 +161,7 @@ export interface AppToast {
   providedIn: 'root'
 })
 export class AdminStoreService {
+  private api = inject(ApiService);
   // Master State Signals
   projects = signal<ProjectData[]>([
     {
@@ -292,7 +294,7 @@ export class AdminStoreService {
   ]);
 
   websiteConfig = signal<WebsiteConfig>({
-    siteName: 'AJR Digital Hub',
+    siteName: 'AJR Hub',
     logoUrl: '',
     theme: 'light',
     globalFeatures: { maintenanceMode: false, userRegistration: true },
@@ -445,40 +447,52 @@ export class AdminStoreService {
   }
 
   addProject(newProj: { name: string; domain: string; environment: 'Production' | 'Staging' | 'Sandbox'; plan: 'Lite' | 'Standard' | 'Enterprise'; billing: any }) {
-    const id = 'app_' + (this.projects().length + 1);
-    const fullProject: ProjectData = {
-      id,
-      name: newProj.name,
-      domain: newProj.domain,
-      environment: newProj.environment,
-      plan: newProj.plan,
-      status: 'live',
-      lastUpdated: new Date().toISOString(),
-      apiUsage: 0,
-      apiKey: 'sk_live_' + Math.random().toString(36).substring(2, 10),
-      apiKeys: [],
-      logs: [],
-      auditLogs: [],
-      users: [
-        { id: 'u_1', name: 'Master Admin', email: 'admin@ajr.dev', role: 'Owner', status: 'Active', lastActive: new Date().toISOString() }
-      ],
-      backups: [],
-      alerts: [],
-      plugins: [],
-      policies: {
-        api: { rpmLimit: 1000, rpHourLimit: 60000, allowedOrigins: 'http://localhost:3000', ipWhitelist: '', endpointLimits: [] },
-        security: { authRequired: true, tokenExpiryMinutes: 60, sessionLimits: 5, geoRestrictions: 'None', accessRoles: 'Administrator, Developer' },
-        usage: { maxDailyCalls: 100000, maxUsers: 1000, storageLimitGb: 20 }
+    this.isLoading.set(true);
+    this.api.provisionApp(newProj).subscribe({
+      next: (response: any) => {
+        // Map backend response to frontend ProjectData
+        const app = response;
+        const fullProject: ProjectData = {
+          id: app.id || app.appId,
+          name: app.name,
+          domain: newProj.domain,
+          environment: newProj.environment,
+          plan: newProj.plan,
+          status: 'live',
+          lastUpdated: new Date().toISOString(),
+          apiUsage: 0,
+          apiKey: app.apiKey,
+          apiKeys: [],
+          logs: [],
+          auditLogs: [],
+          users: [
+            { id: 'u_1', name: 'Master Admin', email: 'admin@ajr.dev', role: 'Owner', status: 'Active', lastActive: new Date().toISOString() }
+          ],
+          backups: [],
+          alerts: [],
+          plugins: [],
+          policies: {
+            api: { rpmLimit: 1000, rpHourLimit: 60000, allowedOrigins: '*', ipWhitelist: '', endpointLimits: [] },
+            security: { authRequired: true, tokenExpiryMinutes: 60, sessionLimits: 5, geoRestrictions: 'None', accessRoles: 'Administrator, Developer' },
+            usage: { maxDailyCalls: 100000, maxUsers: 1000, storageLimitGb: 20 }
+          },
+          features: {
+            marketplace: true,
+            services: true,
+            analytics: true
+          },
+          billing: newProj.billing
+        };
+
+        this.projects.update(list => [...list, fullProject]);
+        this.showToast(`Application '${newProj.name}' provisioned successfully!`, 'success');
+        this.isLoading.set(false);
       },
-      features: {
-        marketplace: true,
-        services: true,
-        analytics: true
-      },
-      billing: newProj.billing
-    };
-    
-    this.projects.update(list => [...list, fullProject]);
-    this.showToast(`Application '${newProj.name}' provisioned successfully!`, 'success');
+      error: (err) => {
+        console.error('Provisioning failed:', err);
+        this.showToast(err.error?.error || 'Failed to provision application', 'error');
+        this.isLoading.set(false);
+      }
+    });
   }
 }
