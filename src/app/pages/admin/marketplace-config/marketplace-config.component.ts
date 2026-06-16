@@ -93,25 +93,38 @@ export class MarketplaceConfigComponent implements OnInit {
     }
   }
   
+  updateActiveItem(item: any) {
+    this.activeItem.set(item);
+  }
+
   saveItem() {
-    const item = this.activeItem();
+    const item = this.activeItem() as any;
     if (!item || !item.title) return;
     
     this.isSaving.set(true);
+    const payload = {
+      ...item,
+      html: item.html_content || '',
+      html_content: item.html_content || '',
+      image: item.image || item.image_url || 'https://picsum.photos/seed/placeholder/800/600',
+      image_url: item.image || item.image_url || 'https://picsum.photos/seed/placeholder/800/600'
+    };
+
     if (item.id) {
-      this.marketplaceService.updateAdminItem(item.id, item).subscribe({
+      this.marketplaceService.updateAdminItem(item.id, payload).subscribe({
         next: () => {
           this.loadItems();
           this.isSaving.set(false);
+          this.activeItem.set(null);
         },
         error: () => this.isSaving.set(false)
       });
     } else {
-      this.marketplaceService.createAdminItem(item).subscribe({
+      this.marketplaceService.createAdminItem(payload).subscribe({
         next: (res: any) => {
-          this.activeItem.set(res);
           this.loadItems();
           this.isSaving.set(false);
+          this.activeItem.set(null);
         },
         error: () => this.isSaving.set(false)
       });

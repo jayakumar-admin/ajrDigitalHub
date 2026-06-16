@@ -7,12 +7,13 @@ import { AdminMasterService, AdminApp } from '../../services/admin-master.servic
 import { AdminStoreService } from '../../services/admin-store.service';
 import { AjrAdminAppCard, AjrRateConfig } from './admin-components';
 import { UiConfigService } from '../../services/ui-config.service';
+import { HeroSliderConfigComponent } from './hero-slider-config/hero-slider-config';
 
 @Component({
   selector: 'app-admin-master',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, FormsModule, MatIconModule, AjrAdminAppCard, AjrRateConfig],
+  imports: [CommonModule, FormsModule, MatIconModule, AjrAdminAppCard, AjrRateConfig, HeroSliderConfigComponent],
   template: `
     <div class="min-h-screen bg-app-bg font-sans pb-20 fade-in">
       
@@ -75,6 +76,9 @@ import { UiConfigService } from '../../services/ui-config.service';
                <button (click)="router.navigate(['/admin/marketplace-config'])" class="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-bold text-amber-500 hover:bg-amber-500/10 transition-all text-left border border-dashed border-amber-500/40 mt-2 shadow-xs">
                   <mat-icon class="!w-[18px] !h-[18px] !text-[18px] text-amber-500">storefront</mat-icon> Marketplace Config ⭐
                </button>
+               <button (click)="activeSection.set('heroslider')" [class]="activeSection() === 'heroslider' ? 'bg-indigo-50/20 text-indigo-400 font-bold' : 'text-app-text hover:bg-app-bg hover:text-indigo-400'" class="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm transition-all text-left border border-dashed border-indigo-500/30 mt-2 cursor-pointer">
+                  <mat-icon class="!w-[18px] !h-[18px] !text-[18px] text-indigo-400">slideshow</mat-icon> Website Hero Slider ⭐
+               </button>
              </nav>
              
              <div class="mt-6 pt-4 border-t border-app-border">
@@ -90,7 +94,13 @@ import { UiConfigService } from '../../services/ui-config.service';
         </aside>
 
         <!-- Right Content Area -->
-        <div class="flex-grow">
+        <div class="flex-grow font-sans">
+            <!-- Hero Slider Config Component -->
+            @if (activeSection() === 'heroslider') {
+               <div class="animate-in fade-in slide-in-from-bottom-2 duration-300">
+                  <app-hero-slider-config></app-hero-slider-config>
+               </div>
+            }
            
            <!-- Applications View -->
            @if (activeSection() === 'applications') {
@@ -215,17 +225,6 @@ import { UiConfigService } from '../../services/ui-config.service';
 
         </div>
       </main>
-
-      <!-- Toast Notification rendered from Store Service -->
-      @if (store.toast().visible) {
-        <div id="toast-wrapper" class="fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 rounded-xl border shadow-xl transition-all duration-300 animate-in fade-in slide-in-from-bottom-5 font-sans bg-app-card text-app-text border-app-border">
-          <mat-icon class="!w-5 !h-5 !text-[20px] shrink-0" 
-                    [class]="store.toast().type === 'success' ? 'text-emerald-500' : store.toast().type === 'error' ? 'text-rose-500' : 'text-amber-500'">
-            {{ store.toast().type === 'success' ? 'check_circle' : store.toast().type === 'error' ? 'error' : 'info' }}
-          </mat-icon>
-          <span class="text-sm font-medium">{{ store.toast().message }}</span>
-        </div>
-      }
     </div>
   `
 })
@@ -235,7 +234,7 @@ export class AdminComponent {
   router = inject(Router);
   uiConfig = inject(UiConfigService);
   
-  activeSection = signal<'applications' | 'config' | 'ratelimit' | 'analytics'>('applications');
+  activeSection = signal<'applications' | 'config' | 'ratelimit' | 'analytics' | 'heroslider'>('applications');
 
   onAppClick(app: AdminApp) {
     this.router.navigate(['/admin/apps', app.id]);

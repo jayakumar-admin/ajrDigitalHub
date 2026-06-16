@@ -8,6 +8,8 @@ import { TechCursor } from './shared/tech-ui';
 import { ApiService } from './services/api.service';
 import { AdminData } from './services/admin-data';
 import { ThemeService } from './services/theme.service';
+import { ToastComponent } from './shared/toast.component';
+import { LoaderComponent } from './shared/loader.component';
 
 interface ChatMessage {
   text: string;
@@ -27,7 +29,7 @@ export interface AppMenuItem {
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, MatIconModule, CommonModule, FormsModule, TechCursor],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, MatIconModule, CommonModule, FormsModule, TechCursor, ToastComponent, LoaderComponent],
   template: `
     <div class="min-h-screen flex flex-col font-sans text-app-text bg-app-bg selection:bg-indigo-100 selection:text-indigo-900">
       <!-- Navigation -->
@@ -396,6 +398,10 @@ export interface AppMenuItem {
         </div>
       </div>
     </div>
+
+    <!-- Centralized Feedback Layer -->
+    <app-global-toast></app-global-toast>
+    <app-global-loader mode="fullscreen"></app-global-loader>
   `
 })
 export class App implements AfterViewChecked, OnInit {

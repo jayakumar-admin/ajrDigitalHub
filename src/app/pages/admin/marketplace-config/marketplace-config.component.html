@@ -20,7 +20,10 @@
        <div class="flex-grow flex overflow-hidden">
           <!-- Left Panel: Template Library (18%) -->
           <div class="w-[18%] shrink-0 border-r border-app-border">
-             <app-marketplace-sidebar (selectTemplate)="onSelectTemplate($event)"></app-marketplace-sidebar>
+             <app-marketplace-sidebar 
+               [activeItem]="activeItem()" 
+               (activeItemChange)="updateActiveItem($event)"
+               (selectTemplate)="onSelectTemplate($event)"></app-marketplace-sidebar>
           </div>
 
           <!-- Center Panel: Code Editor (41%) -->

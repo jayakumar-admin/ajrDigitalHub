@@ -1,4 +1,5 @@
-import { Injectable, inject, signal, computed, OnDestroy } from '@angular/core';
+import { Injectable, inject, signal, computed, OnDestroy, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { AdminStoreService, ProjectData } from './admin-store.service';
 import { interval, Subscription } from 'rxjs';
 
@@ -53,10 +54,72 @@ export class SystemCoreService implements OnDestroy {
     trafficHistory: Array.from({ length: 30 }, (_, i) => 30 + Math.sin(i / 2) * 15 + Math.random() * 8)
   });
 
+  private platformId = inject(PLATFORM_ID);
+  private eventSource?: EventSource;
+
   constructor() {
     this.initializeTelemetry();
     this.startSimulation();
+    this.connectLiveSse();
   }
+
+  private connectLiveSse() {
+    if (!isPlatformBrowser(this.platformId)) return;
+
+    this.eventSource = new EventSource('/api/admin/stream');
+    this.eventSource.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.type === 'traffic') {
+          // Real-time API hit stats
+          this.globalTelemetry.update(current => {
+            const hist = [...current.trafficHistory];
+            hist.shift();
+            // push real response time
+            hist.push(data.latency || 15);
+            return {
+              ...current,
+              latencyMs: Math.round(data.latency || current.latencyMs),
+              trafficHistory: hist
+            };
+          });
+
+          // Overlay real metrics to app map if matched
+          const currentMap = { ...this.appTelemetryMap() };
+          const projects = this.store.projects();
+          const targetProject = projects.find(p => data.endpoint.includes(p.id) || p.domain.includes(data.endpoint));
+          
+          if (targetProject && currentMap[targetProject.id]) {
+            const appTel = currentMap[targetProject.id];
+            currentMap[targetProject.id] = {
+              ...appTel,
+              apiHitsPerMin: parseFloat((appTel.apiHitsPerMin + 0.1).toFixed(1)),
+              latency: Math.round(data.latency || appTel.latency)
+            };
+            this.appTelemetryMap.set(currentMap);
+          }
+        } else if (data.type === 'deploy-update') {
+          this.store.projects.update(projects =>
+            projects.map(p => {
+              if (p.id === data.appId) {
+                return {
+                  ...p,
+                  status: data.status === 'success' ? 'live' : 'deploying'
+                };
+              }
+              return p;
+            })
+          );
+          if (data.status === 'success') {
+            this.store.showToast(`Deployment v${data.version} active on primary router`, 'success');
+          }
+        }
+      } catch (err) {
+        console.error('SSE Live payload parse failed:', err);
+      }
+    };
+  }
+
 
   private initializeTelemetry() {
     const currentProjects = this.store.projects();
@@ -285,6 +348,9 @@ export class SystemCoreService implements OnDestroy {
   ngOnDestroy() {
     if (this.timerSub) {
       this.timerSub.unsubscribe();
+    }
+    if (this.eventSource) {
+      this.eventSource.close();
     }
   }
 }

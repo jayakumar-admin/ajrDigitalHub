@@ -17,6 +17,15 @@ export class MarketplaceService {
     });
   }
 
+  getPublicItems(category?: string, search?: string): Observable<any[]> {
+    return this.apiService.get<any[]>('/marketplace', {
+      params: {
+        ...(category && category !== 'All' ? { category } : {}),
+        ...(search ? { search } : {})
+      }
+    });
+  }
+
   purchaseProduct(productId: number, amount: number): Observable<any> {
     return this.apiService.post('/dynamic/orders', { productId, amount, status: 'pending' });
   }

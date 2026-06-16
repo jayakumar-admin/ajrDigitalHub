@@ -5,12 +5,13 @@ import { MatIconModule } from '@angular/material/icon';
 import { ProjectData } from '../../../services/project-detail.service';
 import { AdminCloudService } from '../../../services/admin-cloud.service';
 import { AdminStoreService } from '../../../services/admin-store.service';
+import { ButtonLoaderDirective } from '../../../shared/button-loader.directive';
 
 @Component({
   selector: 'app-project-database',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, FormsModule, MatIconModule],
+  imports: [CommonModule, FormsModule, MatIconModule, ButtonLoaderDirective],
   template: `
     <div class="animate-in fade-in slide-in-from-bottom-2 duration-300 max-w-5xl space-y-6">
       <h2 class="text-2xl font-bold text-app-text tracking-tight flex items-center gap-2">
@@ -31,7 +32,7 @@ import { AdminStoreService } from '../../../services/admin-store.service';
                  <input id="p-db-timeout" type="number" [(ngModel)]="cloudService.state().dbConfig.timeout" class="w-full px-3 py-2 bg-app-bg border border-app-border rounded text-app-text font-mono text-sm outline-none focus:border-indigo-500">
               </div>
               <div class="pt-2">
-                 <button (click)="testConnection()" class="w-full py-2.5 bg-app-bg hover:bg-app-card text-app-text border border-app-border rounded-lg text-sm font-bold transition shadow-sm">
+                <button (click)="testConnection()" [appButtonLoader]="isTesting()" class="w-full py-2.5 bg-app-bg hover:bg-app-card text-app-text border border-app-border rounded-lg text-sm font-bold transition shadow-sm">
                    Simulate Test Connection
                  </button>
               </div>
@@ -62,7 +63,7 @@ import { AdminStoreService } from '../../../services/admin-store.service';
       <div class="bg-app-bg border border-app-border rounded-xl p-0 shadow-sm overflow-hidden">
          <div class="px-6 py-4 flex items-center justify-between border-b border-app-border bg-app-bg">
             <h3 class="text-sm font-bold text-app-text uppercase tracking-widest">Snapshot Backups</h3>
-            <button (click)="takeBackup()" class="px-4 py-1.5 bg-app-bg border border-app-border text-app-text rounded text-xs font-bold hover:bg-app-card transition">Take Manual Backup</button>
+            <button (click)="takeBackup()" [appButtonLoader]="isBackingUp()" class="px-4 py-1.5 bg-app-bg border border-app-border text-app-text rounded text-xs font-bold hover:bg-app-card transition flex items-center justify-center gap-2">Take Manual Backup</button>
          </div>
          <table class="w-full text-left">
             <thead class="bg-app-bg border-b border-app-border text-[10px] uppercase tracking-widest text-app-muted">
@@ -104,24 +105,32 @@ export class ProjectDatabaseComponent implements OnInit {
   store = inject(AdminStoreService);
 
   backups = signal<any[]>([]);
+  isTesting = signal(false);
+  isBackingUp = signal(false);
 
   ngOnInit() {
     this.backups.set(this.project().backups || []);
   }
 
   testConnection() {
-    this.store.showToast('Database connection tested! Ping: 12ms (Success)', 'success');
+    this.isTesting.set(true);
+    setTimeout(() => {
+      this.isTesting.set(false);
+      this.store.showToast('Database connection tested! Ping: 12ms (Success)', 'success');
+    }, 1000);
   }
 
   takeBackup() {
+    this.isBackingUp.set(true);
     const newBak = {
       id: 'bak_' + Date.now(),
       date: new Date().toISOString(),
       sizeMb: parseFloat((Math.random() * 100 + 40).toFixed(2))
     };
-    this.backups.update((list: any[]) => [newBak, ...list]);
     this.store.showToast('Automatic database hot-dump initiated...', 'info');
     setTimeout(() => {
+      this.backups.update((list: any[]) => [newBak, ...list]);
+      this.isBackingUp.set(false);
       this.store.showToast('Manual database snapshot completed successfully!', 'success');
     }, 1500);
   }
