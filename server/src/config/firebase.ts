@@ -13,9 +13,34 @@ const storageBucket = process.env['FIREBASE_STORAGE_BUCKET'];
 let firebaseApp: any = null;
 let bucket: any = null;
 
+function parseServiceAccount(jsonStr: string): any {
+  const clean = jsonStr.trim();
+  try {
+    return JSON.parse(clean);
+  } catch (err) {
+    try {
+      // Try resolving single quotes and escape sequences
+      const fixed = clean.replace(/'/g, '"');
+      return JSON.parse(fixed);
+    } catch {
+      try {
+        // Fallback for JS object literal formats (e.g. unquoted keys, single quotes, trailing commas)
+        const fn = new Function(`return (${clean});`);
+        const obj = fn();
+        if (obj && typeof obj === 'object') {
+          return obj;
+        }
+        throw new Error('Not an object');
+      } catch {
+        throw err; // throw original JSON.parse error if fallback fails
+      }
+    }
+  }
+}
+
 if (serviceAccountJson && storageBucket) {
   try {
-    const serviceAccount = JSON.parse(serviceAccountJson);
+    const serviceAccount = parseServiceAccount(serviceAccountJson);
     
     // Check if app already initialized to avoid "Duplicate App" error
     const apps = getApps();

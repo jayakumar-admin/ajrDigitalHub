@@ -130,25 +130,42 @@ export const seedDatabase = async () => {
     }
 
     // 5. Seed Settings
-    const settingsCheck = await query('SELECT id FROM records WHERE collection = $1 AND data->>\'key\' = $2', ['settings', 'landing_config']);
-    if (settingsCheck.rowCount === 0) {
-      const configs = [
-        { 
-          key: 'landing_config', 
-          heroTitle: 'Welcome to AJR Digital HUB',
-          cta: 'Provision App Now',
-          maintenance: false
-        },
-        { 
-          key: 'rate_limits_demo', 
-          appId: 'demo_app',
-          limits: { rpm: 100, rph: 1000 }
-        }
-      ];
-      for (const config of configs) {
-        await query('INSERT INTO records (collection, data) VALUES ($1, $2)', ['settings', JSON.stringify(config)]);
+    const configsToSeed = [
+      { 
+        key: 'landing_config', 
+        heroTitle: 'Welcome to AJR Digital HUB',
+        cta: 'Provision App Now',
+        maintenance: false
+      },
+      { 
+        key: 'website_config',
+        siteName: 'AJR Hub',
+        logoUrl: '',
+        theme: 'light',
+        globalFeatures: { maintenanceMode: false, userRegistration: true },
+        features: { marketplace: true, services: true, analytics: true }
+      },
+      { 
+        key: 'rate_limiter',
+        rpm: 1000,
+        rph: 50000,
+        burst: 200,
+        enabled: true,
+        status: 'safe'
+      },
+      { 
+        key: 'rate_limits_demo', 
+        appId: 'demo_app',
+        limits: { rpm: 100, rph: 1000 }
       }
-      console.log('🌱 Seeded: Landing Config & Rate Limits');
+    ];
+
+    for (const config of configsToSeed) {
+      const check = await query('SELECT id FROM records WHERE collection = $1 AND data->>\'key\' = $2', ['settings', config.key]);
+      if (check.rowCount === 0) {
+        await query('INSERT INTO records (collection, data) VALUES ($1, $2)', ['settings', JSON.stringify(config)]);
+        console.log(`🌱 Seeded Setting: ${config.key}`);
+      }
     }
 
     // 6. Seed Menus

@@ -375,6 +375,35 @@ INSERT INTO records (id, collection, data) VALUES (
     "company_address": "123 Design Blvd, Suite 400\nSan Francisco, CA 94107\nhello@ajrdigital.hub",
     "tax_rate": 8.25
   }'::jsonb
+), (
+  '44444444-4444-4444-a444-444444444446',
+  'settings',
+  '{
+    "key": "website_config",
+    "siteName": "AJR Hub",
+    "logoUrl": "",
+    "theme": "light",
+    "globalFeatures": {
+      "maintenanceMode": false,
+      "userRegistration": true
+    },
+    "features": {
+      "marketplace": true,
+      "services": true,
+      "analytics": true
+    }
+  }'::jsonb
+), (
+  '44444444-4444-4444-a444-444444444447',
+  'settings',
+  '{
+    "key": "rate_limiter",
+    "rpm": 1000,
+    "rph": 50000,
+    "burst": 200,
+    "enabled": true,
+    "status": "safe"
+  }'::jsonb
 );
 
 -- Seed Rate Limits Collection (Polymorphic JSONB Store)

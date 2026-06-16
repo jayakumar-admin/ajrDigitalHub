@@ -4,7 +4,7 @@ import {
   inject
 } from '@angular/core';
 import {provideRouter, Router} from '@angular/router';
-import {provideHttpClient, withInterceptors, HttpResponse} from '@angular/common/http';
+import {provideHttpClient, withInterceptors, withFetch, HttpResponse} from '@angular/common/http';
 import {map, catchError, throwError} from 'rxjs';
 import {environment} from '../environments/environment';
 
@@ -14,7 +14,7 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(), 
     provideRouter(routes),
-    provideHttpClient(withInterceptors([
+    provideHttpClient(withFetch(), withInterceptors([
       (req, next) => {
         const router = inject(Router);
         const token = typeof window !== 'undefined' ? localStorage.getItem('saas_token') : null;
