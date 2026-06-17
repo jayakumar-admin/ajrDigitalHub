@@ -16,9 +16,35 @@ const pgConfig = {
   ssl: process.env['PG_SSL'] === 'true' ? { rejectUnauthorized: false } : false
 };
 
+let hasBasePlaceholder = false;
+if (connectionString) {
+  try {
+    // Robustly parse the URL to extract the hostname
+    const parsed = new URL(connectionString);
+    if (parsed.hostname === 'base' || parsed.hostname.startsWith('base.') || parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1') {
+      hasBasePlaceholder = true;
+    }
+  } catch (e) {
+    if (connectionString.includes('base') || connectionString.includes('@base')) {
+      hasBasePlaceholder = true;
+    }
+  }
+}
+
+const pgHost = pgConfig.host;
+const isBaseHost = pgHost === 'base' || (pgHost && (pgHost.startsWith('base.') || pgHost.includes('base')));
+
 export const isPostgresEnabled = !!(
-  (connectionString && (connectionString.startsWith('postgres://') || connectionString.startsWith('postgresql://')) && !connectionString.includes('your_') && !connectionString.includes('@base:') && !connectionString.includes('//base:') && !connectionString.includes('@base/') && !connectionString.includes('//base/')) ||
-  (pgConfig.user && pgConfig.host && pgConfig.password && !pgConfig.password.includes('your_') && pgConfig.host !== 'base')
+  connectionString && 
+  (connectionString.startsWith('postgres://') || connectionString.startsWith('postgresql://')) && 
+  !connectionString.includes('your_') && 
+  !hasBasePlaceholder
+) || !!(
+  pgConfig.user && 
+  pgConfig.host && 
+  pgConfig.password && 
+  !pgConfig.password.includes('your_') && 
+  !isBaseHost
 );
 
 if (!isPostgresEnabled) {

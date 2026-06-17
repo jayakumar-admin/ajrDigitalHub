@@ -3,10 +3,11 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 
 const connectionString = process.env['DATABASE_URL'];
-const isValidPostgres = connectionString && (
-  connectionString.startsWith('postgres://') || 
-  connectionString.startsWith('postgresql://') || 
-  connectionString.includes('@')
+const isValidPostgres = !!(
+  connectionString && 
+  (connectionString.startsWith('postgres://') || connectionString.startsWith('postgresql://')) && 
+  !connectionString.includes('your_') &&
+  !connectionString.includes('base')
 );
 const pool = isValidPostgres ? new Pool({ 
   connectionString,

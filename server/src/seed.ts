@@ -1,13 +1,15 @@
 import { query, isPostgresEnabled } from './config/db';
 import { BaseService } from './core/base.service';
+import bcrypt from 'bcryptjs';
 
 export const seedDatabase = async () => {
   if (!isPostgresEnabled) {
     console.log('🌱 Seeding in-memory database fallback...');
     
-    // Admin
+    // Admin and User
     const authService = new BaseService('users');
-    await authService.create({ email: 'admin@ajr.com', password: 'admin123', role: 'admin', fullName: 'System Administrator' });
+    await authService.create({ email: 'admin@ajr.com', password: await bcrypt.hash('admin123', 10), role: 'admin', fullName: 'System Administrator' });
+    await authService.create({ email: 'user@ajr.com', password: await bcrypt.hash('user123', 10), role: 'user', fullName: 'Standard User' });
 
     // Marketplace
     const marketService = new BaseService('marketplace');
@@ -73,20 +75,35 @@ export const seedDatabase = async () => {
       CREATE INDEX IF NOT EXISTS idx_data ON records USING GIN (data);
     `);
 
-    // 2. Check and Seed Admin
+    // 2. Check and Seed Admin and User
     const adminCheck = await query('SELECT id FROM records WHERE collection = $1 AND data->>\'email\' = $2', ['users', 'admin@ajr.com']);
     if (adminCheck.rowCount === 0) {
       await query('INSERT INTO records (collection, data) VALUES ($1, $2)', [
         'users',
         JSON.stringify({ 
           email: 'admin@ajr.com', 
-          password: '$2b$10$YourHashedPasswordPlaceholder', // Better to use real hash if possible
+          password: await bcrypt.hash('admin123', 10), 
           role: 'admin', 
           fullName: 'System Administrator',
           status: 'active'
         })
       ]);
       console.log('🌱 Seeded: Admin User');
+    }
+
+    const userCheck = await query('SELECT id FROM records WHERE collection = $1 AND data->>\'email\' = $2', ['users', 'user@ajr.com']);
+    if (userCheck.rowCount === 0) {
+      await query('INSERT INTO records (collection, data) VALUES ($1, $2)', [
+        'users',
+        JSON.stringify({ 
+          email: 'user@ajr.com', 
+          password: await bcrypt.hash('user123', 10), 
+          role: 'user', 
+          fullName: 'Standard User',
+          status: 'active'
+        })
+      ]);
+      console.log('🌱 Seeded: Standard User');
     }
 
     // 3. Check and Seed Marketplace (Expanded)

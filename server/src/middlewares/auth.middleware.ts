@@ -1,27 +1,52 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = process.env['JWT_SECRET'] || 'ajr-hub-secret-2026';
+const JWT_SECRET = process.env['JWT_SECRET'] || 'ajr-super-secret-jwt-key-2026';
 
-export const authenticate = (req: Request, res: Response, next: NextFunction): any => {
-  const token = req.headers.authorization?.split(' ')[1];
-  
-  if (!token) {
-    return res.status(401).json({ error: 'Unauthorized: No token provided' });
+export interface AuthUser {
+  id: string;
+  email: string;
+  role: string;
+}
+
+declare global {
+  namespace Express {
+    interface Request {
+      user?: AuthUser;
+    }
+  }
+}
+
+export const requireAuth = (req: Request, res: Response, next: NextFunction) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    res.status(401).json({ error: 'Unauthorized' });
+    return;
   }
 
+  const token = authHeader.split(' ')[1];
   try {
-    const decoded = jwt.verify(token, JWT_SECRET);
-    (req as any).user = decoded;
+    const payload = jwt.verify(token, JWT_SECRET) as AuthUser;
+    req.user = payload;
     next();
-  } catch (err) {
-    return res.status(401).json({ error: 'Unauthorized: Invalid token' });
+  } catch (error) {
+    res.status(401).json({ error: 'Token expired or invalid' });
   }
 };
 
-export const authorizeAdmin = (req: Request, res: Response, next: NextFunction): any => {
-  if ((req as any).user?.role !== 'admin') {
-    return res.status(403).json({ error: 'Forbidden: Admin access required' });
-  }
-  next();
+export const requireRole = (role: string) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    if (!req.user) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
+    if (req.user.role !== role) {
+      res.status(403).json({ error: 'Forbidden' });
+      return;
+    }
+    next();
+  };
 };
+
+export const authenticate = requireAuth;
+export const authorizeAdmin = requireRole('admin');

@@ -1,15 +1,11 @@
-import { Pool } from 'pg';
-import * as dotenv from 'dotenv';
-dotenv.config();
+import { pool as configPool, query as configQuery } from '../config/db';
 
-const connectionString = process.env['DATABASE_URL'];
+export const pool = configPool;
+export const query = (text: string, params?: any[]) => {
+  if (!pool) {
+    // Return empty result gracefully when postgres fallback is active
+    return Promise.resolve({ rows: [], rowCount: 0 });
+  }
+  return configQuery(text, params);
+};
 
-export const pool = new Pool({
-  connectionString,
-  // Reasonable production defaults
-  max: 20,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 2000,
-});
-
-export const query = (text: string, params?: any[]) => pool.query(text, params);

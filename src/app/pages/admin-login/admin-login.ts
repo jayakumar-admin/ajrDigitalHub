@@ -24,15 +24,15 @@ export class AdminLoginComponent {
     this.loading.set(true);
     this.errorMsg.set('');
 
-    this.authService.adminLogin({ username: this.username(), password: this.password() }).subscribe({
-      next: (res) => {
+    this.authService.login({ email: this.username(), password: this.password() }).subscribe({
+      next: (res: any) => {
         if (res.user.role === 'admin') {
           this.router.navigate(['/admin']);
         } else {
           this.router.navigate(['/dashboard']);
         }
       },
-      error: (err) => {
+      error: (err: any) => {
         this.errorMsg.set(err.error?.error || 'Invalid credentials');
         this.loading.set(false);
       },
