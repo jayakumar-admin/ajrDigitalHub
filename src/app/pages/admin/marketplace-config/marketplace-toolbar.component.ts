@@ -62,7 +62,7 @@ import { FormsModule } from '@angular/forms';
         </div>
 
         <div class="flex items-center gap-3">
-           <button (click)="cancel.emit()" class="text-xs font-bold text-app-muted hover:text-app-text px-3 py-1.5 transition-colors">Exit</button>
+           <button (click)="exit.emit()" class="text-xs font-bold text-app-muted hover:text-app-text px-3 py-1.5 transition-colors">Exit</button>
            <button (click)="save.emit()" [disabled]="isSaving" 
                    class="bg-indigo-600 text-white px-5 py-1.5 rounded-xl text-xs font-black shadow-lg shadow-indigo-500/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-2">
               @if (isSaving) {
@@ -77,16 +77,16 @@ import { FormsModule } from '@angular/forms';
   `
 })
 export class MarketplaceToolbarComponent {
-  @Input() title: string = '';
-  @Input() price: number = 0;
-  @Input() category: string = 'Hero';
-  @Input() isSaving: boolean = false;
-  @Input() currentDevice: string = 'desktop';
+  @Input() title = '';
+  @Input() price = 0;
+  @Input() category = 'Hero';
+  @Input() isSaving = false;
+  @Input() currentDevice = 'desktop';
 
   @Output() titleChange = new EventEmitter<string>();
   @Output() priceChange = new EventEmitter<number>();
   @Output() categoryChange = new EventEmitter<string>();
   @Output() deviceChange = new EventEmitter<string>();
   @Output() save = new EventEmitter<void>();
-  @Output() cancel = new EventEmitter<void>();
+  @Output() exit = new EventEmitter<void>();
 }

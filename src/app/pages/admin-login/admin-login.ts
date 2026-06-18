@@ -19,24 +19,22 @@ export class AdminLoginComponent {
   loading = signal(false);
   errorMsg = signal('');
 
-  login(event: Event) {
+  async login(event: Event) {
     event.preventDefault();
     this.loading.set(true);
     this.errorMsg.set('');
 
-    this.authService.adminLogin({ username: this.username(), password: this.password() }).subscribe({
-      next: (res) => {
-        if (res.user.role === 'admin') {
-          this.router.navigate(['/admin']);
-        } else {
-          this.router.navigate(['/dashboard']);
-        }
-      },
-      error: (err) => {
-        this.errorMsg.set(err.error?.error || 'Invalid credentials');
-        this.loading.set(false);
-      },
-      complete: () => this.loading.set(false)
-    });
+    try {
+      const res = await this.authService.login(this.username(), this.password());
+      if (res && res.user && res.user.role === 'admin') {
+        this.router.navigate(['/admin']);
+      } else {
+        this.router.navigate(['/dashboard']);
+      }
+    } catch (err: any) {
+      this.errorMsg.set(err.message || 'Invalid credentials');
+    } finally {
+      this.loading.set(false);
+    }
   }
 }

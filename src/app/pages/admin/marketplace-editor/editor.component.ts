@@ -58,7 +58,7 @@ import { MatIconModule } from '@angular/material/icon';
   `
 })
 export class EditorComponent {
-  @Input() htmlCode: string = '';
+  @Input() htmlCode = '';
   @Output() htmlCodeChange = new EventEmitter<string>();
   
   // Debounce logic

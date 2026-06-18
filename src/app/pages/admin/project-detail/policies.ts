@@ -4,12 +4,13 @@ import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { ProjectData } from '../../../services/project-detail.service';
 import { AdminStoreService } from '../../../services/admin-store.service';
+import { ButtonLoaderDirective } from '../../../shared/button-loader.directive';
 
 @Component({
   selector: 'app-project-policies',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, FormsModule, MatIconModule],
+  imports: [CommonModule, FormsModule, MatIconModule, ButtonLoaderDirective],
   template: `
     <div class="animate-in fade-in slide-in-from-bottom-2 duration-300 max-w-5xl space-y-6">
       <h2 class="text-2xl font-bold text-app-text flex items-center gap-2">
@@ -95,7 +96,7 @@ import { AdminStoreService } from '../../../services/admin-store.service';
       </div>
 
       <div class="flex justify-end pt-4">
-         <button (click)="onSave()" class="bg-indigo-500 text-app-text px-6 py-2.5 rounded-lg font-bold text-sm transition hover:bg-indigo-400 shadow-md">
+         <button (click)="onSave()" [appButtonLoader]="store.isLoading()" class="bg-indigo-500 text-app-text px-6 py-2.5 rounded-lg font-bold text-sm transition hover:bg-indigo-400 shadow-md">
            Compile & Apply Policies
          </button>
       </div>

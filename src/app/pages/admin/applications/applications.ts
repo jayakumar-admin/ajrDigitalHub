@@ -5,12 +5,13 @@ import { MatIconModule } from '@angular/material/icon';
 import { AdminStoreService } from '../../../services/admin-store.service';
 import { AjrAdminAppCard } from '../admin-components';
 import { AdminApp } from '../../../services/admin-master.service';
+import { ButtonLoaderDirective } from '../../../shared/button-loader.directive';
 
 @Component({
   selector: 'app-applications-list',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, FormsModule, MatIconModule, AjrAdminAppCard],
+  imports: [CommonModule, FormsModule, MatIconModule, AjrAdminAppCard, ButtonLoaderDirective],
   template: `
     <div class="space-y-6">
       
@@ -72,7 +73,7 @@ import { AdminApp } from '../../../services/admin-master.service';
                 <button type="button" (click)="isModalOpen.set(false)" class="px-4 py-2 border border-app-border  rounded-xl text-sm font-semibold text-app-muted dark:text-app-muted hover:bg-app-bg dark:hover:bg-app-card transition">
                   Cancel
                 </button>
-                <button id="btn-submit-app" type="submit" [disabled]="!newApp.name || !newApp.domain" class="px-5 py-2 bg-indigo-600 text-app-text rounded-xl text-sm font-bold hover:bg-indigo-500 transition disabled:opacity-50 disabled:cursor-not-allowed">
+                <button id="btn-submit-app" type="submit" [disabled]="!newApp.name || !newApp.domain" [appButtonLoader]="store.isLoading()" class="px-5 py-2 bg-indigo-600 text-app-text rounded-xl text-sm font-bold hover:bg-indigo-500 transition disabled:opacity-50 disabled:cursor-not-allowed">
                   Deploy Instance
                 </button>
               </div>

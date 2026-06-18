@@ -4,12 +4,13 @@ import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { ProjectData } from '../../../services/project-detail.service';
 import { AdminStoreService } from '../../../services/admin-store.service';
+import { ButtonLoaderDirective } from '../../../shared/button-loader.directive';
 
 @Component({
   selector: 'app-project-config',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, FormsModule, MatIconModule],
+  imports: [CommonModule, FormsModule, MatIconModule, ButtonLoaderDirective],
   template: `
     <div class="animate-in fade-in slide-in-from-bottom-2 duration-300 max-w-3xl space-y-6">
       <h2 class="text-2xl font-bold text-app-text flex items-center gap-2">
@@ -42,7 +43,7 @@ import { AdminStoreService } from '../../../services/admin-store.service';
       </div>
       
       <div class="mt-6 flex justify-end">
-         <button (click)="onSave()" class="bg-indigo-500 hover:bg-indigo-400 text-app-text px-6 py-2 rounded-lg font-bold text-sm transition">
+         <button (click)="onSave()" [appButtonLoader]="store.isLoading()" class="bg-indigo-500 hover:bg-indigo-400 text-app-text px-6 py-2 rounded-lg font-bold text-sm transition">
            Save Changes
          </button>
       </div>

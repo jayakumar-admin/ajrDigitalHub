@@ -8,7 +8,7 @@
         The Asset Matrix (Marketplace) feature is temporarily inactive on this cluster by decision of the administrator. Please contact developer support or try again later.
       </p>
       <button routerLink="/" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-app-text font-semibold text-xs rounded-xl uppercase tracking-wider transition cursor-pointer">
-        Return to AJR Digital Hub
+        Return to AJR Hub
       </button>
     </div>
   </div>
@@ -117,6 +117,44 @@
               <p class="text-app-muted">Search parameters yielded zero edge nodes.</p>
             </div>
           }
+        </div>
+      }
+      
+      <!-- Login Prompt Modal -->
+      @if (showLoginModal()) {
+        <div class="fixed inset-0 z-[1000] flex items-center justify-center bg-black/80 backdrop-blur-md">
+          <div class="bg-slate-900 border border-white/10 rounded-3xl p-8 max-w-md w-full mx-4 shadow-2xl relative">
+            <button 
+              (click)="showLoginModal.set(false)"
+              class="absolute top-4 right-4 text-white/40 hover:text-white transition-colors">
+              <mat-icon class="!w-6 !h-6 !text-[24px]">close</mat-icon>
+            </button>
+            
+            <div class="text-center">
+              <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-indigo-500/10 text-indigo-400 mb-6 border border-indigo-500/20">
+                <mat-icon class="!w-6 !h-6 !text-[24px]">lock</mat-icon>
+              </div>
+              
+              <h2 class="text-xl font-black text-white mb-2 tracking-tight font-display">Login Required</h2>
+              <p class="text-sm text-slate-400 mb-8 leading-relaxed">
+                You must have an active authenticated session with an account to purchase products, save dynamic forms, and access your personal node dashboard.
+              </p>
+              
+              <div class="flex flex-col gap-3">
+                <button 
+                  (click)="confirmLogin()"
+                  class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold h-12 rounded-xl transition-all shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2">
+                  <mat-icon class="!text-[18px] !w-[18px] !h-[18px]">login</mat-icon>
+                  <span>LOGIN</span>
+                </button>
+                <button 
+                  (click)="showLoginModal.set(false)"
+                  class="w-full bg-white/5 hover:bg-white/10 text-slate-300 font-bold h-12 rounded-xl border border-white/10 transition-all">
+                  CANCEL
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       }
     </div>

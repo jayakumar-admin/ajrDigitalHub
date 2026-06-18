@@ -1,5 +1,7 @@
-import { Injectable, signal, computed } from '@angular/core';
-import { Observable, of, delay, tap } from 'rxjs';
+import { Injectable, signal, computed, inject } from '@angular/core';
+import { ApiService } from './api.service';
+import { ToastService } from './toast.service';
+import { Observable, of, delay, tap, map } from 'rxjs';
 
 export interface AdminApp {
   id: string;
@@ -160,139 +162,12 @@ export interface AppToast {
   providedIn: 'root'
 })
 export class AdminStoreService {
+  private api = inject(ApiService);
+  private toastService = inject(ToastService);
   // Master State Signals
-  projects = signal<ProjectData[]>([
-    {
-      id: 'app_1',
-      name: 'AJR Commerce',
-      domain: 'ajr-commerce.vercel.app',
-      status: 'live',
-      plan: 'Pro',
-      apiUsage: 45200,
-      lastUpdated: new Date().toISOString(),
-      environment: 'Production',
-      features: { marketplace: true, services: true, analytics: true },
-      apiKey: 'sk_live_abc123...',
-      policies: {
-        api: { rpmLimit: 1000, rpHourLimit: 50000, allowedOrigins: '*', ipWhitelist: '', endpointLimits: [{ endpoint: '/api/checkout', maxRpm: 100 }] },
-        security: { authRequired: true, tokenExpiryMinutes: 60, accessRoles: 'admin,user', geoRestrictions: 'None', sessionLimits: 5 },
-        usage: { maxDailyCalls: 100000, maxUsers: 5000, storageLimitGb: 50 }
-      },
-      logs: [
-        { id: '1', timestamp: new Date().toISOString(), type: 'API', severity: 'Info', message: 'API usage standard normal' },
-        { id: '2', timestamp: new Date(Date.now() - 50000).toISOString(), type: 'Deploy', severity: 'Info', message: 'Deployment v2.4.1 successful' },
-        { id: '3', timestamp: new Date(Date.now() - 100000).toISOString(), type: 'Error', severity: 'Warning', message: 'High latency on /api/auth' }
-      ],
-      users: [
-        { id: 'u1', name: 'Admin One', email: 'admin@ajr.dev', role: 'Owner', status: 'Active', lastActive: new Date().toISOString() },
-        { id: 'u2', name: 'Dev Team', email: 'dev@ajr.dev', role: 'Developer', status: 'Active', lastActive: new Date(Date.now() - 86400000).toISOString() }
-      ],
-      apiKeys: [
-        { id: 'k1', name: 'Production Main', keyPrefix: 'sk_live_abc...', created: new Date(Date.now() - 30 * 86400000).toISOString(), lastUsed: new Date().toISOString(), permissions: ['Read', 'Write'] },
-        { id: 'k2', name: 'ReadOnly Integration', keyPrefix: 'sk_live_xyz...', created: new Date(Date.now() - 10 * 86400000).toISOString(), lastUsed: new Date(Date.now() - 3600000).toISOString(), permissions: ['Read'] }
-      ],
-      alerts: [
-        { id: 'a1', name: 'High Error Rate', condition: 'Error rate > 5% for 5m', action: 'Email: admin@ajr.dev', enabled: true },
-        { id: 'a2', name: 'DB Connection Limit', condition: 'Connections > 90%', action: 'Slack: #ops', enabled: true }
-      ],
-      backups: [
-        { id: 'b1', date: new Date().toISOString(), sizeMb: 245, status: 'Completed' },
-        { id: 'b2', date: new Date(Date.now() - 86400000).toISOString(), sizeMb: 242, status: 'Completed' }
-      ],
-      auditLogs: [
-        { id: 'al1', timestamp: new Date().toISOString(), user: 'admin@ajr.dev', action: 'Updated Policy', resource: 'API Rate Limits', ip: '10.0.0.1' },
-        { id: 'al2', timestamp: new Date(Date.now() - 3600000).toISOString(), user: 'System', action: 'Auto-Scaling', resource: 'Database Pool', ip: 'internal' }
-      ],
-      plugins: [
-        { id: 'p1', name: 'Advanced Analytics', type: 'Monitoring', enabled: true, status: 'Active' },
-        { id: 'p2', name: 'Stripe Billing', type: 'Payments', enabled: true, status: 'Active' }
-      ],
-      billing: {
-        plan: 'Pro Plan',
-        currentSpend: 145.50,
-        estimatedSpend: 299.00,
-        apiCalls: 45200,
-        apiLimit: 100000,
-        storageGb: 42,
-        storageLimit: 50
-      }
-    },
-    {
-      id: 'app_2',
-      name: 'Internal Tools',
-      domain: 'internal.ajr.dev',
-      status: 'deploying',
-      plan: 'Enterprise',
-      apiUsage: 1205,
-      lastUpdated: new Date().toISOString(),
-      environment: 'Staging',
-      features: { marketplace: false, services: false, analytics: true },
-      apiKey: 'sk_test_def456...',
-      policies: {
-        api: { rpmLimit: 5000, rpHourLimit: 250000, allowedOrigins: 'internal.ajr.dev', ipWhitelist: '10.0.0.1', endpointLimits: [] },
-        security: { authRequired: true, tokenExpiryMinutes: 120, accessRoles: 'admin', geoRestrictions: 'Internal', sessionLimits: 1 },
-        usage: { maxDailyCalls: 1000000, maxUsers: 500, storageLimitGb: 200 }
-      },
-      logs: [
-        { id: '1', timestamp: new Date().toISOString(), type: 'Deploy', severity: 'Info', message: 'Build started' },
-        { id: '2', timestamp: new Date(Date.now() - 50000).toISOString(), type: 'API', severity: 'Warning', message: 'Rate limit tripped on /api/sync' }
-      ],
-      users: [],
-      apiKeys: [],
-      alerts: [],
-      backups: [],
-      auditLogs: [],
-      plugins: [],
-      billing: {
-        plan: 'Enterprise',
-        currentSpend: 2000,
-        estimatedSpend: 2000,
-        apiCalls: 1205,
-        apiLimit: 1000000,
-        storageGb: 10,
-        storageLimit: 200
-      }
-    },
-    {
-      id: 'app_3',
-      name: 'Legacy CRM',
-      domain: 'crm.ajr.io',
-      status: 'failed',
-      plan: 'Starter',
-      apiUsage: 0,
-      lastUpdated: new Date().toISOString(),
-      environment: 'Production',
-      features: { marketplace: false, services: true, analytics: false },
-      apiKey: 'sk_live_ghi789...',
-      policies: {
-        api: { rpmLimit: 100, rpHourLimit: 5000, allowedOrigins: '*', ipWhitelist: '', endpointLimits: [] },
-        security: { authRequired: true, tokenExpiryMinutes: 15, accessRoles: 'crm_user', geoRestrictions: '', sessionLimits: 10 },
-        usage: { maxDailyCalls: 10000, maxUsers: 100, storageLimitGb: 10 }
-      },
-      logs: [
-        { id: '1', timestamp: new Date().toISOString(), type: 'Error', severity: 'Critical', message: 'Database connection timeout' },
-        { id: '2', timestamp: new Date(Date.now() - 50000).toISOString(), type: 'Deploy', severity: 'Critical', message: 'Deploy failed' }
-      ],
-      users: [],
-      apiKeys: [],
-      alerts: [],
-      backups: [],
-      auditLogs: [],
-      plugins: [],
-      billing: {
-        plan: 'Starter',
-        currentSpend: 0,
-        estimatedSpend: 0,
-        apiCalls: 0,
-        apiLimit: 10000,
-        storageGb: 0,
-        storageLimit: 10
-      }
-    }
-  ]);
-
+  projects = signal<ProjectData[]>([]);
   websiteConfig = signal<WebsiteConfig>({
-    siteName: 'AJR Digital Hub',
+    siteName: 'AJR Hub',
     logoUrl: '',
     theme: 'light',
     globalFeatures: { maintenanceMode: false, userRegistration: true },
@@ -335,68 +210,189 @@ export class AdminStoreService {
     return this.projects().find(p => p.id === id) || null;
   });
 
+  constructor() {
+    this.refreshAll();
+  }
+
+  // Fetch initial apps & options
+  refreshAll() {
+    this.isLoading.set(true);
+    this.api.get<any>('/admin/system/overview').subscribe({
+      next: (data) => {
+        if (data && data.apps) {
+          const mapped: ProjectData[] = data.apps.map((app: any) => ({
+            id: app.id,
+            name: app.name,
+            domain: app.url || app.domain || '',
+            status: app.status === 'ONLINE' ? 'live' : (app.status === 'SCALING' ? 'deploying' : (app.status === 'OFFLINE' ? 'failed' : app.status)),
+            plan: 'Pro',
+            apiUsage: app.apiHits || 0,
+            lastUpdated: new Date().toISOString(),
+            environment: 'Production',
+            features: { marketplace: true, services: true, analytics: true },
+            apiKey: 'sk_live_' + app.id,
+            policies: {
+              api: { rpmLimit: 1000, rpHourLimit: 50000, allowedOrigins: '*', ipWhitelist: '', endpointLimits: [] },
+              security: { authRequired: true, tokenExpiryMinutes: 60, accessRoles: 'admin,user', geoRestrictions: 'None', sessionLimits: 5 },
+              usage: { maxDailyCalls: 100000, maxUsers: 5000, storageLimitGb: 50 }
+            },
+            logs: [
+              { id: '1', timestamp: new Date().toISOString(), type: 'API', severity: 'Info', message: 'API usage metrics running standard' }
+            ],
+            users: [
+              { id: 'u1', name: 'Master Owner', email: 'admin@ajr.dev', role: 'Owner', status: 'Active', lastActive: new Date().toISOString() }
+            ],
+            apiKeys: [
+              { id: 'k1', name: 'Default Token', keyPrefix: 'sk_live_abc...', created: new Date().toISOString(), lastUsed: new Date().toISOString(), permissions: ['Read', 'Write'] }
+            ],
+            alerts: [],
+            backups: [],
+            auditLogs: [],
+            plugins: [],
+            billing: {
+              plan: 'Pro Plan',
+              currentSpend: 145.50,
+              estimatedSpend: 299.00,
+              apiCalls: app.apiHits || 0,
+              apiLimit: 100000,
+              storageGb: 42,
+              storageLimit: 50
+            }
+          }));
+          this.projects.set(mapped);
+          
+          if (mapped.length > 0 && !this.currentProjectId()) {
+             this.currentProjectId.set(mapped[0].id);
+          }
+        }
+        this.isLoading.set(false);
+      },
+      error: () => {
+        this.isLoading.set(false);
+      }
+    });
+
+    this.api.get<any>('/admin/policies').subscribe({
+      next: (policy: any) => {
+        if (policy) {
+          this.rateLimiter.set({
+            rpm: policy.rpmLimit || 1000,
+            rph: (policy.rpmLimit || 1000) * 50,
+            burst: 200,
+            enabled: policy.authRequired !== false,
+            status: (policy.rpmLimit || 1000) > 5000 ? 'critical' : 'safe'
+          });
+        }
+      }
+    });
+
+    this.api.get<any>('/admin/analytics').subscribe({
+      next: (res: any) => {
+        if (res) {
+          this.staticAnalytics.set({
+            apiUsage: [
+              { date: 'Mon', requests: Math.round(res.totalRequests * 0.1) },
+              { date: 'Tue', requests: Math.round(res.totalRequests * 0.15) },
+              { date: 'Wed', requests: Math.round(res.totalRequests * 0.12) },
+              { date: 'Thu', requests: Math.round(res.totalRequests * 0.18) },
+              { date: 'Fri', requests: Math.round(res.totalRequests * 0.22) },
+              { date: 'Sat', requests: Math.round(res.totalRequests * 0.13) },
+              { date: 'Sun', requests: Math.round(res.totalRequests * 0.1) }
+            ],
+            errors: res.errorsCount || 0,
+            activeUsers: 1420,
+            totalRequests: res.totalRequests || 0
+          });
+        }
+      }
+    });
+  }
+
   // Actions
   showToast(message: string, type: 'success' | 'error' | 'info' = 'success') {
-    this.toast.set({ message, type, visible: true });
-    setTimeout(() => {
-      this.toast.update(t => ({ ...t, visible: false }));
-    }, 4000);
+    if (type === 'success') {
+      this.toastService.success(message);
+    } else if (type === 'error') {
+      this.toastService.error(message);
+    } else {
+      this.toastService.info(message);
+    }
   }
 
   loadProject(id: string) {
     this.isLoading.set(true);
-    // Directly setting the active project ID triggers the currentProject computed signal!
     this.currentProjectId.set(id);
-    setTimeout(() => {
-      this.isLoading.set(false);
-    }, 400); // Simulate network latency
+    this.api.get<any>(`/admin/apps/${id}`).subscribe({
+      next: (det) => {
+        if (det) {
+          const mappedStatus = det.status === 'live' ? 'live' : (det.status === 'deploying' ? 'deploying' : 'failed');
+          this.projects.update(list => list.map(p => {
+            if (p.id === id) {
+              return {
+                ...p,
+                ...det,
+                status: mappedStatus,
+                policies: det.policies || p.policies,
+                billing: det.billing || p.billing,
+                users: det.users || p.users,
+                apiKeys: det.apiKeys || p.apiKeys,
+                logs: det.logs || p.logs,
+                backups: det.backups || p.backups
+              };
+            }
+            return p;
+          }));
+        }
+        this.isLoading.set(false);
+      },
+      error: () => {
+        this.isLoading.set(false);
+      }
+    });
   }
 
   updateProject(id: string, partial: Partial<ProjectData>): Observable<boolean> {
-    return of(true).pipe(
-      delay(500),
+    return this.api.put<any>(`/admin/apps/${id}`, partial).pipe(
       tap(() => {
         this.projects.update(projects =>
           projects.map(p => {
             if (p.id === id) {
-              const updated = { ...p, ...partial, lastUpdated: new Date().toISOString() };
-              return updated;
+              return { ...p, ...partial, lastUpdated: new Date().toISOString() };
             }
             return p;
           })
         );
-        this.showToast(`Saved changes for ${this.projects().find(p => p.id === id)?.name || 'Project'} successfully!`, 'success');
-      })
+        this.showToast(`Saved changes successfully!`, 'success');
+      }),
+      map(() => true)
     );
   }
 
   updateAppConfig(id: string, updates: Partial<AdminApp>): Observable<boolean> {
-    return of(true).pipe(
-      delay(600),
+    return this.api.put<any>(`/admin/apps/${id}`, updates).pipe(
       tap(() => {
         this.projects.update(projects =>
           projects.map(p => {
             if (p.id === id) {
-              const updated = { ...p, ...updates, lastUpdated: new Date().toISOString() };
-              return updated;
+              return { ...p, ...updates, lastUpdated: new Date().toISOString() };
             }
             return p;
           })
         );
         this.showToast('Setup changed successfully!', 'success');
-      })
+      }),
+      map(() => true)
     );
   }
 
   regenerateApiKey(id: string): Observable<string> {
-    const newKey = 'sk_' + (Math.random() > 0.5 ? 'live' : 'test') + '_' + Math.random().toString(36).substring(2, 10);
-    return of(newKey).pipe(
-      delay(800),
-      tap((key) => {
+    return this.api.post<any>('/admin/api-keys', { name: 'Root Rotated Key' }).pipe(
+      map((res: any) => res.keyPrefix || 'sk_live_' + id),
+      tap((newKey) => {
         this.projects.update(projects =>
           projects.map(p => {
             if (p.id === id) {
-              return { ...p, apiKey: key, lastUpdated: new Date().toISOString() };
+              return { ...p, apiKey: newKey, lastUpdated: new Date().toISOString() };
             }
             return p;
           })
@@ -407,29 +403,29 @@ export class AdminStoreService {
   }
 
   updateWebsiteConfig(config: WebsiteConfig): Observable<boolean> {
-    return of(true).pipe(
-      delay(500),
+    return this.api.post<any>('/admin/policies', { allowedOrigins: config.logoUrl }).pipe(
       tap(() => {
         this.websiteConfig.set(config);
         this.showToast('Website configuration updated!', 'success');
-      })
+      }),
+      map(() => true)
     );
   }
 
   updateRateLimiter(config: RateLimiterConfig): Observable<boolean> {
     const status = config.rpm > 5000 ? 'critical' : config.rpm > 2000 ? 'warning' : 'safe';
-    return of(true).pipe(
-      delay(400),
+    return this.api.post<any>('/admin/policies', { rpmLimit: config.rpm, authRequired: config.enabled }).pipe(
       tap(() => {
         this.rateLimiter.set({ ...config, status });
         this.showToast('Edge Rate Engine policies deployed!', 'success');
-      })
+      }),
+      map(() => true)
     );
   }
 
   refreshDeployStatus(id: string): Observable<string> {
-    return of('live').pipe(
-      delay(1200),
+    return this.api.get<any>('/admin/deployments').pipe(
+      map(() => 'live'),
       tap(() => {
         this.projects.update(projects =>
           projects.map(p => {
@@ -438,47 +434,59 @@ export class AdminStoreService {
             }
             return p;
           })
-         );
+        );
         this.showToast('Deployment status updated to active.', 'info');
       })
     );
   }
 
   addProject(newProj: { name: string; domain: string; environment: 'Production' | 'Staging' | 'Sandbox'; plan: 'Lite' | 'Standard' | 'Enterprise'; billing: any }) {
-    const id = 'app_' + (this.projects().length + 1);
-    const fullProject: ProjectData = {
-      id,
-      name: newProj.name,
-      domain: newProj.domain,
-      environment: newProj.environment,
-      plan: newProj.plan,
-      status: 'live',
-      lastUpdated: new Date().toISOString(),
-      apiUsage: 0,
-      apiKey: 'sk_live_' + Math.random().toString(36).substring(2, 10),
-      apiKeys: [],
-      logs: [],
-      auditLogs: [],
-      users: [
-        { id: 'u_1', name: 'Master Admin', email: 'admin@ajr.dev', role: 'Owner', status: 'Active', lastActive: new Date().toISOString() }
-      ],
-      backups: [],
-      alerts: [],
-      plugins: [],
-      policies: {
-        api: { rpmLimit: 1000, rpHourLimit: 60000, allowedOrigins: 'http://localhost:3000', ipWhitelist: '', endpointLimits: [] },
-        security: { authRequired: true, tokenExpiryMinutes: 60, sessionLimits: 5, geoRestrictions: 'None', accessRoles: 'Administrator, Developer' },
-        usage: { maxDailyCalls: 100000, maxUsers: 1000, storageLimitGb: 20 }
+    this.isLoading.set(true);
+    this.api.provisionApp(newProj).subscribe({
+      next: (response: any) => {
+        const app = response;
+        const fullProject: ProjectData = {
+          id: app.id || app.appId || 'app_new',
+          name: app.name,
+          domain: newProj.domain,
+          environment: newProj.environment,
+          plan: newProj.plan,
+          status: 'live',
+          lastUpdated: new Date().toISOString(),
+          apiUsage: 0,
+          apiKey: app.apiKey || 'sk_live_new',
+          apiKeys: [],
+          logs: [],
+          auditLogs: [],
+          users: [
+            { id: 'u_1', name: 'Master Admin', email: 'admin@ajr.dev', role: 'Owner', status: 'Active', lastActive: new Date().toISOString() }
+          ],
+          backups: [],
+          alerts: [],
+          plugins: [],
+          policies: {
+            api: { rpmLimit: 1000, rpHourLimit: 60000, allowedOrigins: '*', ipWhitelist: '', endpointLimits: [] },
+            security: { authRequired: true, tokenExpiryMinutes: 60, sessionLimits: 5, geoRestrictions: 'None', accessRoles: 'Administrator, Developer' },
+            usage: { maxDailyCalls: 100000, maxUsers: 1000, storageLimitGb: 20 }
+          },
+          features: {
+            marketplace: true,
+            services: true,
+            analytics: true
+          },
+          billing: newProj.billing
+        };
+
+        this.projects.update(list => [...list, fullProject]);
+        this.showToast(`Application '${newProj.name}' provisioned successfully!`, 'success');
+        this.isLoading.set(false);
       },
-      features: {
-        marketplace: true,
-        services: true,
-        analytics: true
-      },
-      billing: newProj.billing
-    };
-    
-    this.projects.update(list => [...list, fullProject]);
-    this.showToast(`Application '${newProj.name}' provisioned successfully!`, 'success');
+      error: (err) => {
+        console.error('Provisioning failed:', err);
+        this.showToast(err.error?.error || 'Failed to provision application', 'error');
+        this.isLoading.set(false);
+      }
+    });
   }
 }
+

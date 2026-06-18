@@ -2,7 +2,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { HttpClient } from '@angular/common/http';
+import { ApiService } from '../../services/api.service';
 import { MatIconModule } from '@angular/material/icon';
 
 @Component({
@@ -48,7 +48,7 @@ import { MatIconModule } from '@angular/material/icon';
 })
 export class MarketplacePreviewComponent implements OnInit {
   private route = inject(ActivatedRoute);
-  private http = inject(HttpClient);
+  private apiService = inject(ApiService);
   private sanitizer = inject(DomSanitizer);
   
   item = signal<any>(null);
@@ -58,7 +58,7 @@ export class MarketplacePreviewComponent implements OnInit {
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
-       this.http.get('/api/marketplace-items/' + id).subscribe({
+       this.apiService.get('/marketplace-items/' + id).subscribe({
          next: (res: any) => {
            this.item.set(res);
            this.sanitizedHtml.set(this.sanitizer.bypassSecurityTrustHtml(res.html_content || ''));

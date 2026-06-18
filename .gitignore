@@ -5,6 +5,7 @@
 !.env.example
 
 # Compiled output
+/server/dist
 /dist
 /tmp
 /out-tsc

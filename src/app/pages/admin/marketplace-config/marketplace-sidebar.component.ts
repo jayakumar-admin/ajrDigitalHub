@@ -1,6 +1,7 @@
-import { Component, Output, EventEmitter, signal } from '@angular/core';
+import { Component, Output, EventEmitter, Input, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
+import { ApiService } from '../../../services/api.service';
 
 export interface BuilderTemplate {
   id: string;
@@ -15,46 +16,150 @@ export interface BuilderTemplate {
   standalone: true,
   imports: [CommonModule, MatIconModule],
   template: `
-    <div class="h-full flex flex-col bg-app-card border-r border-app-border overflow-hidden">
-      <div class="p-4 border-b border-app-border shrink-0">
-        <h3 class="text-sm font-black uppercase tracking-widest text-indigo-400">Library</h3>
+    <div class="h-full flex flex-col bg-app-card border-r border-[#242424] overflow-hidden">
+      <!-- Tabs header section -->
+      <div class="flex border-b border-app-border shrink-0 bg-app-bg/50">
+        <button 
+          (click)="activeTab.set('templates')" 
+          [class]="activeTab() === 'templates' ? 'border-indigo-500 text-indigo-400 font-black bg-app-card' : 'border-transparent text-app-muted hover:text-app-text hover:bg-app-card/30'"
+          class="flex-1 py-3 text-center text-xs uppercase tracking-wider font-extrabold border-b-2 transition-all cursor-pointer">
+          Templates
+        </button>
+        <button 
+          (click)="activeTab.set('settings')" 
+          [class]="activeTab() === 'settings' ? 'border-indigo-500 text-indigo-400 font-black bg-app-card' : 'border-transparent text-app-muted hover:text-app-text hover:bg-app-card/30'"
+          class="flex-1 py-3 text-center text-xs uppercase tracking-wider font-extrabold border-b-2 transition-all cursor-pointer">
+          Meta Settings
+        </button>
       </div>
       
-      <div class="p-2 shrink-0 flex gap-2 overflow-x-auto no-scrollbar border-b border-app-border">
-        @for (cat of categories; track cat) {
-          <button 
-            (click)="selectedCategory.set(cat)"
-            [class]="selectedCategory() === cat ? 'bg-indigo-600 text-white' : 'bg-app-bg text-app-muted hover:text-app-text'"
-            class="px-3 py-1 rounded-full text-[10px] font-bold uppercase transition-all whitespace-nowrap">
-            {{ cat }}
-          </button>
-        }
-      </div>
+      <!-- Template Library -->
+      @if (activeTab() === 'templates') {
+        <div class="p-2 shrink-0 flex gap-1.5 overflow-x-auto no-scrollbar border-b border-app-border">
+          @for (cat of categories; track cat) {
+            <button 
+              (click)="selectedCategory.set(cat)"
+              [class]="selectedCategory() === cat ? 'bg-indigo-600 text-white font-extrabold' : 'bg-app-bg text-app-muted hover:text-app-text'"
+              class="px-3 py-1 rounded-full text-[10px] font-bold uppercase transition-all whitespace-nowrap cursor-pointer">
+              {{ cat }}
+            </button>
+          }
+        </div>
 
-      <div class="flex-grow overflow-y-auto p-3 space-y-4 custom-scrollbar">
-        @for (template of filteredTemplates(); track template.id) {
-          <div class="group relative bg-app-bg border border-app-border rounded-xl overflow-hidden hover:border-indigo-500/50 transition-all cursor-pointer"
-               (click)="selectTemplate.emit(template)">
-            <div class="aspect-video bg-app-card flex items-center justify-center relative overflow-hidden">
-               <div class="scale-50 opacity-50 group-hover:opacity-100 group-hover:scale-75 transition-all duration-500" [innerHTML]="template.html"></div>
-               <div class="absolute inset-0 bg-indigo-600/0 group-hover:bg-indigo-600/20 transition-all flex items-center justify-center">
-                  <mat-icon class="text-white opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all">add_circle</mat-icon>
-               </div>
+        <div class="flex-grow overflow-y-auto p-3 space-y-4 custom-scrollbar">
+          @for (template of filteredTemplates(); track template.id) {
+            <div class="group relative bg-app-bg border border-app-border rounded-xl overflow-hidden hover:border-indigo-500/50 transition-all cursor-pointer"
+                 (click)="selectTemplate.emit(template)">
+              <div class="aspect-video bg-app-card flex items-center justify-center relative overflow-hidden">
+                 <div class="scale-50 opacity-50 group-hover:opacity-100 group-hover:scale-75 transition-all duration-500" [innerHTML]="template.html"></div>
+                 <div class="absolute inset-0 bg-indigo-600/0 group-hover:bg-indigo-600/20 transition-all flex items-center justify-center">
+                    <mat-icon class="text-white opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all">add_circle</mat-icon>
+                 </div>
+              </div>
+              <div class="p-2 text-center border-t border-app-border">
+                 <span class="text-[10px] font-bold text-app-text uppercase">{{ template.name }}</span>
+              </div>
             </div>
-            <div class="p-2 text-center border-t border-app-border">
-               <span class="text-[10px] font-bold text-app-text uppercase">{{ template.name }}</span>
-            </div>
+          }
+        </div>
+      }
+
+      <!-- Page details & Asset Settings -->
+      @if (activeTab() === 'settings' && activeItem) {
+        <div class="flex-grow overflow-y-auto p-4 space-y-5 custom-scrollbar">
+          <!-- Description -->
+          <div class="space-y-1.5">
+            <label class="text-[9px] font-black text-app-muted uppercase tracking-widest block">Description</label>
+            <textarea 
+              [value]="activeItem.description || ''"
+              (input)="updateField('description', $any($event.target).value)"
+              rows="4"
+              class="w-full px-3 py-2.5 bg-app-bg border border-app-border rounded-xl text-xs font-semibold text-app-text outline-none focus:ring-1 focus:ring-indigo-500/50 placeholder:text-app-muted/30 resize-none"
+              placeholder="Enter asset description..."></textarea>
           </div>
-        }
-      </div>
+
+          <!-- Status Dropdown -->
+          <div class="space-y-1.5">
+            <label class="text-[9px] font-black text-app-muted uppercase tracking-widest block">Status</label>
+            <select
+              [value]="activeItem.status || 'active'"
+              (change)="updateField('status', $any($event.target).value)"
+              class="w-full px-3 py-2 bg-app-bg border border-app-border rounded-xl text-xs font-extrabold text-app-text outline-none focus:ring-1 focus:ring-indigo-500/50 cursor-pointer">
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+            </select>
+          </div>
+
+          <!-- Image Upload Option -->
+          <div class="space-y-2 pt-2 border-t border-app-border/40">
+            <label class="text-[9px] font-black text-app-muted uppercase tracking-widest block font-sans">Thumbnail Image</label>
+            
+            @if (activeItem.image || activeItem.image_url) {
+              <div class="relative rounded-xl overflow-hidden aspect-video bg-[#111] border border-app-border group">
+                <img [src]="activeItem.image || activeItem.image_url" alt="Asset Thumbnail Preview" class="w-full h-full object-cover" referrerpolicy="no-referrer" />
+                <div class="absolute inset-0 bg-black/80 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-1.5">
+                  <button type="button" (click)="fileInput.click()" class="px-2.5 py-1 bg-indigo-600 text-white rounded-lg text-[10px] font-black uppercase tracking-wider hover:scale-105 transition-transform cursor-pointer">Replace</button>
+                  <button type="button" (click)="removeImage()" class="px-2.5 py-1 bg-rose-600 text-white rounded-lg text-[10px] font-black uppercase tracking-wider hover:scale-105 transition-transform cursor-pointer">Remove</button>
+                </div>
+              </div>
+            } @else {
+              <div (click)="fileInput.click()" class="border-2 border-dashed border-app-border hover:border-indigo-500/40 rounded-xl p-5 text-center cursor-pointer transition-colors duration-200 bg-app-bg/20 group">
+                <mat-icon class="text-app-muted mx-auto mb-1 text-xl group-hover:text-indigo-400 transition-colors">cloud_upload</mat-icon>
+                <span class="text-[10px] font-black uppercase tracking-wider text-app-muted block">Upload Thumbnail</span>
+              </div>
+            }
+            @if (isUploading()) {
+              <div class="flex items-center gap-1.5 text-[10px] text-indigo-400 font-extrabold uppercase mt-1">
+                <mat-icon class="animate-spin !w-3 !h-3 !text-[12px]">refresh</mat-icon>
+                Syncing Upload...
+              </div>
+            }
+            <input #fileInput type="file" accept="image/*" class="hidden" (change)="onImageSelected($event)" />
+          </div>
+        </div>
+      }
     </div>
   `
 })
 export class MarketplaceSidebarComponent {
+  private apiService = inject(ApiService);
+
+  @Input() activeItem: any = null;
+  @Output() activeItemChange = new EventEmitter<any>();
   @Output() selectTemplate = new EventEmitter<BuilderTemplate>();
 
+  activeTab = signal<'templates' | 'settings'>('templates');
   categories = ['All', 'Hero', 'Cards', 'Pricing', 'Content'];
   selectedCategory = signal('All');
+  isUploading = signal(false);
+
+  onImageSelected(event: any) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    this.isUploading.set(true);
+    this.apiService.uploadImage(file).subscribe({
+      next: (res) => {
+        this.isUploading.set(false);
+        const item = { ...this.activeItem, image: res.url, image_url: res.url };
+        this.activeItemChange.emit(item);
+      },
+      error: (err) => {
+        this.isUploading.set(false);
+        console.error('Image upload failed', err);
+      }
+    });
+  }
+
+  removeImage() {
+    const item = { ...this.activeItem, image: '', image_url: '' };
+    this.activeItemChange.emit(item);
+  }
+
+  updateField(field: string, value: any) {
+    const item = { ...this.activeItem, [field]: value };
+    this.activeItemChange.emit(item);
+  }
 
   templates: BuilderTemplate[] = [
     {

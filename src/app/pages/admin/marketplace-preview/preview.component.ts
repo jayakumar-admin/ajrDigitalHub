@@ -1,4 +1,4 @@
-import { Component, Input, signal, effect, computed } from '@angular/core';
+import { Component, Input, signal, effect, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { MatIconModule } from '@angular/material/icon';
@@ -68,6 +68,8 @@ import { MatIconModule } from '@angular/material/icon';
   `
 })
 export class PreviewComponent {
+  private sanitizer = inject(DomSanitizer);
+  
   @Input() set html(val: string) {
     this.htmlContent.set(val || '');
   }
@@ -89,7 +91,7 @@ export class PreviewComponent {
     }
   });
   
-  constructor(private sanitizer: DomSanitizer) {
+  constructor() {
     effect(() => {
       const content = this.htmlContent();
       const fullDoc = `
