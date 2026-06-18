@@ -7,13 +7,24 @@
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 }
 
+:root, .light-theme {
+  --bg-color: #ffffff;
+  --text-color: #111827;
+}
+
+.dark-theme, .neon-theme {
+  --bg-color: #0f172a;
+  --text-color: #f1f5f9;
+}
+
 body {
   font-family: var(--font-sans);
-  background-color: #f8fafc; /* Beautiful soft off-white slate-50 */
-  color: #0f172a; /* Deep charcoal slate-900 */
+  background-color: var(--bg-color);
+  color: var(--text-color);
   margin: 0;
   padding: 0;
   min-height: 100vh;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* Custom subtle scrollbar */

@@ -151,7 +151,25 @@ app.delete('/api/admin/hero-slider/:id', async (req, res) => {
 app.use(helmet({ 
   contentSecurityPolicy: false
 }));
-app.use(cors());
+app.use(cors({
+  origin: (origin, callback) => {
+    // Dynamic origin selection to perfectly support AI Studio web iframe & localhost dev
+    if (!origin) return callback(null, true);
+    if (
+      origin.startsWith('http://localhost') || 
+      origin.startsWith('https://localhost') || 
+      origin.endsWith('.run.app') || 
+      origin.includes('google.com') || 
+      origin.includes('aistudio')
+    ) {
+      return callback(null, true);
+    }
+    return callback(null, true); // Fallback to always allow in the sandboxed preview
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept']
+}));
 app.use(morgan('dev'));
 app.use(express.json());
 

@@ -245,7 +245,13 @@ export class Login {
       if (this.isLoginMode()) {
         const res = await this.authService.login(email, password);
         this.showToast('Logged in successfully!', 'success');
-        this.router.navigate(['/dashboard']);
+        const redirectUrl = localStorage.getItem('redirectAfterLogin');
+        if (redirectUrl) {
+          localStorage.removeItem('redirectAfterLogin');
+          this.router.navigateByUrl(redirectUrl);
+        } else {
+          this.router.navigate(['/dashboard']);
+        }
       } else {
         const role = this.selectedRole();
         await this.authService.register(email, password, role);

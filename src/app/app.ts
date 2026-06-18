@@ -1,14 +1,20 @@
 import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { RouterOutlet, Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { AuthService } from './services/auth.service';
 import { IdleService } from './services/idle.service';
+import { HeaderComponent } from './shared/header.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, MatIconModule],
+  imports: [RouterOutlet, MatIconModule, HeaderComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
+    <!-- Global Header -->
+    @if (shouldShowHeader()) {
+      <app-header></app-header>
+    }
+
     <!-- Main router outlet -->
     <router-outlet></router-outlet>
 
@@ -61,4 +67,14 @@ import { IdleService } from './services/idle.service';
 export class App {
   auth = inject(AuthService);
   idle = inject(IdleService);
+  router = inject(Router);
+
+  shouldShowHeader(): boolean {
+    const url = this.router.url;
+    // Hide header only for public form paths (e.g. /form/:id) or login paths if desired
+    if (url.includes('/form/') && !url.includes('/dashboard/forms')) {
+      return false;
+    }
+    return true;
+  }
 }

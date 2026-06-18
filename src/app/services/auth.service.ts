@@ -1,7 +1,9 @@
-import { Injectable, signal, computed, inject } from '@angular/core';
+import { Injectable, signal, computed, inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { firstValueFrom, Observable, tap } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface User {
   id: string;
@@ -15,6 +17,7 @@ export interface User {
 export class AuthService {
   private http = inject(HttpClient);
   private router = inject(Router);
+  private platformId = inject(PLATFORM_ID);
 
   // States using Angular Signals
   currentUser = signal<User | null>(null);
@@ -28,22 +31,34 @@ export class AuthService {
   }
 
   private restoreSession() {
-    const storedUser = localStorage.getItem('form_builder_user');
-    const storedToken = localStorage.getItem('form_builder_token');
-    if (storedUser && storedToken) {
-      try {
-        this.currentUser.set(JSON.parse(storedUser));
-        this.accessToken.set(storedToken);
-      } catch (err) {
-        this.clearSession();
+    if (isPlatformBrowser(this.platformId)) {
+      const storedUser = localStorage.getItem('form_builder_user');
+      const storedToken = localStorage.getItem('form_builder_token');
+      if (storedUser && storedToken) {
+        try {
+          this.currentUser.set(JSON.parse(storedUser));
+          this.accessToken.set(storedToken);
+        } catch (err) {
+          this.clearSession();
+        }
       }
     }
+  }
+
+  private getApiUrl(path: string): string {
+    const base = environment.apiBaseUrl || '/api';
+    const cleanBase = base.endsWith('/') ? base.slice(0, -1) : base;
+    const cleanPath = path.startsWith('/') ? path : '/' + path;
+    if (cleanPath.startsWith('/api/')) {
+      return `${cleanBase}/${cleanPath.substring(5)}`;
+    }
+    return `${cleanBase}${cleanPath}`;
   }
 
   async login(email: string, password: string): Promise<any> {
     try {
       const res: any = await firstValueFrom(
-        this.http.post<any>('/api/auth/login', { email, password })
+        this.http.post<any>(this.getApiUrl('/api/auth/login'), { email, password })
       );
       if (res && res.accessToken) {
         this.sessionSuccess(res.user, res.accessToken);
@@ -58,7 +73,7 @@ export class AuthService {
   async register(email: string, password: string, role: 'admin' | 'user'): Promise<any> {
     try {
       const res: any = await firstValueFrom(
-        this.http.post<any>('/api/auth/register', { email, password, role })
+        this.http.post<any>(this.getApiUrl('/api/auth/register'), { email, password, role })
       );
       return res;
     } catch (err: any) {
@@ -68,10 +83,12 @@ export class AuthService {
 
   async tryRefresh(): Promise<boolean> {
     try {
-      const res: any = await firstValueFrom(this.http.post<any>('/api/auth/refresh', {}));
+      const res: any = await firstValueFrom(this.http.post<any>(this.getApiUrl('/api/auth/refresh'), {}));
       if (res && res.accessToken) {
         this.accessToken.set(res.accessToken);
-        localStorage.setItem('form_builder_token', res.accessToken);
+        if (isPlatformBrowser(this.platformId)) {
+          localStorage.setItem('form_builder_token', res.accessToken);
+        }
         return true;
       }
     } catch (e) {
@@ -80,8 +97,21 @@ export class AuthService {
     return false;
   }
 
+  refreshToken(): Observable<any> {
+    return this.http.post<any>(this.getApiUrl('/api/auth/refresh'), {}).pipe(
+      tap((res) => {
+        if (res && res.accessToken) {
+          this.accessToken.set(res.accessToken);
+          if (isPlatformBrowser(this.platformId)) {
+            localStorage.setItem('form_builder_token', res.accessToken);
+          }
+        }
+      })
+    );
+  }
+
   logout() {
-    this.http.post<any>('/api/auth/logout', {}).subscribe({
+    this.http.post<any>(this.getApiUrl('/api/auth/logout'), {}).subscribe({
       next: () => this.clearSession(),
       error: () => this.clearSession()
     });
@@ -90,15 +120,19 @@ export class AuthService {
   clearSession() {
     this.currentUser.set(null);
     this.accessToken.set(null);
-    localStorage.removeItem('form_builder_user');
-    localStorage.removeItem('form_builder_token');
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.removeItem('form_builder_user');
+      localStorage.removeItem('form_builder_token');
+    }
     this.router.navigate(['/login']);
   }
 
   private sessionSuccess(user: User, token: string) {
     this.currentUser.set(user);
     this.accessToken.set(token);
-    localStorage.setItem('form_builder_user', JSON.stringify(user));
-    localStorage.setItem('form_builder_token', token);
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.setItem('form_builder_user', JSON.stringify(user));
+      localStorage.setItem('form_builder_token', token);
+    }
   }
 }

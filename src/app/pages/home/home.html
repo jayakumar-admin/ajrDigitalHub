@@ -1,413 +1,882 @@
-<div class="min-h-screen overflow-hidden relative">
-  <ajr-tech-background></ajr-tech-background>
+<div class="min-h-screen text-slate-100 bg-[#07070d] relative overflow-hidden">
+  
+  <!-- Ambient Space Core / Nebula background -->
+  <ajr-tech-background class="absolute inset-0 z-0 pointer-events-none opacity-40"></ajr-tech-background>
+
+  <!-- Glowing background blobs -->
+  <div class="absolute top-[10%] left-[-10%] w-[500px] h-[500px] rounded-full bg-indigo-600/10 blur-[130px] z-0 pointer-events-none animate-pulse"></div>
+  <div class="absolute top-[40%] right-[-10%] w-[600px] h-[600px] rounded-full bg-pink-500/5 blur-[150px] z-0 pointer-events-none animate-pulse duration-[8000ms]"></div>
+  <div class="absolute bottom-[10%] left-[20%] w-[500px] h-[500px] rounded-full bg-violet-600/10 blur-[120px] z-0 pointer-events-none animate-pulse duration-[6000ms]"></div>
 
   <!-- Announcement Banner -->
-      <div class="bg-indigo-600 text-app-text text-sm py-2 px-4 text-center font-medium flex items-center justify-center gap-2">
-        <span class="bg-app-card/20 px-2 py-0.5 rounded text-xs uppercase tracking-wider">New</span>
-        Smart Invoice Builder is now live! 
-        <a routerLink="/invoice-builder" class="underline hover:text-indigo-100 transition-colors">Try it free &rarr;</a>
-      </div>
+  <div id="landing-announcement" class="relative z-40 bg-indigo-950/80 backdrop-blur-md border-b border-indigo-500/20 text-slate-100 text-xs py-2.5 px-4 text-center font-mono flex items-center justify-center gap-2">
+    <span class="bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded text-[9px] uppercase tracking-widest font-black border border-indigo-500/30">Release</span>
+    <span>SMART INVOICE ENGINE CORE IS ONLINE. ACQUIRE NOW WITH 60% DISCOUNTS.</span>
+    <a routerLink="/invoice-builder" class="underline font-bold text-indigo-400 hover:text-indigo-300 transition-colors">INITIATE ENGINE &rarr;</a>
+  </div>
 
-        <!-- Hero Section -->
-        <section class="relative pt-20 pb-20 lg:pt-32 lg:pb-32 overflow-hidden border-b border-white/5">
-          <ajr-data-flow class="absolute top-0 left-0 w-full h-full"></ajr-data-flow>
-          
-          <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <ajr-parallax-container>
-              <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
-                <div class="lg:col-span-7">
-                  @if (slides().length > 0 && activeSlide()) {
-                    <!-- Dynamic Slide Rendering with custom animations -->
-                    <div class="relative overflow-hidden min-h-[350px] flex flex-col justify-center animate-in fade-in duration-700">
-                      
-                      <!-- Slide Background Accent (Floating Glow) -->
-                      <div class="absolute -top-12 -left-12 w-48 h-48 rounded-full bg-indigo-500/10 blur-3xl pointer-events-none"></div>
-                      
-                      <!-- Subtitle tag -->
-                      <span class="text-xs bg-indigo-600/10 border border-indigo-500/20 text-indigo-400 px-3.5 py-1.5 rounded-full font-black uppercase tracking-widest max-w-max mb-5 select-none">
-                        {{ activeSlide()!.subtitle }}
-                      </span>
-                      
-                      <!-- Main dynamic title -->
-                      <h1 class="text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter text-white mb-6 leading-[1.1] transition-all duration-1000 origin-left"
-                          [class.scale-95]="activeSlide()!.animationType === 'zoom'"
-                          [class.translate-x-2]="activeSlide()!.animationType === 'slide'">
-                        {{ activeSlide()!.title }}
-                      </h1>
-                      
-                      <!-- Description -->
-                      <p class="text-md text-app-muted leading-relaxed mb-10 max-w-xl">
-                        {{ activeSlide()!.description }}
-                      </p>
+  <!-- ==============================================
+       1. HERO SECTION (TOP FOLD)
+       ============================================== -->
+  <section id="hero-fold" class="relative pt-12 pb-24 md:pt-20 md:pb-32 overflow-hidden border-b border-white/5 z-10">
+    <ajr-data-flow class="absolute top-0 left-0 w-full h-full opacity-60 pointer-events-none"></ajr-data-flow>
+    
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+        
+        <!-- Left Hero Content slider -->
+        <div class="lg:col-span-7 flex flex-col justify-center">
+          @if (slides().length > 0 && activeSlide()) {
+            <!-- Dynamic Slide Rendering with custom animations -->
+            <div [appScrollReveal]="{ direction: 'left', speed: 800 }" class="relative min-h-[380px] flex flex-col justify-center">
+              
+              <!-- Subtitle tag -->
+              <span id="hero-slide-badge" class="inline-flex items-center gap-2 text-[10px] bg-indigo-500/10 border border-indigo-500/25 text-indigo-400 px-3.5 py-1.5 rounded-xl font-bold uppercase tracking-widest max-w-max mb-6 select-none font-mono">
+                <span class="h-1.5 w-1.5 rounded-full bg-indigo-400 animate-ping"></span>
+                {{ activeSlide()!.subtitle }}
+              </span>
+              
+              <!-- Main landing dynamic title -->
+              <h1 id="hero-slide-title" class="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white mb-6 leading-[1.08] font-sans">
+                Manage, Deploy & Scale <br/>
+                <span class="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-500 bg-clip-text text-transparent">
+                  {{ activeSlide()!.title }}
+                </span>
+              </h1>
+              
+              <!-- Description -->
+              <p id="hero-slide-desc" class="text-sm sm:text-base text-slate-300 leading-relaxed mb-8 max-w-xl">
+                {{ activeSlide()!.description }}
+              </p>
 
-                      <!-- Action Button Linked directly -->
-                      <div class="flex flex-wrap gap-4 items-center">
-                        <ajr-glow-button [routerLink]="activeSlide()!.buttonLink">
-                          {{ activeSlide()!.buttonText }}
-                          <mat-icon class="text-xs font-bold leading-none flex items-center justify-center">arrow_forward</mat-icon>
-                        </ajr-glow-button>
-                        
-                        <button routerLink="/marketplace" class="bg-app-card/5 backdrop-blur-xl border border-white/10 text-app-text font-black px-8 py-3 rounded-2xl hover:bg-app-card/10 transition-all uppercase tracking-widest text-[10px]">
-                          Ecosystem Arena
-                        </button>
-                      </div>
+              <!-- Action Button Linked directly -->
+              <div class="flex flex-wrap gap-4 items-center">
+                <ajr-glow-button [routerLink]="activeSlide()!.buttonLink" class="shadow-lg shadow-indigo-600/15">
+                  {{ activeSlide()!.buttonText }}
+                  <mat-icon class="!text-[16px] !w-[16px] !h-[16px] leading-none flex items-center justify-center">arrow_forward</mat-icon>
+                </ajr-glow-button>
+                
+                <button routerLink="/marketplace" class="bg-white/5 backdrop-blur-xl border border-white/10 hover:border-white/20 text-white font-bold px-6 h-12 rounded-xl transition-all uppercase tracking-wider text-[10px] flex items-center gap-2">
+                  <mat-icon class="!text-[14px] !w-[14px] !h-[14px]">grid_view</mat-icon>
+                  <span>Explore Products</span>
+                </button>
+              </div>
 
-                      <!-- Bullet Carousels Navigation -->
-                      <div class="flex items-center gap-2 mt-10">
-                        @for (sld of slides(); track sld.id; let sIdx = $index) {
-                          <button (click)="setSlide(sIdx)"
-                                  [class]="currentSlideIndex() === sIdx ? 'bg-indigo-500 w-8' : 'bg-white/10 w-2.5 hover:bg-white/35'"
-                                  class="h-2.5 rounded-full transition-all duration-300 cursor-pointer"
-                                  [title]="'Go to Slide ' + (sIdx + 1)">
-                          </button>
-                        }
-                      </div>
-
-                    </div>
-                  } @else if (landingConfig()) {
-                    <h1 class="text-4xl md:text-5xl lg:text-7xl font-bold tracking-tighter text-app-text mb-8 leading-[1.1]">
-                      {{ landingConfig()!.heroText }}
-                    </h1>
-                    
-                    <div class="mb-16 flex flex-wrap gap-4 items-center">
-                      <ajr-glow-button [routerLink]="landingConfig()!.buttonLink">
-                        {{ landingConfig()!.buttonText }}
-                        <mat-icon class="text-sm">arrow_forward</mat-icon>
-                      </ajr-glow-button>
-                      <button routerLink="/marketplace" class="bg-app-card/5 backdrop-blur-xl border border-white/10 text-app-text font-black px-8 py-3 rounded-2xl hover:bg-app-card/10 transition-all uppercase tracking-widest text-xs">
-                        Explore Assets
-                      </button>
-                    </div>
-
-                    <div class="flex flex-wrap gap-12 md:gap-20 items-start">
-                      @for (stat of landingConfig()!.stats; track $index) {
-                        <div class="scale-110">
-                          <ajr-kpi-counter 
-                            class="text-app-text brightness-125"
-                            [value]="stat.value.includes('+') ? +stat.value.replace('+', '') : +stat.value" 
-                            [label]="stat.label"
-                            [suffix]="stat.value.includes('+') ? '+' : ''"
-                          ></ajr-kpi-counter>
-                        </div>
-                      }
-                    </div>
-                  } @else {
-                  <!-- Fallback Skeleton -->
-                  <div class="space-y-8 max-w-2xl">
-                    <ajr-skeleton className="h-20 w-full rounded-2xl"></ajr-skeleton>
-                    <ajr-skeleton className="h-20 w-3/4 rounded-2xl"></ajr-skeleton>
-                    <div class="flex gap-4 pt-4">
-                      <ajr-skeleton className="h-14 w-48 rounded-xl"></ajr-skeleton>
-                      <ajr-skeleton className="h-14 w-48 rounded-xl"></ajr-skeleton>
-                    </div>
-                    <div class="flex gap-16 pt-12">
-                      <ajr-skeleton className="h-20 w-24 rounded-lg"></ajr-skeleton>
-                      <ajr-skeleton className="h-20 w-24 rounded-lg"></ajr-skeleton>
-                      <ajr-skeleton className="h-20 w-24 rounded-lg"></ajr-skeleton>
-                    </div>
-                  </div>
+              <!-- Bullet Carousels Navigation -->
+              <div class="flex items-center gap-3 mt-10">
+                @for (sld of slides(); track sld.id; let sIdx = $index) {
+                  <button (click)="setSlide(sIdx)"
+                          [class]="currentSlideIndex() === sIdx ? 'bg-indigo-500 scale-x-150 w-8' : 'bg-white/10 w-2 hover:bg-white/30'"
+                          class="h-2 rounded-full transition-all duration-300 cursor-pointer"
+                          [title]="'Go to Slide ' + (sIdx + 1)">
+                  </button>
                 }
               </div>
 
-                <!-- Action Card / Countdown -->
-                <div class="lg:col-span-5">
-                  <ajr-floating-card>
-                    <div class="relative z-10 text-center">
-                      <span class="inline-block px-3 py-1 bg-indigo-500/20 text-indigo-300 text-[10px] font-bold uppercase tracking-widest rounded-full mb-6 border border-indigo-500/30">
-                        Launch Anniversary Offer
-                      </span>
-                      <h3 class="text-2xl font-bold text-app-text mb-8 tracking-tight uppercase">60% OFF Professional Plan</h3>
-                      
-                      <ajr-countdown-timer [endTime]="offerEndTime()" class="brightness-125"></ajr-countdown-timer>
-
-                      <p class="mt-8 text-sm text-indigo-200/60 font-medium leading-relaxed">
-                        Upgrade now to unlock all premium features, remove branding, and get priority support in our edge cluster.
-                      </p>
-
-                      <ajr-glow-button routerLink="/pricing" class="mt-10 block w-full">
-                        Claim Your Discount
-                      </ajr-glow-button>
-                    </div>
-                  </ajr-floating-card>
-                </div>
-              </div>
-            </ajr-parallax-container>
-          </div>
-        </section>
-
-      <!-- Social Proof -->
-      <section class="py-10 border-y border-app-border bg-app-card">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <p class="text-center text-sm font-semibold text-app-muted uppercase tracking-wider mb-8">Trusted by 10,000+ freelancers and agencies</p>
-          <div class="flex flex-wrap justify-center gap-8 md:gap-16 opacity-60 grayscale">
-            <!-- Mock Logos -->
-            <div class="flex items-center gap-2 text-xl font-bold font-serif"><mat-icon>ac_unit</mat-icon> AJR Corp</div>
-            <div class="flex items-center gap-2 text-xl font-bold font-mono"><mat-icon>eco</mat-icon> Globex</div>
-            <div class="flex items-center gap-2 text-xl font-bold"><mat-icon>water_drop</mat-icon> Soylent</div>
-            <div class="flex items-center gap-2 text-xl font-bold font-sans italic"><mat-icon>bolt</mat-icon> Initech</div>
-            <div class="flex items-center gap-2 text-xl font-bold"><mat-icon>public</mat-icon> Massive Dynamic</div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Features Grid -->
-      <section class="py-24 bg-app-bg relative">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div class="text-center max-w-3xl mx-auto mb-16">
-            <h2 class="text-3xl md:text-4xl font-bold text-app-text tracking-tight mb-4">Everything you need to bill like a pro</h2>
-            <p class="text-lg text-app-muted">Powerful features designed to save you time and help you get paid faster.</p>
-          </div>
-
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <!-- Feature 1 -->
-            <ajr-floating-card>
-              <div class="w-14 h-14 bg-indigo-500/20 rounded-2xl flex items-center justify-center mb-6 text-indigo-400 border border-indigo-500/20 shadow-lg">
-                <mat-icon>edit_document</mat-icon>
-              </div>
-              <h3 class="text-xl font-bold text-app-text mb-3 tracking-tight uppercase">Smart Builder</h3>
-              <p class="text-indigo-200/60 leading-relaxed text-sm font-medium">Drag-and-drop interface with real-time preview. Auto-fill products and customer details instantly.</p>
-            </ajr-floating-card>
-
-            <!-- Feature 2 -->
-            <ajr-floating-card style="animation-delay: 0.1s">
-              <div class="w-14 h-14 bg-purple-500/20 rounded-2xl flex items-center justify-center mb-6 text-purple-400 border border-purple-500/20 shadow-lg">
-                <mat-icon>palette</mat-icon>
-              </div>
-              <h3 class="text-xl font-bold text-app-text mb-3 tracking-tight uppercase">Premium Themes</h3>
-              <p class="text-indigo-200/60 leading-relaxed text-sm font-medium">Choose from dozens of professionally designed templates. Customize colors and fonts to match your brand.</p>
-            </ajr-floating-card>
-
-            <!-- Feature 3 -->
-            <ajr-floating-card style="animation-delay: 0.2s">
-              <div class="w-14 h-14 bg-emerald-500/20 rounded-2xl flex items-center justify-center mb-6 text-emerald-400 border border-emerald-500/20 shadow-lg">
-                <mat-icon>payments</mat-icon>
-              </div>
-              <h3 class="text-xl font-bold text-app-text mb-3 tracking-tight uppercase">Fast Payments</h3>
-              <p class="text-indigo-200/60 leading-relaxed text-sm font-medium">Accept credit cards, PayPal, and bank transfers directly from your invoice. Get paid up to 3x faster.</p>
-            </ajr-floating-card>
-
-            <!-- Feature 4 -->
-            <ajr-animated-card>
-              <div class="w-14 h-14 bg-amber-50 rounded-2xl flex items-center justify-center mb-6 text-amber-600 transition-transform">
-                <mat-icon>notifications_active</mat-icon>
-              </div>
-              <h3 class="text-xl font-bold text-app-text mb-3 tracking-tight">Automated Reminders</h3>
-              <p class="text-app-muted leading-relaxed text-sm">Set up automatic email and SMS reminders for overdue invoices. Never chase a payment again.</p>
-            </ajr-animated-card>
-
-            <!-- Feature 5 -->
-            <ajr-animated-card>
-              <div class="w-14 h-14 bg-rose-50 rounded-2xl flex items-center justify-center mb-6 text-rose-600 transition-transform">
-                <mat-icon>insights</mat-icon>
-              </div>
-              <h3 class="text-xl font-bold text-app-text mb-3 tracking-tight">Advanced Analytics</h3>
-              <p class="text-app-muted leading-relaxed text-sm">Track revenue, outstanding balances, and client payment history with beautiful visual dashboards.</p>
-            </ajr-animated-card>
-
-            <!-- Feature 6 -->
-            <ajr-animated-card>
-              <div class="w-14 h-14 bg-cyan-50 rounded-2xl flex items-center justify-center mb-6 text-cyan-600 transition-transform">
-                <mat-icon>share</mat-icon>
-              </div>
-              <h3 class="text-xl font-bold text-app-text mb-3 tracking-tight">One-Click Sharing</h3>
-              <p class="text-app-muted leading-relaxed text-sm">Share invoices instantly via email, WhatsApp, or secure link. Download as PDF with a single click.</p>
-            </ajr-animated-card>
-          </div>
-        </div>
-      </section>
-
-      <!-- Pricing Section -->
-      <section class="py-24 bg-app-card" id="pricing">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div class="text-center max-w-3xl mx-auto mb-16">
-            <h2 class="text-3xl md:text-4xl font-bold text-app-text tracking-tight mb-4">Simple, transparent pricing</h2>
-            <p class="text-lg text-app-muted">Start for free, upgrade when you need more power.</p>
-            
-            <div class="mt-8 inline-flex bg-app-bg rounded-xl p-1 border border-app-border">
-              <button class="px-6 py-2.5 rounded-lg text-sm font-medium bg-app-card text-app-text shadow-sm">Monthly</button>
-              <button class="px-6 py-2.5 rounded-lg text-sm font-medium text-app-muted hover:text-app-text">Annually <span class="text-emerald-500 ml-1">-20%</span></button>
             </div>
-          </div>
-
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            <!-- Free Plan -->
-            <div class="bg-app-card rounded-3xl p-8 border border-app-border shadow-sm flex flex-col">
-              <h3 class="text-xl font-semibold text-app-text mb-2">Starter</h3>
-              <p class="text-app-muted text-sm mb-6">Perfect for freelancers just starting out.</p>
-              <div class="mb-6">
-                <span class="text-4xl font-bold text-app-text">₹0</span>
-                <span class="text-app-muted">/mo</span>
-              </div>
-              <a routerLink="/dashboard" class="w-full py-3 px-4 bg-indigo-50 text-indigo-700 font-medium rounded-xl hover:bg-indigo-100 transition-colors text-center mb-8">Get Started</a>
-              <ul class="space-y-4 flex-grow">
-                <li class="flex items-start gap-3 text-app-muted text-sm"><mat-icon class="text-emerald-500 text-[20px] w-[20px] h-[20px]">check</mat-icon> Up to 5 invoices/month</li>
-                <li class="flex items-start gap-3 text-app-muted text-sm"><mat-icon class="text-emerald-500 text-[20px] w-[20px] h-[20px]">check</mat-icon> 2 basic themes</li>
-                <li class="flex items-start gap-3 text-app-muted text-sm"><mat-icon class="text-emerald-500 text-[20px] w-[20px] h-[20px]">check</mat-icon> PDF downloads</li>
-                <li class="flex items-start gap-3 text-app-muted text-sm"><mat-icon class="text-app-text text-[20px] w-[20px] h-[20px]">close</mat-icon> Online payments</li>
-              </ul>
-            </div>
-
-            <!-- Pro Plan (Highlighted) -->
-            <div class="bg-app-bg rounded-3xl p-8 border border-indigo-500 shadow-2xl shadow-indigo-900/50 flex flex-col relative transform md:-translate-y-4">
-              <div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-gradient-to-r from-indigo-500 to-purple-500 text-app-text px-4 py-1 rounded-full text-xs font-bold uppercase tracking-wider">Most Popular</div>
-              <h3 class="text-xl font-semibold text-app-text mb-2">Professional</h3>
-              <p class="text-app-muted text-sm mb-6">For growing businesses and agencies.</p>
-              <div class="mb-6">
-                <span class="text-4xl font-bold text-app-text">₹1499</span>
-                <span class="text-app-muted">/mo</span>
-              </div>
-              <a routerLink="/dashboard" class="w-full py-3 px-4 bg-indigo-500 text-app-text font-medium rounded-xl hover:bg-indigo-600 transition-colors text-center mb-8 shadow-lg shadow-indigo-500/30">Start 14-Day Free Trial</a>
-              <ul class="space-y-4 flex-grow">
-                <li class="flex items-start gap-3 text-app-text text-sm"><mat-icon class="text-emerald-400 text-[20px] w-[20px] h-[20px]">check</mat-icon> Unlimited invoices</li>
-                <li class="flex items-start gap-3 text-app-text text-sm"><mat-icon class="text-emerald-400 text-[20px] w-[20px] h-[20px]">check</mat-icon> All premium themes</li>
-                <li class="flex items-start gap-3 text-app-text text-sm"><mat-icon class="text-emerald-400 text-[20px] w-[20px] h-[20px]">check</mat-icon> Accept online payments</li>
-                <li class="flex items-start gap-3 text-app-text text-sm"><mat-icon class="text-emerald-400 text-[20px] w-[20px] h-[20px]">check</mat-icon> Automated reminders</li>
-                <li class="flex items-start gap-3 text-app-text text-sm"><mat-icon class="text-emerald-400 text-[20px] w-[20px] h-[20px]">check</mat-icon> Remove AJR branding</li>
-              </ul>
-            </div>
-
-            <!-- Business Plan -->
-            <div class="bg-app-card rounded-3xl p-8 border border-app-border shadow-sm flex flex-col">
-              <h3 class="text-xl font-semibold text-app-text mb-2">Business</h3>
-              <p class="text-app-muted text-sm mb-6">Advanced features for large teams.</p>
-              <div class="mb-6">
-                <span class="text-4xl font-bold text-app-text">₹3999</span>
-                <span class="text-app-muted">/mo</span>
-              </div>
-              <a routerLink="/dashboard" class="w-full py-3 px-4 bg-app-bg border border-app-border text-app-text font-medium rounded-xl hover:bg-app-bg/50 transition-colors text-center mb-8">Contact Sales</a>
-              <ul class="space-y-4 flex-grow">
-                <li class="flex items-start gap-3 text-app-text text-sm"><mat-icon class="text-emerald-500 text-[20px] w-[20px] h-[20px]">check</mat-icon> Everything in Pro</li>
-                <li class="flex items-start gap-3 text-app-text text-sm"><mat-icon class="text-emerald-500 text-[20px] w-[20px] h-[20px]">check</mat-icon> Multiple team members</li>
-                <li class="flex items-start gap-3 text-app-text text-sm"><mat-icon class="text-emerald-500 text-[20px] w-[20px] h-[20px]">check</mat-icon> Custom domain</li>
-                <li class="flex items-start gap-3 text-app-text text-sm"><mat-icon class="text-emerald-500 text-[20px] w-[20px] h-[20px]">check</mat-icon> API access</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Testimonials -->
-      <section class="py-24 bg-app-bg overflow-hidden">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
-          <div class="text-center">
-            <h2 class="text-3xl font-bold text-app-text tracking-tight">Loved by creators worldwide</h2>
-          </div>
-        </div>
-        
-        <div class="relative w-full flex overflow-x-hidden">
-          <div class="flex gap-6 px-4 animate-marquee whitespace-nowrap min-w-min hover:pause" style="width: max-content;">
-            @for (t of duplicatedTestimonials(); track $index) {
-              <div class="bg-app-card p-6 rounded-xl shadow-[0_2px_10px_rgba(0,0,0,0.05)] border border-app-border flex-shrink-0 w-80 flex flex-col whitespace-normal justify-between min-h-[260px]">
-                <div>
-                  <div class="flex items-center gap-3 mb-3">
-                    <span class="text-xl font-medium text-app-text">{{ t.rating | number:'1.1-1' }}</span>
-                    <div class="flex text-red-500">
-                      @for (i of [1,2,3,4,5]; track $index) {
-                        <mat-icon class="text-[18px] w-[18px] h-[18px]">star</mat-icon>
-                      }
-                    </div>
-                  </div>
-                  <p class="text-app-muted mb-6 leading-relaxed">"{{ t.comment }}"</p>
-                </div>
-                <div>
-                  <h4 class="text-sm font-medium text-app-muted">{{ t.role }}</h4>
-                  <div class="flex items-center gap-1.5 mt-3 text-emerald-500 text-xs font-medium">
-                    <mat-icon class="text-[16px] w-[16px] h-[16px]">verified_user</mat-icon>
-                    Verified Review
-                  </div>
-                </div>
-              </div>
-            }
-          </div>
-        </div>
-      </section>
-
-      <!-- FAQ & Contact -->
-      <section class="py-24 bg-app-card">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-16">
-            <!-- FAQ -->
-            <div>
-              <h2 class="text-3xl font-bold text-app-text mb-8">Frequently Asked Questions</h2>
-              <div class="space-y-6">
-                <div class="border-b border-app-border pb-6">
-                  <h4 class="text-lg font-semibold text-app-text mb-2">Can I cancel my subscription anytime?</h4>
-                  <p class="text-app-muted">Yes, you can cancel your subscription at any time from your account settings. You'll retain access until the end of your billing period.</p>
-                </div>
-                <div class="border-b border-app-border pb-6">
-                  <h4 class="text-lg font-semibold text-app-text mb-2">How do online payments work?</h4>
-                  <p class="text-app-muted">We integrate with Stripe and PayPal. When a client pays an invoice, the funds go directly to your connected account. We don't take any additional fees.</p>
-                </div>
-                <div class="border-b border-app-border pb-6">
-                  <h4 class="text-lg font-semibold text-app-text mb-2">Can I use my own logo and branding?</h4>
-                  <p class="text-app-muted">Absolutely. All paid plans allow you to upload your logo, set brand colors, and remove AJR branding from your invoices.</p>
-                </div>
-              </div>
-            </div>
-
-            <!-- Contact Form -->
-            <div class="bg-app-bg rounded-3xl p-8 border border-app-border">
-              <h3 class="text-2xl font-bold text-app-text mb-2">Still have questions?</h3>
-              <p class="text-app-muted mb-8">Send us a message and we'll get back to you within 24 hours.</p>
+          } @else {
+            <!-- Beautiful static animated fallback matching slider look -->
+            <div [appScrollReveal]="{ direction: 'left' }" class="relative flex flex-col justify-center">
+              <span id="hero-static-badge" class="inline-flex items-center gap-1.5 text-[10px] bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 px-3.5 py-1.5 rounded-xl font-mono uppercase tracking-widest max-w-max mb-6">
+                <span class="h-2 w-2 rounded-full bg-indigo-500 animate-pulse"></span>
+                Enterprise Hub Sandbox
+              </span>
+              <h1 id="hero-static-title" class="text-4xl sm:text-5xl lg:text-7xl font-sans font-black tracking-tight text-white mb-6 leading-[1.08]">
+                Deploy Fast.<br/>
+                <span class="bg-gradient-to-r from-indigo-400 via-pink-400 to-purple-500 bg-clip-text text-transparent">Scale Everywhere.</span>
+              </h1>
+              <p id="hero-static-desc" class="text-sm sm:text-base text-slate-300 leading-relaxed mb-8 max-w-xl">
+                Build digital invoicing systems, acquire premium microservices, sync database collections, and inspect performance telemetry in real-time.
+              </p>
               
-              <form class="space-y-4">
-                <div class="grid grid-cols-2 gap-4">
-                  <div>
-                    <label for="firstName" class="block text-sm font-medium text-app-text mb-1">First Name</label>
-                    <input id="firstName" type="text" class="w-full px-4 py-2.5 rounded-xl border border-app-border focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all bg-app-bg text-app-text" placeholder="John">
-                  </div>
-                  <div>
-                    <label for="lastName" class="block text-sm font-medium text-app-text mb-1">Last Name</label>
-                    <input id="lastName" type="text" class="w-full px-4 py-2.5 rounded-xl border border-app-border focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all bg-app-bg text-app-text" placeholder="Doe">
-                  </div>
-                </div>
-                <div>
-                  <label for="email" class="block text-sm font-medium text-app-text mb-1">Email Address</label>
-                  <input id="email" type="email" class="w-full px-4 py-2.5 rounded-xl border border-app-border focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all bg-app-bg text-app-text" placeholder="john@example.com">
-                </div>
-                <div>
-                  <label for="message" class="block text-sm font-medium text-app-text mb-1">Message</label>
-                  <textarea id="message" rows="4" class="w-full px-4 py-2.5 rounded-xl border border-app-border focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all bg-app-bg text-app-text resize-none" placeholder="How can we help you?"></textarea>
-                </div>
-                <button type="button" (click)="sendMessage()" class="w-full py-3 bg-indigo-600 text-app-text font-medium rounded-xl hover:bg-indigo-700 transition-colors shadow-md shadow-indigo-600/20">
-                  {{ isMessageSent() ? 'Message Sent!' : 'Send Message' }}
+              <div class="flex flex-wrap gap-4 items-center mb-10">
+                <ajr-glow-button routerLink="/invoice-builder" class="shadow-lg shadow-indigo-600/15">
+                  Start Building Now
+                  <mat-icon class="!text-[16px] !w-[16px] !h-[16px]">arrow_forward</mat-icon>
+                </ajr-glow-button>
+                <button routerLink="/marketplace" class="bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-white font-bold px-6 h-12 rounded-xl transition-all uppercase tracking-wider text-[10px] flex items-center gap-2">
+                  <mat-icon class="!text-[14px] !w-[14px] !h-[14px]">rocket_launch</mat-icon>
+                  Explore Products
                 </button>
-              </form>
+              </div>
+
+              <!-- Mini stats horizontal layout -->
+              <div class="flex flex-wrap gap-10 items-center border-t border-white/5 pt-8 mt-4">
+                <div class="flex flex-col">
+                  <span class="text-2xl font-black text-white">500+</span>
+                  <span class="text-[9px] font-mono text-slate-400 uppercase tracking-wider">Deployments Active</span>
+                </div>
+                <div class="h-8 w-px bg-white/10"></div>
+                <div class="flex flex-col">
+                  <span class="text-2xl font-black text-indigo-400">99.99%</span>
+                  <span class="text-[9px] font-mono text-slate-400 uppercase tracking-wider">Uptime SLA</span>
+                </div>
+                <div class="h-8 w-px bg-white/10"></div>
+                <div class="flex flex-col">
+                  <span class="text-2xl font-black text-rose-400">12K+</span>
+                  <span class="text-[9px] font-mono text-slate-400 uppercase tracking-wider">Authenticated Users</span>
+                </div>
+              </div>
             </div>
+          }
+        </div>
+
+        <!-- Right Hero Interactive Countdown Discount Card -->
+        <div [appScrollReveal]="{ direction: 'right', delay: 150 }" class="lg:col-span-5 relative mt-4 lg:mt-0">
+          
+          <!-- Outer decorative grid background for card -->
+          <div class="absolute -inset-2 rounded-[32px] bg-gradient-to-tr from-indigo-500/20 to-pink-500/20 opacity-40 blur-lg pointer-events-none"></div>
+
+          <ajr-floating-card>
+            <div class="relative z-10 text-center py-4 px-2">
+              <span class="inline-flex px-3 py-1 bg-indigo-500/20 text-indigo-300 text-[10px] font-bold uppercase tracking-wider rounded-xl mb-6 border border-indigo-500/30 font-mono">
+                Launch Anniversary Offer
+              </span>
+              <h3 class="text-2xl font-black text-white mb-6 tracking-tight uppercase">60% OFF Professional Plan</h3>
+              
+              <!-- Countdown component with styled borders -->
+              <div class="bg-slate-950/50 rounded-2xl p-4 border border-white/5 mb-6">
+                <ajr-countdown-timer [endTime]="offerEndTime()" class="brightness-125"></ajr-countdown-timer>
+              </div>
+
+              <p class="text-xs text-slate-400 leading-relaxed mb-8">
+                Upgrade now to unlock all premium template themes, execute payment interfaces, and secure priorities in our database clusters.
+              </p>
+
+              <button 
+                routerLink="/invoice-builder"
+                class="w-full relative group overflow-hidden bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-bold text-xs uppercase tracking-widest py-4 rounded-xl transition-all shadow-xl shadow-indigo-600/20"
+              >
+                <!-- Flash shine effect on hover -->
+                <div class="absolute inset-0 w-1/2 h-full bg-white/15 skew-x-[-25deg] -translate-x-full group-hover:animate-shine"></div>
+                <span>CLAIM SPECIAL OFFER &rarr;</span>
+              </button>
+            </div>
+          </ajr-floating-card>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ==============================================
+       2. FEATURE HIGHLIGHTS SECTION
+       ============================================== -->
+  <section id="features-highlights" class="relative py-24 border-b border-white/5">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <!-- Section header with scroll reveal input -->
+      <div [appScrollReveal]="{ direction: 'up' }" class="text-center max-w-3xl mx-auto mb-16">
+        <span class="text-xs bg-indigo-600/10 border border-indigo-500/20 text-indigo-400 px-3.5 py-1.5 rounded-full font-mono font-bold uppercase tracking-widest select-none">
+          Services Portfolio
+        </span>
+        <h2 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mt-4 mb-4 font-sans">
+          Engineered for Maximum Digital Output
+        </h2>
+        <p class="text-sm sm:text-base text-slate-400">
+          We combine cutting-edge UI components, fast servers, and reactive database sync loops to construct a reliable infrastructure.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        
+        <!-- Pillar 1: Web Development -->
+        <div [appScrollReveal]="{ direction: 'up', delay: 100 }" class="group bg-slate-900/40 backdrop-blur-xl border border-white/5 hover:border-indigo-500/30 p-6 rounded-2xl transition-all duration-300 hover:-translate-y-2 relative overflow-hidden">
+          <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-indigo-500/5 rounded-full blur-xl pointer-events-none group-hover:bg-indigo-500/10 transition-colors"></div>
+          <div class="w-12 h-12 bg-indigo-500/10 rounded-xl flex items-center justify-center mb-6 text-indigo-400 border border-indigo-500/20 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
+            <mat-icon class="!text-[22px] !w-[22px] !h-[22px]">code</mat-icon>
+          </div>
+          <h3 class="text-lg font-bold text-white mb-2 uppercase tracking-tight">Web Development</h3>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            High-performance web and hybrid applications engineered with TypeScript, Angular standard modules, and ultra-responsive typography.
+          </p>
+        </div>
+
+        <!-- Pillar 2: SaaS Solutions -->
+        <div [appScrollReveal]="{ direction: 'up', delay: 150 }" class="group bg-slate-900/40 backdrop-blur-xl border border-white/5 hover:border-purple-500/30 p-6 rounded-2xl transition-all duration-300 hover:-translate-y-2 relative overflow-hidden">
+          <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-purple-500/5 rounded-full blur-xl pointer-events-none group-hover:bg-purple-500/10 transition-colors"></div>
+          <div class="w-12 h-12 bg-purple-500/10 rounded-xl flex items-center justify-center mb-6 text-purple-400 border border-purple-500/20 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
+            <mat-icon class="!text-[22px] !w-[22px] !h-[22px]">cloud_queue</mat-icon>
+          </div>
+          <h3 class="text-lg font-bold text-white mb-2 uppercase tracking-tight">SaaS Solutions</h3>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            Scalable backend architectures built with modern edge routing, subscription hooks, and robust multi-tenant authorization structures.
+          </p>
+        </div>
+
+        <!-- Pillar 3: UI Builder -->
+        <div [appScrollReveal]="{ direction: 'up', delay: 200 }" class="group bg-slate-900/40 backdrop-blur-xl border border-white/5 hover:border-pink-500/30 p-6 rounded-2xl transition-all duration-300 hover:-translate-y-2 relative overflow-hidden">
+          <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-pink-500/5 rounded-full blur-xl pointer-events-none group-hover:bg-pink-500/10 transition-colors"></div>
+          <div class="w-12 h-12 bg-pink-500/10 rounded-xl flex items-center justify-center mb-6 text-pink-400 border border-pink-500/20 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
+            <mat-icon class="!text-[22px] !w-[22px] !h-[22px]">palette</mat-icon>
+          </div>
+          <h3 class="text-lg font-bold text-white mb-2 uppercase tracking-tight">UI Builder</h3>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            Drag-and-drop reactive workspace that compiles professional invoice assets, exports to custom PDF, and templates custom fields.
+          </p>
+        </div>
+
+        <!-- Pillar 4: API Integration -->
+        <div [appScrollReveal]="{ direction: 'up', delay: 250 }" class="group bg-slate-900/40 backdrop-blur-xl border border-white/5 hover:border-emerald-500/30 p-6 rounded-2xl transition-all duration-300 hover:-translate-y-2 relative overflow-hidden">
+          <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-emerald-500/5 rounded-full blur-xl pointer-events-none group-hover:bg-emerald-500/10 transition-colors"></div>
+          <div class="w-12 h-12 bg-emerald-500/10 rounded-xl flex items-center justify-center mb-6 text-emerald-400 border border-emerald-500/20 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
+            <mat-icon class="!text-[22px] !w-[22px] !h-[22px]">router</mat-icon>
+          </div>
+          <h3 class="text-lg font-bold text-white mb-2 uppercase tracking-tight">API Integration</h3>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            Exposes responsive endpoints with custom REST methods, strict rate limiting safeguards, and seamless token-based validation.
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ==============================================
+       3. INTERACTIVE LIVE DEMO/PREVIEW SECTION
+       ============================================== -->
+  <section id="interactive-preview" class="relative py-24 bg-slate-950/60 border-b border-white/5">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
+        
+        <!-- Left Side Text content -->
+        <div [appScrollReveal]="{ direction: 'left' }" class="lg:col-span-5 flex flex-col justify-center">
+          <span class="text-xs bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-3.5 py-1.5 rounded-full font-mono font-bold uppercase tracking-widest max-w-max mb-6">
+            Live Preview Frame
+          </span>
+          <h2 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mb-6 uppercase">
+            Adaptive Workspace Sandbox
+          </h2>
+          <p class="text-sm text-slate-300 leading-relaxed mb-8">
+            Click the mock control switches on the right to interact with our real-time telemetry state. Observe how instantly components resolve color scales and latency signals.
+          </p>
+
+          <ul class="space-y-4 mb-8">
+            <li class="flex items-center gap-3">
+              <div class="h-6 w-6 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center">
+                <mat-icon class="!text-[14px] !w-[14px] !h-[14px]">bolt</mat-icon>
+              </div>
+              <span class="text-xs font-semibold text-slate-200">Zero-lag visual telemetry diagnostics</span>
+            </li>
+            <li class="flex items-center gap-3">
+              <div class="h-6 w-6 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center">
+                <mat-icon class="!text-[14px] !w-[14px] !h-[14px]">tune</mat-icon>
+              </div>
+              <span class="text-xs font-semibold text-slate-200">Custom theme styling and font swapping</span>
+            </li>
+            <li class="flex items-center gap-3">
+              <div class="h-6 w-6 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center">
+                <mat-icon class="!text-[14px] !w-[14px] !h-[14px]">security</mat-icon>
+              </div>
+              <span class="text-xs font-semibold text-slate-200">Token-based verification & session locking</span>
+            </li>
+          </ul>
+
+          <ajr-glow-button routerLink="/invoice-builder">
+            Launch Sandbox Module
+            <mat-icon class="!text-[16px] !w-[16px] !h-[16px]">launch</mat-icon>
+          </ajr-glow-button>
+        </div>
+
+        <!-- Right Side Live Interactive Panel -->
+        <div [appScrollReveal]="{ direction: 'right', delay: 150 }" class="lg:col-span-7">
+          <div class="bg-slate-900 border border-white/10 rounded-3xl overflow-hidden shadow-2xl relative">
+            
+            <!-- Custom Browser Top Bar Mockup -->
+            <div class="bg-slate-950 border-b border-white/5 py-3.5 px-6 flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="h-3 w-3 rounded-full bg-red-500/60 block"></span>
+                <span class="h-3 w-3 rounded-full bg-amber-500/60 block"></span>
+                <span class="h-3 w-3 rounded-full bg-green-500/60 block"></span>
+              </div>
+              <span class="text-[9px] font-mono text-slate-400 uppercase tracking-widest bg-white/5 px-4 py-1.5 rounded-lg border border-white/5 select-none">
+                live_diagnostic_hub.terminal
+              </span>
+              <span class="text-[10px] text-emerald-400 font-mono flex items-center gap-1.5 font-bold">
+                <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+                SYNCED
+              </span>
+            </div>
+
+            <!-- Terminal Interactive Area -->
+            <div class="p-6 md:p-8 space-y-6">
+              
+              <!-- Active Cluster Stats -->
+              <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                <div class="bg-slate-950/60 border border-white/5 p-4 rounded-xl flex flex-col justify-between">
+                  <span class="text-[8px] font-mono text-slate-400 uppercase tracking-widest block mb-2 leading-none">Diagnostic Latency</span>
+                  <div class="flex items-baseline gap-1">
+                    <span class="text-xl font-bold text-white font-mono">1.24</span>
+                    <span class="text-[9px] text-indigo-400 font-mono">ms</span>
+                  </div>
+                </div>
+                <div class="bg-slate-950/60 border border-white/5 p-4 rounded-xl flex flex-col justify-between">
+                  <span class="text-[8px] font-mono text-slate-400 uppercase tracking-widest block mb-2 leading-none">Resource Load</span>
+                  <div class="flex items-baseline gap-1">
+                    <span class="text-xl font-bold text-white font-mono">0.08</span>
+                    <span class="text-[9px] text-indigo-400 font-mono">% CPU</span>
+                  </div>
+                </div>
+                <div class="bg-slate-950/60 border border-white/5 p-4 rounded-xl flex flex-col justify-between col-span-2 sm:col-span-1">
+                  <span class="text-[8px] font-mono text-slate-400 uppercase tracking-widest block mb-2 leading-none">Authorization Rate</span>
+                  <div class="flex items-baseline gap-1">
+                    <span class="text-xl font-bold text-white font-mono">100</span>
+                    <span class="text-[9px] text-emerald-400 font-mono font-bold">% PASS</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Interactive Mock Invoice Generator Sandbox -->
+              <div class="p-5 bg-slate-950/40 rounded-2xl border border-indigo-500/20 relative overflow-hidden">
+                <div class="absolute -right-8 -top-8 w-24 h-24 bg-indigo-500/10 rounded-full blur-xl pointer-events-none"></div>
+                <div class="flex items-center justify-between mb-4">
+                  <div class="flex flex-col">
+                    <span class="text-xs font-bold text-white tracking-wide uppercase">Mock Corporate Invoice Widget</span>
+                    <span class="text-[9px] font-mono text-slate-400">ID: AJR-INV-02948-2026</span>
+                  </div>
+                  <span class="px-2.5 py-1 bg-yellow-500/10 text-yellow-500 text-[9px] font-mono rounded-lg border border-yellow-500/20 font-bold uppercase">
+                    Pending
+                  </span>
+                </div>
+
+                <div class="space-y-2 mb-4">
+                  <div class="flex justify-between text-xs text-slate-300">
+                    <span>UX/UI Pro Design Pack</span>
+                    <span class="font-bold">₹10,000.00</span>
+                  </div>
+                  <div class="flex justify-between text-xs text-slate-300 border-t border-white/5 pt-2">
+                    <span>Engine Hosting Cluster SLA</span>
+                    <span class="font-bold">₹1,999.00</span>
+                  </div>
+                </div>
+
+                <div class="flex items-center justify-between border-t border-white/10 pt-3">
+                  <span class="text-xs font-bold text-indigo-400 uppercase">Grand Net Value</span>
+                  <span class="text-lg font-black text-white font-mono">₹11,999.00</span>
+                </div>
+              </div>
+
+              <!-- CTA and interactive controls -->
+              <div class="border-t border-white/5 pt-6 flex flex-wrap gap-4 items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <span class="h-2 w-2 rounded-full bg-emerald-400 block animate-pulse"></span>
+                  <span class="text-[10px] font-mono text-slate-400 uppercase tracking-widest">Interactive API Port Online</span>
+                </div>
+                <button routerLink="/invoice-builder" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs uppercase px-5 py-2.5 rounded-xl transition-all shadow-md">
+                  Execute Live Compile
+                </button>
+              </div>
+
+            </div>
+
           </div>
         </div>
-      </section>
 
-      <!-- Chat Widget -->
-      <div class="fixed bottom-6 right-6 z-50 flex flex-col items-end">
-        <!-- Chat Bubble -->
-        @if (isChatOpen()) {
-          <div class="bg-app-card w-72 md:w-80 rounded-2xl shadow-2xl border border-app-border mb-4 overflow-hidden origin-bottom-right transition-all">
-            <div class="p-4 bg-app-bg border-b border-app-border flex justify-between items-center">
-              <h4 class="font-semibold text-app-text">AJR Digital Team</h4>
-              <button (click)="toggleChat()" class="text-app-muted hover:text-app-muted"><mat-icon class="text-[18px] w-[18px] h-[18px]">close</mat-icon></button>
-            </div>
-            <div class="p-4 space-y-4 max-h-60 overflow-y-auto">
-              <div class="bg-indigo-50 border border-indigo-100 text-app-text text-sm p-3 rounded-lg rounded-tl-none">
-                Looking for Web/Mobile or Ecommerce Development Services for your business?
-              </div>
-              <div class="bg-indigo-50 border border-indigo-100 text-app-text text-sm p-3 rounded-lg rounded-tl-none">
-                Ping here and we'll connect you with the right person from our Team.
-              </div>
-            </div>
-            <div class="p-3 border-t border-app-border bg-app-card">
-              <input type="text" placeholder="Type a message..." class="w-full text-sm outline-none px-2 py-1 text-app-text">
-            </div>
-          </div>
-        }
+      </div>
+    </div>
+  </section>
 
-        <!-- Chat Trigger Button -->
-        <button (click)="toggleChat()" class="w-14 h-14 bg-app-bg text-app-text rounded-full shadow-xl flex items-center justify-center hover:bg-app-card hover:scale-105 transition-all relative">
-          <mat-icon>{{ isChatOpen() ? 'keyboard_arrow_down' : 'chat_bubble_outline' }}</mat-icon>
-          @if (!isChatOpen()) {
-            <span class="absolute -top-1 -right-1 w-4 h-4 bg-rose-500 rounded-full text-[9px] font-bold flex items-center justify-center border-2 border-white text-app-text">1</span>
+  <!-- ==============================================
+       4. PRODUCT SHOWCASE SECTION
+       ============================================== -->
+  <section id="product-showcase" class="relative py-24 border-b border-white/5">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <!-- Section title with Scroll Reveal -->
+      <div [appScrollReveal]="{ direction: 'up' }" class="text-center max-w-3xl mx-auto mb-16">
+        <span class="text-xs bg-pink-500/10 border border-pink-500/20 text-pink-400 px-3.5 py-1.5 rounded-full font-mono font-bold uppercase tracking-widest select-none">
+          Marketplace Matrix
+        </span>
+        <h2 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mt-4 mb-4">
+          Acquire Premium Digital Assets
+        </h2>
+        <p class="text-sm sm:text-base text-slate-400">
+          Unlock high-conversion blueprints, developer widgets, and microservices crafted to jumpstart your enterprise pipeline.
+        </p>
+      </div>
+
+      <!-- Loading skeleton frame -->
+      @if (isLoadingProducts()) {
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          @for (s of [1,2,3]; track $index) {
+            <div class="bg-slate-900/50 p-6 rounded-3xl border border-white/5 space-y-4">
+              <ajr-skeleton className="h-48 w-full rounded-2xl"></ajr-skeleton>
+              <ajr-skeleton className="h-6 w-1/2 rounded"></ajr-skeleton>
+              <ajr-skeleton className="h-10 w-full rounded-xl"></ajr-skeleton>
+            </div>
           }
-        </button>
+        </div>
+      } @else {
+        <!-- Grid of Marketplace Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          @for (p of featuredProducts(); track p.id; let idx = $index) {
+            
+            <div [appScrollReveal]="{ direction: 'up', delay: idx * 100 }" class="group bg-slate-900/60 border border-white/5 hover:border-indigo-500/25 rounded-3xl p-5 flex flex-col justify-between transition-all duration-300 hover:-translate-y-2 shadow-xl hover:shadow-indigo-500/5 relative overflow-hidden">
+              
+              <!-- Custom colored categories absolute tag -->
+              <span class="absolute top-4 right-4 z-20 px-3 py-1 bg-slate-950/80 border border-white/10 rounded-xl text-[9px] font-bold text-slate-300 uppercase tracking-widest font-mono">
+                {{ p.category }}
+              </span>
+
+              <!-- Image wrapper with scale effect -->
+              <div class="rounded-2xl overflow-hidden aspect-video bg-slate-950 border border-white/5 relative mb-5">
+                <img 
+                  [src]="p.image_url" 
+                  [alt]="p.title" 
+                  class="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-500"
+                  referrerpolicy="no-referrer"
+                />
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-950 to-transparent opacity-60"></div>
+              </div>
+
+              <!-- Product Details -->
+              <div class="flex-grow">
+                <h3 class="text-lg font-black text-white hover:text-indigo-400 transition-colors uppercase mb-2">
+                  {{ p.title }}
+                </h3>
+                <p class="text-xs text-slate-400 leading-relaxed mb-6">
+                  {{ p.description }}
+                </p>
+              </div>
+
+              <!-- Pricing Actions Footer -->
+              <div class="mt-6 pt-5 border-t border-white/5 flex items-center justify-between">
+                <div class="flex flex-col">
+                  <span class="text-[9px] text-slate-500 uppercase tracking-widest font-mono leading-none mb-1">Price Asset</span>
+                  <span class="text-lg font-bold text-white font-mono">₹{{ p.price }}</span>
+                </div>
+                
+                <div class="flex items-center gap-2">
+                  <a routerLink="/marketplace" class="bg-white/5 hover:bg-white/10 text-white font-bold text-[10px] uppercase tracking-wider px-3 py-2.5 rounded-lg border border-white/5 transition-all">
+                    Preview
+                  </a>
+                  <button (click)="buyNow(p)" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-[10px] uppercase tracking-wider px-4 py-2.5 rounded-lg transition-all shadow-md shadow-indigo-600/10">
+                    Buy Now
+                  </button>
+                </div>
+              </div>
+
+            </div>
+
+          }
+        </div>
+      }
+
+      <!-- Explore Products redirect -->
+      <div [appScrollReveal]="{ direction: 'up', delay: 150 }" class="text-center mt-12">
+        <a routerLink="/marketplace" class="text-xs font-bold text-indigo-400 hover:text-indigo-300 uppercase tracking-widest font-mono flex items-center justify-center gap-2 transition-all hover:gap-3">
+          <span>Inspect Complete Ecosystem Catalogue</span>
+          <mat-icon class="!text-[16px] !w-[16px] !h-[16px]">arrow_forward</mat-icon>
+        </a>
       </div>
 
     </div>
+  </section>
+
+  <!-- ==============================================
+       5. COUNTER STATS SECTION
+       ============================================== -->
+  <section id="counter-stats" class="relative py-20 border-b border-white/5 bg-slate-950/40">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div [appScrollReveal]="{ direction: 'up' }" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        
+        <!-- Stat Item 1 -->
+        <div class="text-center bg-slate-900/30 border border-white/5 p-6 rounded-2xl relative overflow-hidden">
+          <div class="w-10 h-10 bg-indigo-500/10 rounded-xl flex items-center justify-center text-indigo-400 mx-auto mb-4 border border-indigo-500/20">
+            <mat-icon>terminal</mat-icon>
+          </div>
+          <span class="text-3xl sm:text-4xl font-extrabold text-white block mb-1">500+</span>
+          <span class="text-[9px] font-mono text-slate-400 uppercase tracking-widest">Active Client Deployments</span>
+        </div>
+
+        <!-- Stat Item 2 -->
+        <div class="text-center bg-slate-900/30 border border-white/5 p-6 rounded-2xl relative overflow-hidden">
+          <div class="w-10 h-10 bg-violet-500/10 rounded-xl flex items-center justify-center text-violet-400 mx-auto mb-4 border border-violet-500/20">
+            <mat-icon>dns</mat-icon>
+          </div>
+          <span class="text-3xl sm:text-4xl font-extrabold text-white block mb-1">99.99%</span>
+          <span class="text-[9px] font-mono text-slate-400 uppercase tracking-widest">Server Cluster SLA</span>
+        </div>
+
+        <!-- Stat Item 3 -->
+        <div class="text-center bg-slate-900/30 border border-white/5 p-6 rounded-2xl relative overflow-hidden">
+          <div class="w-10 h-10 bg-pink-500/10 rounded-xl flex items-center justify-center text-pink-400 mx-auto mb-4 border border-pink-500/20">
+            <mat-icon>group_add</mat-icon>
+          </div>
+          <span class="text-3xl sm:text-4xl font-extrabold text-white block mb-1">12K+</span>
+          <span class="text-[9px] font-mono text-slate-400 uppercase tracking-widest">Secured User Registries</span>
+        </div>
+
+        <!-- Stat Item 4 -->
+        <div class="text-center bg-slate-900/30 border border-white/5 p-6 rounded-2xl relative overflow-hidden">
+          <div class="w-10 h-10 bg-emerald-500/10 rounded-xl flex items-center justify-center text-emerald-400 mx-auto mb-4 border border-emerald-500/20">
+            <mat-icon>credit_score</mat-icon>
+          </div>
+          <span class="text-3xl sm:text-4xl font-extrabold text-white block mb-1">₹1.2M+</span>
+          <span class="text-[9px] font-mono text-slate-400 uppercase tracking-widest">Volume Processed</span>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ==============================================
+       6. PRICING GRID
+       ============================================== -->
+  <section id="pricing-matrix" class="relative py-24 border-b border-white/5">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <!-- Headings with scroll reveal -->
+      <div [appScrollReveal]="{ direction: 'up' }" class="text-center max-w-3xl mx-auto mb-16">
+        <span class="text-xs bg-indigo-600/10 border border-indigo-500/20 text-indigo-400 px-3.5 py-1.5 rounded-full font-mono font-bold uppercase tracking-widest select-none">
+          Service Rates
+        </span>
+        <h2 class="text-3xl sm:text-4xl font-extrabold text-white mt-4 mb-4">
+          Transparent Scalable Agreements
+        </h2>
+        <p class="text-sm text-slate-400">
+          Acquire the right volume of templates, team seats, and server integrations to fully support your operation.
+        </p>
+
+        <div class="mt-8 inline-flex bg-slate-900 border border-white/5 rounded-2xl p-1 select-none">
+          <button class="px-6 py-2 rounded-xl text-xs font-bold uppercase bg-indigo-600 text-white shadow">
+            Monthly Billing
+          </button>
+          <button class="px-6 py-2 rounded-xl text-xs font-bold uppercase text-slate-400 hover:text-white transition-colors">
+            Yearly <span class="text-emerald-400 ml-1">-20%</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto items-stretch">
+        
+        <!-- Starter Plan -->
+        <div [appScrollReveal]="{ direction: 'up', delay: 100 }" class="bg-slate-900/50 backdrop-blur-md rounded-3xl p-8 border border-white/5 flex flex-col justify-between shadow-xl">
+          <div>
+            <h3 class="text-xl font-bold text-white uppercase tracking-tight mb-2">Starter Plan</h3>
+            <p class="text-xs text-slate-400 mb-6">Excellent starting point for independent freelancers.</p>
+            <div class="mb-8">
+              <span class="text-4xl font-black text-white font-mono">₹0</span>
+              <span class="text-slate-400 font-mono text-xs">/mo</span>
+            </div>
+            
+            <ul class="space-y-4 mb-8">
+              <li class="flex items-center gap-3 text-xs text-slate-300">
+                <mat-icon class="text-emerald-400 !text-[18px] !w-[18px] !h-[18px]">check</mat-icon>
+                <span>Up to 5 invoices / month</span>
+              </li>
+              <li class="flex items-center gap-3 text-xs text-slate-300">
+                <mat-icon class="text-emerald-400 !text-[18px] !w-[18px] !h-[18px]">check</mat-icon>
+                <span>2 basic digital stylesheets</span>
+              </li>
+              <li class="flex items-center gap-3 text-xs text-slate-300">
+                <mat-icon class="text-emerald-400 !text-[18px] !w-[18px] !h-[18px]">check</mat-icon>
+                <span>Local PDF output</span>
+              </li>
+              <li class="flex items-center gap-3 text-xs text-slate-600">
+                <mat-icon class="text-slate-700 !text-[18px] !w-[18px] !h-[18px]">close</mat-icon>
+                <span>Online client processing</span>
+              </li>
+            </ul>
+          </div>
+
+          <button routerLink="/invoice-builder" class="w-full py-3 px-4 bg-white/5 hover:bg-white/10 text-white text-xs font-bold uppercase tracking-wider rounded-xl border border-white/10 transition-colors text-center">
+            Initialize Free Route
+          </button>
+        </div>
+
+        <!-- Pro Plan (Highlighted SaaS banner-glow layout) -->
+        <div [appScrollReveal]="{ direction: 'up', delay: 150 }" class="bg-indigo-950/30 backdrop-blur-md rounded-3xl p-8 border-2 border-indigo-500 shadow-2xl shadow-indigo-500/10 flex flex-col justify-between relative transform md:-translate-y-4">
+          <div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-gradient-to-r from-indigo-500 to-pink-500 text-white px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest shadow-md">
+            RECOMMENDED CLIENT NODE
+          </div>
+
+          <div>
+            <h3 class="text-xl font-bold text-white uppercase tracking-tight mb-2">Professional</h3>
+            <p class="text-xs text-indigo-200/60 mb-6">For growing teams and professional developers.</p>
+            <div class="mb-8">
+              <span class="text-4xl font-black text-white font-mono">₹1,499</span>
+              <span class="text-indigo-200/60 font-mono text-xs">/mo</span>
+            </div>
+            
+            <ul class="space-y-4 mb-8">
+              <li class="flex items-center gap-3 text-xs text-slate-100">
+                <mat-icon class="text-emerald-400 !text-[18px] !w-[18px] !h-[18px]">check</mat-icon>
+                <span>Unlimited invoices compilation</span>
+              </li>
+              <li class="flex items-center gap-3 text-xs text-slate-100">
+                <mat-icon class="text-emerald-400 !text-[18px] !w-[18px] !h-[18px]">check</mat-icon>
+                <span>All premium thematic skins</span>
+              </li>
+              <li class="flex items-center gap-3 text-xs text-slate-100">
+                <mat-icon class="text-emerald-400 !text-[18px] !w-[18px] !h-[18px]">check</mat-icon>
+                <span>Live online processing</span>
+              </li>
+              <li class="flex items-center gap-3 text-xs text-slate-100">
+                <mat-icon class="text-emerald-400 !text-[18px] !w-[18px] !h-[18px]">check</mat-icon>
+                <span>Auto-reminders scheduling</span>
+              </li>
+              <li class="flex items-center gap-3 text-xs text-slate-100">
+                <mat-icon class="text-emerald-400 !text-[18px] !w-[18px] !h-[18px]">check</mat-icon>
+                <span>Remove default AJR credit banners</span>
+              </li>
+            </ul>
+          </div>
+
+          <button routerLink="/invoice-builder" class="w-full py-4 px-4 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold uppercase tracking-widest leading-none rounded-xl transition-all shadow-xl shadow-indigo-600/20 text-center">
+            CLAIM 14-DAY TRIAL FOR SF
+          </button>
+        </div>
+
+        <!-- Business Plan -->
+        <div [appScrollReveal]="{ direction: 'up', delay: 200 }" class="bg-slate-900/50 backdrop-blur-md rounded-3xl p-8 border border-white/5 flex flex-col justify-between shadow-xl">
+          <div>
+            <h3 class="text-xl font-bold text-white uppercase tracking-tight mb-2">Corporate Core</h3>
+            <p class="text-xs text-slate-400 mb-6">Advanced telemetry rates for enterprise teams.</p>
+            <div class="mb-8">
+              <span class="text-4xl font-black text-white font-mono">₹3,999</span>
+              <span class="text-slate-400 font-mono text-xs">/mo</span>
+            </div>
+            
+            <ul class="space-y-4 mb-8">
+              <li class="flex items-center gap-3 text-xs text-slate-300">
+                <mat-icon class="text-emerald-400 !text-[18px] !w-[18px] !h-[18px]">check</mat-icon>
+                <span>Includes everything in Pro</span>
+              </li>
+              <li class="flex items-center gap-3 text-xs text-slate-300">
+                <mat-icon class="text-emerald-400 !text-[18px] !w-[18px] !h-[18px]">check</mat-icon>
+                <span>Multiple user registry access</span>
+              </li>
+              <li class="flex items-center gap-3 text-xs text-slate-300">
+                <mat-icon class="text-emerald-400 !text-[18px] !w-[18px] !h-[18px]">check</mat-icon>
+                <span>Exposes custom REST routes</span>
+              </li>
+              <li class="flex items-center gap-3 text-xs text-slate-300">
+                <mat-icon class="text-emerald-400 !text-[18px] !w-[18px] !h-[18px]">check</mat-icon>
+                <span>Dedicated system engineering</span>
+              </li>
+            </ul>
+          </div>
+
+          <button (click)="sendMessage()" class="w-full py-3 px-4 bg-white/5 hover:bg-white/10 text-white text-xs font-bold uppercase tracking-wider rounded-xl border border-white/10 transition-colors text-center">
+            CONTACT TEAM &rarr;
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ==============================================
+       7. TESTIMONIAL MARQUEE
+       ============================================== -->
+  <section id="marquee-section" class="py-24 overflow-hidden border-b border-white/5 bg-slate-950/20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12">
+      <div [appScrollReveal]="{ direction: 'up' }" class="text-center max-w-2xl mx-auto">
+        <h2 class="text-3xl font-extrabold text-white tracking-tight uppercase">Trusted globally by operators</h2>
+      </div>
+    </div>
+    
+    <div [appScrollReveal]="{ direction: 'zoom', delay: 100 }" class="relative w-full flex overflow-x-hidden">
+      <!-- Infinite side-to-side marquee panel -->
+      <div class="flex gap-6 px-4 animate-marquee whitespace-nowrap min-w-min hover:pause" style="width: max-content;">
+        @for (t of duplicatedTestimonials(); track $index) {
+          
+          <div class="bg-slate-900 border border-white/5 p-6 rounded-2xl flex-shrink-0 w-80 flex flex-col whitespace-normal justify-between min-h-[250px] shadow-lg">
+            <div>
+              <div class="flex items-center gap-2 mb-3">
+                <div class="flex text-amber-400">
+                  @for (star of [1,2,3,4,5]; track $index) {
+                    <mat-icon class="!text-[16px] !w-[16px] !h-[16px] leading-none">star</mat-icon>
+                  }
+                </div>
+                <span class="text-xs font-mono text-slate-400 font-bold ml-1">({{ t.rating | number:'1.1-1' }})</span>
+              </div>
+              <p class="text-xs text-slate-300 italic leading-relaxed mb-6">
+                "{{ t.comment }}"
+              </p>
+            </div>
+            
+            <div class="flex items-center justify-between border-t border-white/5 pt-4">
+              <div class="flex flex-col">
+                <span class="text-[10px] font-black text-white uppercase">{{ t.name || 'Enterprise Operator' }}</span>
+                <span class="text-[9px] font-mono text-slate-500 uppercase">{{ t.role }}</span>
+              </div>
+              <div class="flex items-center gap-1 text-emerald-400 text-[10px] font-mono font-bold uppercase bg-emerald-500/10 px-2 py-1 rounded-lg border border-emerald-500/20">
+                <mat-icon class="!text-[12px] !w-[12px] !h-[12px] leading-none">verified</mat-icon>
+                <span>VERIFIED</span>
+              </div>
+            </div>
+          </div>
+
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- ==============================================
+       8. FAQ & CONTACT CHANNELS
+       ============================================== -->
+  <section id="faq-fold" class="py-24">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-16">
+        
+        <!-- FAQ lists left col -->
+        <div [appScrollReveal]="{ direction: 'left' }" class="lg:col-span-6">
+          <h2 class="text-3xl font-extrabold text-white tracking-tight uppercase mb-8">Frequently Addressed Inquiries</h2>
+          
+          <div class="space-y-6">
+            <div class="border-b border-white/5 pb-6">
+              <h4 class="text-sm font-bold text-white uppercase tracking-wider mb-2">Can I cancel my subscription agreement at any moment?</h4>
+              <p class="text-xs text-slate-400 leading-relaxed font-sans">
+                Absolutely. You retain access to compile invoices, manage workspace templates and fetch products until your billing window completes.
+              </p>
+            </div>
+            <div class="border-b border-white/5 pb-6">
+              <h4 class="text-sm font-bold text-white uppercase tracking-wider mb-2">How are transaction integrations calculated?</h4>
+              <p class="text-xs text-slate-400 leading-relaxed font-sans">
+                All client purchases are directed straight into your custom Stripe or validation registries. Zero auxiliary commissions are retained.
+              </p>
+            </div>
+            <div class="border-b border-white/5 pb-6">
+              <h4 class="text-sm font-bold text-white uppercase tracking-wider mb-2">Can I map corporate domains?</h4>
+              <p class="text-xs text-slate-400 leading-relaxed font-sans">
+                Yes. Under active Pro or Corporate plans, custom domains are mapped directly to your cluster instance for true white-label operations.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Contact message builder right col -->
+        <div [appScrollReveal]="{ direction: 'right', delay: 150 }" class="lg:col-span-6 bg-slate-900 border border-white/10 rounded-3xl p-8 shadow-2xl relative overflow-hidden">
+          <h3 class="text-2xl font-bold text-white mb-2 uppercase">Core Channel Transmission</h3>
+          <p class="text-xs text-slate-400 font-mono mb-8">INITIATE TRANSACTION ENVELOPE BELOW</p>
+          
+          <form class="space-y-4">
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label for="firstName" class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">First Name</label>
+                <input id="firstName" type="text" class="w-full px-4 py-3 rounded-xl border border-white/5 focus:border-indigo-500 outline-none transition-all bg-slate-950 text-white text-xs font-mono placeholder-slate-700" placeholder="John">
+              </div>
+              <div>
+                <label for="lastName" class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Last Name</label>
+                <input id="lastName" type="text" class="w-full px-4 py-3 rounded-xl border border-white/5 focus:border-indigo-500 outline-none transition-all bg-slate-950 text-white text-xs font-mono placeholder-slate-700" placeholder="Doe">
+              </div>
+            </div>
+            <div>
+              <label for="email" class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Email Address</label>
+              <input id="email" type="email" class="w-full px-4 py-3 rounded-xl border border-white/5 focus:border-indigo-500 outline-none transition-all bg-slate-950 text-white text-xs font-mono placeholder-slate-700" placeholder="operator@ajr.com">
+            </div>
+            <div>
+              <label for="message" class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Message Transmission</label>
+              <textarea id="message" rows="4" class="w-full px-4 py-3 rounded-xl border border-white/5 focus:border-indigo-500 outline-none transition-all bg-slate-950 text-white text-xs font-mono placeholder-slate-700 resize-none" placeholder="Initiate inquiry..."></textarea>
+            </div>
+            <button type="button" (click)="sendMessage()" class="w-full relative group overflow-hidden bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs uppercase tracking-widest py-4 rounded-xl transition-all shadow-md shadow-indigo-600/15">
+              <span>{{ isMessageSent() ? 'ENVELOPE DISPATCHED SUCCESSFULLY' : 'TRANSMIT SIGNAL &rarr;' }}</span>
+            </button>
+          </form>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ==============================================
+       9. CALL-TO-ACTION (CTA) SECTION
+       ============================================== -->
+  <section id="bottom-cta" class="relative py-24 border-t border-white/5 bg-slate-950/60 overflow-hidden">
+    <!-- Glowing background node in CTA -->
+    <div class="absolute inset-0 bg-gradient-to-tr from-indigo-950 via-slate-950 to-pink-950/30 opacity-80 z-0"></div>
+    <div class="absolute -top-12 left-1/2 -translate-x-1/2 w-96 h-96 rounded-full bg-indigo-500/10 blur-[100px] pointer-events-none"></div>
+
+    <div [appScrollReveal]="{ direction: 'zoom' }" class="max-w-4xl mx-auto text-center px-4 sm:px-6 relative z-10">
+      <h2 class="text-3xl sm:text-4xl md:text-5xl font-black text-white hover:scale-[1.01] transition-transform tracking-tight uppercase mb-6 leading-tight">
+        STRENGTHEN YOUR ENTERPRISE <br/>
+        DIGITAL PRODUCTS TODAY
+      </h2>
+      <p class="text-xs sm:text-sm text-slate-300 leading-relaxed max-w-xl mx-auto mb-10">
+        Deploy instant invoices, map your custom domains, acquire modular CMS products, and enjoy modern, high-conversion visual design frameworks of the AJR digital suite.
+      </p>
+
+      <div class="flex flex-wrap justify-center gap-4 items-center">
+        <ajr-glow-button routerLink="/invoice-builder" class="shadow-lg shadow-indigo-600/20">
+          START BUILDING NOW
+          <mat-icon class="!text-[16px] !w-[16px] !h-[16px]">bolt</mat-icon>
+        </ajr-glow-button>
+        <button routerLink="/marketplace" class="px-6 h-12 rounded-xl bg-white/5 hover:bg-white/10 text-white font-bold text-xs uppercase border border-white/10 transition-all tracking-wider">
+          EXPLORE ARENA
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==============================================
+       10. ACTIVE CHAT TRIGGER WIDGET
+       ============================================== -->
+  <div class="fixed bottom-6 right-6 z-50 flex flex-col items-end">
+    <!-- Chat Messenger Dialog Bubble -->
+    @if (isChatOpen()) {
+      <div class="bg-slate-900 border border-white/10 w-72 md:w-80 rounded-2xl shadow-2xl mb-4 overflow-hidden animate-in slide-in-from-bottom-5 fade-in duration-300">
+        <div class="p-4 bg-slate-950 border-b border-white/5 flex justify-between items-center select-none font-mono">
+          <div class="flex items-center gap-2">
+            <span class="h-2 w-2 rounded-full bg-emerald-400 block animate-ping"></span>
+            <span class="font-bold text-[10px] text-white uppercase tracking-wider">AJR Dispatch Desk</span>
+          </div>
+          <button (click)="toggleChat()" class="text-slate-400 hover:text-white transition-colors focus:outline-none">
+            <mat-icon class="text-[18px] w-[18px] h-[18px]">close</mat-icon>
+          </button>
+        </div>
+        <div class="p-4 space-y-4 max-h-60 overflow-y-auto">
+          <div class="bg-slate-950/80 border border-white/5 text-xs text-slate-300 p-3.5 rounded-2xl rounded-tl-none leading-relaxed">
+            Welcome to AJR Central operations! Looking for premium React, Angular or Web deployments for your digital enterprise?
+          </div>
+          <div class="bg-indigo-950/40 border border-indigo-500/20 text-xs text-indigo-200 p-3.5 rounded-2xl rounded-tl-none leading-relaxed">
+            Dispatch a quick query in this chat port, and our service operators will coordinate a node link!
+          </div>
+        </div>
+        <div class="p-3.5 border-t border-white/5 bg-slate-950/60">
+          <input type="text" placeholder="Transmit inquiry message..." class="w-full text-xs font-mono outline-none px-3 py-2 text-white bg-slate-900 border border-white/5 rounded-xl placeholder-slate-600 focus:border-indigo-500 transition-colors">
+        </div>
+      </div>
+    }
+
+    <!-- Floating Chat Trigger Trigger -->
+    <button (click)="toggleChat()" class="w-14 h-14 bg-indigo-600 hover:bg-indigo-500 text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-105 transition-all relative z-40 border border-indigo-500/30">
+      <mat-icon class="!text-[22px] !w-[22px] !h-[22px] leading-none">{{ isChatOpen() ? 'keyboard_arrow_down' : 'chat' }}</mat-icon>
+      @if (!isChatOpen()) {
+        <span class="absolute -top-1 -right-1 w-5 h-5 bg-pink-500 rounded-full text-[9px] font-mono font-bold flex items-center justify-center border-2 border-[#07070d] text-white select-none animate-bounce">1</span>
+      }
+    </button>
+  </div>
+
+  <!-- ==============================================
+       11. LOGIN SECURITY EXPLICIT MODAL
+       ============================================== -->
+  @if (showLoginModal()) {
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-300">
+      <div class="bg-slate-900 border border-white/10 p-6 md:p-8 rounded-3xl max-w-sm w-full shadow-2xl relative overflow-hidden animate-in zoom-in-95 duration-300">
+        <!-- Inner ambient overlay background -->
+        <div class="absolute -right-10 -top-10 w-24 h-24 bg-indigo-500/10 rounded-full blur-2xl pointer-events-none"></div>
+
+        <div class="h-12 w-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center mb-5">
+          <mat-icon class="!text-[22px] !w-[22px] !h-[22px]">lock</mat-icon>
+        </div>
+        
+        <h3 class="text-xl font-black text-white uppercase tracking-tight mb-2">Cluster Registry Locked</h3>
+        <p class="text-xs text-slate-400 font-mono mb-6 leading-relaxed">
+          AUTHORIZED CLUSTER SESSIONS ONLY. YOU MUST INITIATE AN ACTIVE LOCAL AUTH PORT ENTRY TO ACQUIRE DIGITAL ASSETS.
+        </p>
+        
+        <div class="flex gap-3 justify-end border-t border-white/5 pt-5">
+          <button (click)="showLoginModal.set(false)" class="px-4 py-2.5 text-xs font-bold text-slate-400 hover:text-white uppercase transition-colors">
+            Cancel
+          </button>
+          <button (click)="confirmLogin()" class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold uppercase tracking-wider transition-colors shadow-lg shadow-indigo-600/10">
+            Initialize Auth Entry &rarr;
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+</div>

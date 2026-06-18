@@ -1,8 +1,10 @@
-import { Component, signal, computed, OnInit } from '@angular/core';
+import { Component, signal, computed, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { RouterLink, Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
+import { AuthService } from '../services/auth.service';
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-invoice-builder',
@@ -11,22 +13,30 @@ import { MatIconModule } from '@angular/material/icon';
   templateUrl: './invoice-builder.html'
 })
 export class InvoiceBuilderComponent implements OnInit {
+  private authService = inject(AuthService);
+  private router = inject(Router);
+
   isSent = signal(false);
   isSaving = signal(false);
   isLoading = signal(true);
+  showLoginModal = signal(false);
   
   companyName = signal('AJR DIGITAL HUB');
   companyAddress = signal('123 Design Blvd, Suite 400\nSan Francisco, CA 94107\nhello@ajrdigital.hub');
   notesTemplate = signal('');
 
+  confirmLogin() {
+    this.showLoginModal.set(false);
+    localStorage.setItem('redirectAfterLogin', this.router.url);
+    this.router.navigate(['/login']);
+  }
+
   getResolvedUrl(path: string): string {
     const override = typeof window !== 'undefined' ? localStorage.getItem('AJR_EXTERNAL_API_URL') : null;
-    if (override) {
-      const base = override.endsWith('/') ? override.slice(0, -1) : override;
-      const sub = path.startsWith('/') ? path : '/' + path;
-      return `${base}${sub}`;
-    }
-    return path;
+    const base = override || environment.apiBaseUrl || '/api';
+    const cleanBase = base.endsWith('/') ? base.slice(0, -1) : base;
+    const cleanPath = path.startsWith('/api') ? path.substring(4) : (path.startsWith('/') ? path : '/' + path);
+    return `${cleanBase}${cleanPath.startsWith('/') ? cleanPath : '/' + cleanPath}`;
   }
 
   async ngOnInit() {
@@ -49,6 +59,10 @@ export class InvoiceBuilderComponent implements OnInit {
   }
 
   async saveConfig() {
+    if (!this.authService.currentUser()) {
+      this.showLoginModal.set(true);
+      return;
+    }
     this.isSaving.set(true);
     try {
       await fetch(this.getResolvedUrl('/api/shops/demo-shop-1/invoice-config'), {

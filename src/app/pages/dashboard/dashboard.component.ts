@@ -24,7 +24,7 @@ import { MatIconModule } from '@angular/material/icon';
       <div class="bg-app-card border border-app-border rounded-3xl p-8 shadow-sm flex flex-col md:flex-row items-center justify-between gap-8 mb-8">
         <div>
           <h2 class="text-2xl font-bold text-app-text tracking-tight flex items-center gap-2">
-            Welcome, {{ user()?.fullName || user()?.email }}!
+            Welcome, {{ user()?.email }}!
           </h2>
           <p class="text-app-muted mt-2 max-w-2xl leading-relaxed">
             From your dashboard, you can view the apps assigned to you, track your usage statistics, and quick-launch connected services.

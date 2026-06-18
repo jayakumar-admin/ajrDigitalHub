@@ -1,12 +1,15 @@
 import { Component, signal, computed, OnInit, OnDestroy, inject, PLATFORM_ID } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { ApiService } from '../../services/api.service';
+import { finalize } from 'rxjs';
+import { ApiService, Product } from '../../services/api.service';
+import { AuthService } from '../../services/auth.service';
 import { CountdownTimerComponent } from '../../shared/countdown-timer';
 import { KpiCounterComponent } from '../../shared/kpi-counter';
 import { TechBackground, FloatingCard, DataFlow, GlowButton, ParallaxContainer } from '../../shared/tech-ui';
 import { AnimatedCardComponent, SkeletonLoaderComponent } from '../../shared/ui-atoms';
+import { ScrollRevealDirective } from '../../shared/scroll-reveal.directive';
 
 export interface TestimonialType {
   id: number;
@@ -52,12 +55,15 @@ export interface HeroSlide {
     GlowButton,
     ParallaxContainer,
     AnimatedCardComponent, 
-    SkeletonLoaderComponent
+    SkeletonLoaderComponent,
+    ScrollRevealDirective
   ],
   templateUrl: './home.html'
 })
 export class HomeComponent implements OnInit, OnDestroy {
   private apiService = inject(ApiService);
+  private authService = inject(AuthService);
+  private router = inject(Router);
   private platformId = inject(PLATFORM_ID);
 
   isMessageSent = signal(false);
@@ -66,6 +72,11 @@ export class HomeComponent implements OnInit, OnDestroy {
   landingConfig = signal<LandingConfigType | null>(null);
   duplicatedTestimonials = signal<TestimonialType[]>([]);
   
+  // Featured products & shopping flow
+  featuredProducts = signal<Product[]>([]);
+  showLoginModal = signal(false);
+  isLoadingProducts = signal(false);
+
   // Hero slider banner state
   slides = signal<HeroSlide[]>([]);
   currentSlideIndex = signal<number>(0);
@@ -93,12 +104,56 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     this.loadTestimonials();
     this.loadSliderBanners();
+    this.loadFeaturedProducts();
   }
 
   ngOnDestroy() {
     if (this.autoPlayTimer) {
       clearInterval(this.autoPlayTimer);
     }
+  }
+
+  private loadFeaturedProducts() {
+    this.isLoadingProducts.set(true);
+    this.apiService.getProducts().pipe(
+      finalize(() => this.isLoadingProducts.set(false))
+    ).subscribe({
+      next: (res: any) => {
+        // Take first 3 as featured products
+        const items = res?.data || res || [];
+        this.featuredProducts.set(items.slice(0, 3));
+      },
+      error: (err) => {
+        console.error('Featured products load error:', err);
+        // Fallback mockup list if empty
+        this.featuredProducts.set([
+          { id: 1, title: 'Smart CRM Engine', description: 'Next-generation user management with automated sales scoring.', price: 1249, category: 'Code', image_url: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=400&q=80' },
+          { id: 2, title: 'Neo UI Kit', description: 'Glow, transparency, and customizable theme bindings.', price: 599, category: 'Design', image_url: 'https://images.unsplash.com/photo-1541462608141-2f528a719857?auto=format&fit=crop&w=400&q=80' },
+          { id: 3, title: 'MicroSaaS Blueprint', description: 'Start your subscription logic with preconfigured routes.', price: 2199, category: 'Services', image_url: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=400&q=80' }
+        ]);
+      }
+    });
+  }
+
+  buyNow(product: any) {
+    if (!this.authService.currentUser()) {
+      localStorage.setItem('pendingPurchase', JSON.stringify(product));
+      this.showLoginModal.set(true);
+      return;
+    }
+    
+    if (confirm(`Purchase ${product.title} for ₹${product.price}?`)) {
+      this.apiService.purchaseProduct(product.id, product.price).subscribe({
+        next: () => alert('Purchase successful! Item added to your dashboard.'),
+        error: (err) => alert('Purchase failed: ' + (err.error?.message || err.error?.error || 'Unknown error'))
+      });
+    }
+  }
+
+  confirmLogin() {
+    this.showLoginModal.set(false);
+    localStorage.setItem('redirectAfterLogin', this.router.url);
+    this.router.navigate(['/login']);
   }
 
   private loadSliderBanners() {

@@ -41,7 +41,7 @@ export class KpiCounterComponent implements OnInit {
     animate(0, this.value(), {
       duration: this.duration(),
       ease: [0.33, 1, 0.68, 1], // easeOutExpo-ish
-      onUpdate: (latest) => {
+      onUpdate: (latest: number) => {
         this.displayedValue.set(Math.floor(latest));
       }
     });

@@ -25,6 +25,13 @@ export class MarketplaceComponent implements OnInit {
 
   products = signal<Product[]>([]);
   dynamicItems = signal<any[]>([]); // Items from CMS
+  showLoginModal = signal(false);
+
+  confirmLogin() {
+    this.showLoginModal.set(false);
+    localStorage.setItem('redirectAfterLogin', this.router.url);
+    this.router.navigate(['/login']);
+  }
   
   // Combine for UI, with dynamic items taking priority
   combinedItems = computed(() => {
@@ -41,6 +48,16 @@ export class MarketplaceComponent implements OnInit {
 
   ngOnInit() {
     this.loadProducts();
+    const pendingRaw = localStorage.getItem('pendingPurchase');
+    if (pendingRaw && this.authService.currentUser()) {
+      try {
+        const product = JSON.parse(pendingRaw);
+        localStorage.removeItem('pendingPurchase');
+        setTimeout(() => {
+          this.buyNow(product);
+        }, 1000);
+      } catch (e) {}
+    }
   }
 
   loadProducts() {
@@ -49,16 +66,19 @@ export class MarketplaceComponent implements OnInit {
     
     // We fetch both dynamic items from the CMS and standard products
     forkJoin({
-       dynamic: this.apiService.get<any[]>('/admin/marketplace-items'),
+       dynamic: this.apiService.get<any>('/admin/marketplace-items'),
        products: this.apiService.getProducts(cat, this.searchQuery())
     }).subscribe({
-      next: (res) => {
-        let activeItems = (res.dynamic || []).filter(item => item.status === 'active');
+      next: (res: any) => {
+        const dynData = res.dynamic?.data || res.dynamic || [];
+        const prodData = res.products?.data || res.products || [];
+        
+        let activeItems = dynData.filter((item: any) => item.status === 'active');
         if (this.searchQuery()) {
-          activeItems = activeItems.filter(item => item.title.toLowerCase().includes(this.searchQuery().toLowerCase()));
+          activeItems = activeItems.filter((item: any) => item.title.toLowerCase().includes(this.searchQuery().toLowerCase()));
         }
         this.dynamicItems.set(activeItems);
-        this.products.set(res.products);
+        this.products.set(prodData);
         this.loading.set(false);
       },
       error: () => this.loading.set(false)
@@ -76,7 +96,8 @@ export class MarketplaceComponent implements OnInit {
 
   buyNow(product: any) {
     if (!this.authService.currentUser()) {
-      alert('Please login to purchase products.');
+      localStorage.setItem('pendingPurchase', JSON.stringify(product));
+      this.showLoginModal.set(true);
       return;
     }
     
@@ -86,7 +107,7 @@ export class MarketplaceComponent implements OnInit {
       } else {
         this.apiService.purchaseProduct(product.id, product.price).subscribe({
           next: () => alert('Purchase successful! Item added to your dashboard.'),
-          error: (err) => alert('Purchase failed: ' + err.error?.error)
+          error: (err) => alert('Purchase failed: ' + (err.error?.message || err.error?.error || 'Unknown error'))
         });
       }
     }

@@ -9,7 +9,16 @@ import fs from 'fs';
 // Constants
 const PORT = 3000;
 const JWT_SECRET = 'saas_forms_super_secret_key_123';
-const DATA_FILE = path.join(__dirname, 'schema_datastores.json');
+// Create a flexible __dirname proxy
+let currentDir = process.cwd();
+if (typeof __dirname !== 'undefined') {
+  currentDir = __dirname;
+// @ts-ignore
+} else if (typeof import.meta !== 'undefined' && import.meta.url) {
+// @ts-ignore
+  currentDir = path.dirname(new URL(import.meta.url).pathname);
+}
+const DATA_FILE = path.join(currentDir, 'schema_datastores.json');
 
 // Datastore schemas in-memory fallback + file persistence
 interface UserRecord {
@@ -48,10 +57,41 @@ interface ResponseRecord {
   };
 }
 
+interface SessionRecord {
+  id: string;
+  userId: string;
+  refreshToken: string;
+  expiresAt: string;
+  createdAt: string;
+}
+
+interface PurchaseRecord {
+  id: string;
+  userId: string;
+  productId: string;
+  amount: number;
+  status: string;
+  createdAt: string;
+}
+
+interface ProductRecord {
+  id: string;
+  title: string;
+  description: string;
+  price: number;
+  category: string;
+  image: string;
+  html_content: string;
+  status: 'active' | 'draft' | 'archived';
+}
+
 let db = {
   users: [] as UserRecord[],
   forms: [] as FormRecord[],
-  responses: [] as ResponseRecord[]
+  responses: [] as ResponseRecord[],
+  sessions: [] as SessionRecord[],
+  purchases: [] as PurchaseRecord[],
+  products: [] as ProductRecord[]
 };
 
 // Seed & Load helper
@@ -59,7 +99,22 @@ function loadDatastore() {
   try {
     if (fs.existsSync(DATA_FILE)) {
       const parsed = JSON.parse(fs.readFileSync(DATA_FILE, 'utf-8'));
-      db = { ...db, ...parsed };
+      db = { 
+        users: parsed.users || [],
+        forms: parsed.forms || [],
+        responses: parsed.responses || [],
+        sessions: parsed.sessions || [],
+        purchases: parsed.purchases || [],
+        products: parsed.products || []
+      };
+      
+      // Seed products if missing
+      if (!db.products || db.products.length === 0) {
+        db.products = [];
+        seedDefaultProducts();
+        saveDatastore();
+      }
+      
       console.log('Datastore safely reloaded from local schema:', DATA_FILE);
     } else {
       // Default seeds
@@ -78,6 +133,8 @@ function loadDatastore() {
         passwordHash: userPass,
         role: 'user'
       });
+
+      seedDefaultProducts();
 
       // Seed a default form
       db.forms.push({
@@ -136,17 +193,61 @@ function saveDatastore() {
   }
 }
 
+function seedDefaultProducts() {
+  if (!db.products) db.products = [];
+  if (db.products.length === 0) {
+    db.products.push({
+      id: '22222222-2222-4222-a222-222222222222',
+      title: 'Premium SaaS Dashboard Template',
+      description: 'Enterprise grade dashboard containing clean navigation, pre-configured chart utilities, and dense metrics grids.',
+      price: 149.99,
+      category: 'Software',
+      html_content: '<div class="p-12 bg-slate-900 rounded-3xl text-white"><h1>Master Admin</h1></div>',
+      status: 'active',
+      image: 'https://picsum.photos/seed/dashboard/800/600'
+    });
+    db.products.push({
+      id: '22222222-2222-4222-a222-222222222223',
+      title: 'E-Commerce Retail Toolkit',
+      description: 'Sleek frontend e-commerce system optimized for digital sales, complete with cart logic and checkout portals.',
+      price: 89.00,
+      category: 'E-Commerce',
+      html_content: '<div class="p-12 bg-white rounded-3xl text-slate-900"><h1>Digital Checkout</h1></div>',
+      status: 'active',
+      image: 'https://picsum.photos/seed/shop/800/600'
+    });
+  }
+}
+
 loadDatastore();
 
 // Express Server
 const app = express();
 
-app.use(cors());
+app.use(cors({
+  origin: (origin, callback) => {
+    // Dynamic origin selection to perfectly support AI Studio web iframe & localhost dev
+    if (!origin) return callback(null, true);
+    if (
+      origin.startsWith('http://localhost') || 
+      origin.startsWith('https://localhost') || 
+      origin.endsWith('.run.app') || 
+      origin.includes('google.com') || 
+      origin.includes('aistudio')
+    ) {
+      return callback(null, true);
+    }
+    return callback(null, true); // Fallback to always allow in the sandboxed preview
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept']
+}));
 app.use(express.json());
 app.use(cookieParser());
 
 // Authentication Helpers
-function authenticateToken(req: any, res: any, next: any) {
+function requireAuth(req: any, res: any, next: any) {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
 
@@ -163,81 +264,305 @@ function authenticateToken(req: any, res: any, next: any) {
   });
 }
 
+function optionalAuth(req: any, res: any, next: any) {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+
+  if (!token) {
+    return next();
+  }
+
+  jwt.verify(token, JWT_SECRET, (err: any, user: any) => {
+    if (!err && user) {
+      req.user = user;
+    }
+    next();
+  });
+}
+
+// Map authenticateToken to requireAuth for retro-compatibility
+const authenticateToken = requireAuth;
+
 // ----------------------------------------------------
 // API ROUTES
 // ----------------------------------------------------
 
+// PostgreSQL Setup
+import { Pool } from 'pg';
+import * as dotenv from 'dotenv';
+dotenv.config();
+
+const connectionString = process.env['DATABASE_URL'];
+const pool = connectionString && connectionString.startsWith('postgres') ? new Pool({ connectionString }) : null;
+
+// Initialize Users Table if Postges is connected
+if (pool) {
+  pool.query(`
+    CREATE TABLE IF NOT EXISTS users (
+      id SERIAL PRIMARY KEY,
+      email VARCHAR(255) UNIQUE NOT NULL,
+      password_hash TEXT NOT NULL,
+      role VARCHAR(50) DEFAULT 'user',
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+  `).catch(console.error);
+}
+
 // POST /api/auth/register
-app.post('/api/auth/register', (req, res) => {
-  const { email, password, role } = req.body;
+app.post('/api/auth/register', async (req, res) => {
+  console.log('[Register API] Body received:', req.body);
+  const email = req.body?.data?.email || req.body?.email;
+  const password = req.body?.data?.password || req.body?.password;
+  const role = req.body?.data?.role || req.body?.role;
   
   if (!email || !password) {
+    console.log('[Register API] Missing email or password:', email, password);
     return res.status(400).json({ message: 'Email and password required' });
   }
 
-  const existing = db.users.find(u => u.email.toLowerCase() === email.toLowerCase());
-  if (existing) {
-    return res.status(400).json({ message: 'User already exists' });
+  const userRole = role === 'admin' ? 'admin' : 'user';
+  const hashedPass = bcrypt.hashSync(password, 8);
+
+  if (pool) {
+    try {
+      try {
+        await pool.query(
+          'INSERT INTO users (email, password_hash, role) VALUES ($1, $2, $3)', 
+          [email.toLowerCase(), hashedPass, userRole]
+        );
+      } catch (e: any) {
+        if (e.code === '42703') { // column "email" does not exist
+          await pool.query(
+            'INSERT INTO users (username, password_hash, role) VALUES ($1, $2, $3)', 
+            [email.toLowerCase(), hashedPass, userRole]
+          );
+        } else {
+          throw e; // rethrow other DB errors
+        }
+      }
+      console.log('[Register API] User inserted to PG');
+      return res.status(201).json({ success: true, message: 'User registered successfully' });
+    } catch (err: any) {
+      console.error('[Register API] PG Error:', err);
+      if (err.code === '23505') {
+        return res.status(400).json({ success: false, message: 'User already exists' });
+      }
+      return res.status(500).json({ success: false, message: 'Database error' });
+    }
+  } else {
+    // In-memory fallback
+    const existing = db.users.find(u => u.email.toLowerCase() === email.toLowerCase());
+    if (existing) {
+      console.log('[Register API] User exists (in-memory)');
+      return res.status(400).json({ success: false, message: 'User already exists' });
+    }
+
+    const newUser: UserRecord = {
+      id: 'usr-' + Date.now().toString(),
+      email: email.toLowerCase(),
+      passwordHash: hashedPass,
+      role: userRole
+    };
+
+    db.users.push(newUser);
+    saveDatastore();
+
+    console.log('[Register API] User created successfully (in-memory)');
+    return res.status(201).json({ success: true, message: 'User registered successfully' });
   }
-
-  const newUser: UserRecord = {
-    id: 'usr-' + Date.now().toString(),
-    email: email.toLowerCase(),
-    passwordHash: bcrypt.hashSync(password, 8),
-    role: role === 'admin' ? 'admin' : 'user'
-  };
-
-  db.users.push(newUser);
-  saveDatastore();
-
-  res.status(201).json({ message: 'Account parsed and created successfully!' });
 });
 
 // POST /api/auth/login
-app.post('/api/auth/login', (req, res) => {
-  const { email, password } = req.body;
+app.post('/api/auth/login', async (req, res) => {
+  console.log('[Login API] Body received:', req.body);
+  const email = req.body?.data?.email || req.body?.email;
+  const password = req.body?.data?.password || req.body?.password;
 
   if (!email || !password) {
-    return res.status(400).json({ message: 'Email and password fields required' });
+    console.log('[Login API] Missing email or password');
+    return res.status(400).json({ success: false, message: 'Email and password fields required' });
   }
 
-  const user = db.users.find(u => u.email.toLowerCase() === email.toLowerCase());
-  if (!user || !bcrypt.compareSync(password, user.passwordHash)) {
-    return res.status(401).json({ message: 'Incorrect email or password combination' });
-  }
-
-  const accessToken = jwt.sign({ id: user.id, email: user.email, role: user.role }, JWT_SECRET, { expiresIn: '15m' });
+  let dbUser;
   
+  if (pool) {
+    try {
+      // Handle the case where the DB uses 'username' instead of 'email'
+      // Try querying by email first, if that fails due to missing column, query by username
+      try {
+        const { rows } = await pool.query('SELECT * FROM users WHERE email = $1', [email.toLowerCase()]);
+        dbUser = rows[0];
+      } catch (e: any) {
+        if (e.code === '42703') { // column "email" does not exist
+          const { rows } = await pool.query('SELECT * FROM users WHERE username = $1', [email.toLowerCase()]);
+          dbUser = rows[0];
+          if (dbUser) {
+            dbUser.email = dbUser.username; // map username to email for consistency
+          }
+        } else {
+          throw e; // rethrow other DB errors
+        }
+      }
+      
+      if (dbUser) {
+        dbUser = {
+          id: dbUser.id.toString(),
+          email: dbUser.email || dbUser.username,
+          passwordHash: dbUser.password_hash,
+          role: dbUser.role
+        };
+      }
+    } catch (err) {
+      console.error('[Login API] PG Error:', err);
+      return res.status(500).json({ success: false, message: 'Database error' });
+    }
+  } else {
+    dbUser = db.users.find(u => u.email.toLowerCase() === email.toLowerCase());
+  }
+
+  if (!dbUser) {
+    console.log('[Login API] User not found matching email:', email);
+    return res.status(401).json({ success: false, message: 'Invalid email or password' });
+  }
+
+  const passwordMatch = bcrypt.compareSync(password, dbUser.passwordHash);
+
+  if (!passwordMatch) {
+    console.log('[Login API] Password mismatch for email:', email);
+    return res.status(401).json({ success: false, message: 'Invalid email or password' });
+  }
+
+  const accessToken = jwt.sign({ id: dbUser.id, email: dbUser.email, role: dbUser.role }, JWT_SECRET, { expiresIn: '15m' });
+  const refreshToken = 'ref-' + Math.random().toString(36).substr(2, 9);
+
+  if (!db.sessions) db.sessions = [];
+  db.sessions.push({
+    id: 'sess-' + Math.random().toString(36).substr(2, 9),
+    userId: dbUser.id,
+    refreshToken,
+    expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days
+    createdAt: new Date().toISOString()
+  });
+  saveDatastore();
+
+  console.log('[Login API] Login successful for email:', email);
   res.json({
+    success: true,
     accessToken,
+    refreshToken,
     user: {
-      id: user.id,
-      email: user.email,
-      role: user.role
+      id: dbUser.id,
+      email: dbUser.email,
+      role: dbUser.role
     }
   });
 });
 
 // POST /api/auth/refresh
-app.post('/api/auth/refresh', (req, res) => {
-  // Silent refresh mock - returns a fresh token if parent is valid
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
+app.post('/api/auth/refresh', async (req, res) => {
+  const { refreshToken } = req.body;
   
-  if (token) {
-    jwt.verify(token, JWT_SECRET, { ignoreExpiration: true }, (err: any, decoded: any) => {
-      if (err || !decoded) { return res.status(403).json({ message: 'Unrefreshable' }); }
-      const newToken = jwt.sign({ id: decoded.id, email: decoded.email, role: decoded.role }, JWT_SECRET, { expiresIn: '15m' });
-      return res.json({ accessToken: newToken });
-    });
-  } else {
-    res.status(401).json({ message: 'Refresh token not found' });
+  if (!refreshToken) {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+    if (token) {
+      jwt.verify(token, JWT_SECRET, { ignoreExpiration: true }, (err: any, decoded: any) => {
+        if (err || !decoded) { return res.status(403).json({ message: 'Unrefreshable' }); }
+        const newToken = jwt.sign({ id: decoded.id, email: decoded.email, role: decoded.role }, JWT_SECRET, { expiresIn: '15m' });
+        return res.json({ accessToken: newToken });
+      });
+      return;
+    }
+    return res.status(401).json({ message: 'Refresh token required' });
   }
+
+  if (!db.sessions) db.sessions = [];
+  const session = db.sessions.find(s => s.refreshToken === refreshToken);
+  if (!session || new Date(session.expiresAt).getTime() < Date.now()) {
+    return res.status(401).json({ message: 'Session expired or invalid. Please login again.' });
+  }
+
+  let user;
+  if (pool) {
+    try {
+      const { rows } = await pool.query('SELECT * FROM users WHERE id = $1', [session.userId]);
+      user = rows[0];
+    } catch {
+      return res.status(500).json({ message: 'Database error' });
+    }
+  } else {
+    user = db.users.find(u => u.id === session.userId);
+  }
+
+  if (!user) {
+    return res.status(401).json({ message: 'Associated account not found.' });
+  }
+
+  const accessToken = jwt.sign({ id: user.id, email: user.email, role: user.role }, JWT_SECRET, { expiresIn: '15m' });
+  res.json({ accessToken });
 });
 
 // POST /api/auth/logout
 app.post('/api/auth/logout', (req, res) => {
+  const { refreshToken } = req.body;
+  if (refreshToken && db.sessions) {
+    db.sessions = db.sessions.filter(s => s.refreshToken !== refreshToken);
+    saveDatastore();
+  }
   res.json({ message: 'Logged out successfully' });
+});
+
+// GET /api/dynamic/marketplace
+app.get('/api/dynamic/marketplace', optionalAuth, (req, res) => {
+  let filtered = db.products || [];
+  const { category, search } = req.query as any;
+  if (category && category !== 'All') {
+    filtered = filtered.filter(p => p.category.toLowerCase() === category.toLowerCase());
+  }
+  if (search) {
+    filtered = filtered.filter(p => p.title.toLowerCase().includes(search.toLowerCase()) || p.description.toLowerCase().includes(search.toLowerCase()));
+  }
+  res.json({ success: true, data: filtered });
+});
+
+// GET /api/marketplace-items
+app.get('/api/admin/marketplace-items', optionalAuth, (req, res) => {
+  res.json({ success: true, data: db.products || [] });
+});
+
+// GET /api/marketplace-items/:id
+app.get('/api/marketplace-items/:id', optionalAuth, (req, res) => {
+  const item = db.products.find(p => p.id === req.params.id);
+  if (item) {
+    res.json(item);
+  } else {
+    res.status(404).json({ message: 'Product preview layout not found.' });
+  }
+});
+
+// POST /api/dynamic/orders (Requires Authenticated)
+app.post('/api/dynamic/orders', requireAuth, (req: any, res) => {
+  const { productId, amount } = req.body;
+  const newOrder = {
+    id: 'ord-' + Math.random().toString(36).substr(2, 9),
+    userId: req.user.id,
+    productId,
+    amount: Number(amount) || 0,
+    status: 'completed',
+    createdAt: new Date().toISOString()
+  };
+  
+  if (!db.purchases) db.purchases = [];
+  db.purchases.push(newOrder);
+  saveDatastore();
+  
+  res.status(201).json(newOrder);
+});
+
+// GET /api/dynamic/orders (Requires Authenticated)
+app.get('/api/dynamic/orders', requireAuth, (req: any, res) => {
+  const orders = (db.purchases || []).filter(o => o.userId === req.user.id);
+  res.json(orders);
 });
 
 // GET /api/forms
@@ -469,14 +794,18 @@ app.get('/api/forms/:id/analytics', authenticateToken, (req: any, res) => {
 // ----------------------------------------------------
 // STATIC SPA ROUTING CATCHALL
 // ----------------------------------------------------
-const distPath = path.join(__dirname, '../dist');
+const distPath = path.join(currentDir, 'dist/browser');
 
 // Serve static build from dist folder
 app.use(express.static(distPath));
 
 // Fallback all other client-side routing to index.html to allow SPA working cleanly
 app.get('*', (req, res) => {
-  const indexPath = path.join(distPath, 'index.html');
+  let indexPath = path.join(distPath, 'index.html');
+  if (!fs.existsSync(indexPath)) {
+    indexPath = path.join(distPath, 'index.csr.html');
+  }
+  
   if (fs.existsSync(indexPath)) {
     res.sendFile(indexPath);
   } else {
@@ -486,6 +815,15 @@ app.get('*', (req, res) => {
 });
 
 // Run Backend Express App
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Dynamic Form Builder Server actively running at http://0.0.0.0:${PORT}`);
-});
+const isCommonJSMain = typeof require !== 'undefined' && typeof module !== 'undefined' && require.main === module;
+// @ts-ignore
+const isESMMain = typeof process !== 'undefined' && process.argv[1] && typeof import.meta !== 'undefined' && import.meta.url === `file://${process.argv[1]}`;
+
+if (isCommonJSMain || isESMMain) {
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server actively running at http://0.0.0.0:${PORT}`);
+  });
+}
+
+export const reqHandler = app;
+export default app;

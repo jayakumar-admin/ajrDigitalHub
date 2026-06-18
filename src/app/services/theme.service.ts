@@ -1,4 +1,5 @@
 import { Injectable, signal } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
 
 export type AppTheme = 'dark' | 'light' | 'neon';
 
@@ -7,6 +8,7 @@ export type AppTheme = 'dark' | 'light' | 'neon';
 })
 export class ThemeService {
   currentTheme = signal<AppTheme>('dark');
+  theme$ = new BehaviorSubject<AppTheme>('dark');
 
   constructor() {
     this.loadTheme();
@@ -25,23 +27,25 @@ export class ThemeService {
 
   setTheme(theme: AppTheme) {
     this.currentTheme.set(theme);
+    this.theme$.next(theme);
+    
     if (typeof window !== 'undefined') {
       localStorage.setItem('ajr-hub-theme', theme);
       
-      // Update body classes
       const body = document.body;
-      body.classList.remove('dark', 'light', 'neon');
-      body.classList.add(theme);
-
-      // Update html classes for tailwind variables compatibility
       const html = document.documentElement;
-      html.classList.remove('dark', 'light', 'neon');
-      html.classList.add(theme);
+      
+      const themeClass = theme + '-theme';
 
-      // Neon is a dark-based theme, so ensure standard Tailwind dark: utility classes also apply in neon theme
+      // Update body classes
+      body.classList.remove('dark-theme', 'light-theme', 'neon-theme');
+      body.classList.add(themeClass);
+
+      // Support for standard tailwind "dark:" utilities
       if (theme === 'dark' || theme === 'neon') {
         html.classList.add('dark');
-        body.classList.add('dark');
+      } else {
+        html.classList.remove('dark');
       }
     }
   }

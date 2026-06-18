@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { LandingConfigType } from '../pages/home/home';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface Product {
   id: number;
@@ -58,11 +59,25 @@ export class ApiService {
   }
 
   private formatEndpoint(endpoint: string): string {
-    if (endpoint.startsWith('/api') || endpoint.startsWith('api')) {
-      return endpoint.startsWith('/') ? endpoint : '/' + endpoint;
+    const baseUrl = environment.apiBaseUrl || '/api';
+    
+    if (endpoint.startsWith('http://') || endpoint.startsWith('https://')) {
+      return endpoint;
     }
+
     const clean = endpoint.startsWith('/') ? endpoint : '/' + endpoint;
-    return `/api${clean}`;
+
+    if (clean.startsWith(baseUrl)) {
+      return clean;
+    }
+
+    const cleanBaseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
+
+    if (clean.startsWith('/api/')) {
+      return `${cleanBaseUrl}/${clean.substring(5)}`;
+    }
+
+    return `${cleanBaseUrl}${clean}`;
   }
 
   // Landing Page
