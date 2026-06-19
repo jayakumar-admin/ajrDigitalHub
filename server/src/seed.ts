@@ -1,4 +1,5 @@
 import { query, isPostgresEnabled } from './config/db';
+import { DEFAULT_TEMPLATES } from './modules/invoice/invoice.controller';
 import { BaseService } from './core/base.service';
 import bcrypt from 'bcryptjs';
 
@@ -56,6 +57,16 @@ export const seedDatabase = async () => {
     const tService = new BaseService('testimonials');
     await tService.create({ name: 'Alex Rivera', role: 'CEO, TechFlow', rating: 5, comment: 'AJR Digital HUB revolutionized our multi-app management.', avatar: 'A' });
     await tService.create({ name: 'Sarah Chen', role: 'Lead Architect', rating: 5, comment: 'Scaling was seamless with the Master Control panel.', avatar: 'S' });
+
+    // Invoice Templates
+    const templatesService = new BaseService('invoice_templates');
+    const existingTemplates = await templatesService.findAll({ limit: 100 });
+    if (existingTemplates.data.length === 0) {
+      for (const tpl of DEFAULT_TEMPLATES) {
+        await templatesService.create(tpl);
+      }
+      console.log('🌱 Seeded: In-memory Invoice Templates');
+    }
 
     console.log('✅ In-memory seeding complete.');
     return;
@@ -226,6 +237,15 @@ export const seedDatabase = async () => {
         await query('INSERT INTO records (collection, data) VALUES ($1, $2)', ['testimonials', JSON.stringify(item)]);
       }
       console.log('🌱 Seeded: Testimonials');
+    }
+
+    // 8. Seed Invoice Templates
+    const tplCheck = await query('SELECT id FROM records WHERE collection = $1 LIMIT 1', ['invoice_templates']);
+    if (tplCheck.rowCount === 0) {
+      for (const tpl of DEFAULT_TEMPLATES) {
+        await query('INSERT INTO records (collection, data) VALUES ($1, $2)', ['invoice_templates', JSON.stringify(tpl)]);
+      }
+      console.log('🌱 Seeded: Postgres Invoice Templates');
     }
 
     console.log('✅ Database verification and seeding complete.');

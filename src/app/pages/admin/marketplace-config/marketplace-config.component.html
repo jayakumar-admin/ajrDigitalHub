@@ -30,13 +30,15 @@
           <div class="w-[41%] shrink-0 border-r border-app-border relative flex flex-col">
              <app-marketplace-editor 
                 [htmlCode]="activeItem()!.html_content || ''" 
-                (htmlCodeChange)="activeItem()!.html_content = $event">
+                (htmlCodeChange)="activeItem()!.html_content = $event"
+                [cssCode]="activeItem()!.css_content || ''"
+                (cssCodeChange)="activeItem()!.css_content = $event">
              </app-marketplace-editor>
           </div>
 
           <!-- Right Panel: Live Preview (41%) -->
           <div class="flex-grow bg-[#111111] overflow-hidden relative">
-             <app-marketplace-preview [html]="activeItem()!.html_content || ''" [device]="currentDevice()"></app-marketplace-preview>
+             <app-marketplace-preview [html]="activeItem()!.html_content || ''" [css]="activeItem()!.css_content || ''" [device]="currentDevice()"></app-marketplace-preview>
           </div>
        </div>
     </div>

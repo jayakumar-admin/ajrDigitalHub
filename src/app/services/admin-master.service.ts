@@ -17,6 +17,10 @@ export class AdminMasterService {
   staticAnalytics = this.store.staticAnalytics;
 
   // Delegate actions
+  deleteProject(id: string): Observable<boolean> {
+    return this.store.deleteProject(id);
+  }
+
   updateAppConfig(id: string, updates: Partial<AdminApp>): Observable<boolean> {
     return this.store.updateAppConfig(id, updates);
   }

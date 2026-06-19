@@ -8,45 +8,45 @@ import { AuthService } from '../services/auth.service';
   imports: [ReactiveFormsModule, MatIconModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="min-height-screen flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 bg-slate-50">
+    <div class="min-h-screen flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 bg-app-bg text-app-text transition-colors duration-300">
       <div id="login-container" class="sm:mx-auto sm:w-full sm:max-w-md">
         <!-- System Logo -->
-        <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-3xl bg-indigo-600 shadow-lg text-white mb-6">
+        <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-3xl bg-indigo-600 shadow-lg text-white mb-6 animate-pulse">
           <mat-icon class="text-3xl h-8 w-8 leading-none">dynamic_form</mat-icon>
         </div>
         
-        <h2 class="text-center text-3xl font-extrabold tracking-tight text-slate-900 font-sans">
+        <h2 class="text-center text-3xl font-extrabold tracking-tight text-app-text font-sans">
           Dynamic Form Builder
         </h2>
-        <p class="mt-2 text-center text-sm text-slate-500">
+        <p class="mt-2 text-center text-sm text-app-muted">
           Secure Form Creation & Response CRM System
         </p>
       </div>
 
       <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div class="bg-white py-8 px-4 shadow-xl border border-slate-100 rounded-2xl sm:px-10">
+        <div class="glass py-8 px-4 shadow-xl rounded-3xl sm:px-10 border border-app-border">
           
           <!-- Mode Selector (Login vs Register) -->
-          <div class="flex border-b border-slate-100 pb-4 mb-6">
+          <div class="flex border-b border-app-border pb-4 mb-6">
             <button 
               id="tab-login"
               (click)="isLoginMode.set(true)"
-              class="flex-1 text-center font-medium pb-2 text-sm cursor-pointer transition-all border-b-2"
-              [class.border-indigo-600]="isLoginMode()"
-              [class.text-indigo-600]="isLoginMode()"
+              class="flex-1 text-center font-semibold pb-2 text-sm cursor-pointer transition-all border-b-2"
+              [class.border-indigo-500]="isLoginMode()"
+              [class.text-indigo-500]="isLoginMode()"
               [class.border-transparent]="!isLoginMode()"
-              [class.text-slate-400]="!isLoginMode()"
+              [class.text-app-muted]="!isLoginMode()"
             >
               Log In
             </button>
             <button 
               id="tab-register"
               (click)="isLoginMode.set(false)"
-              class="flex-1 text-center font-medium pb-2 text-sm cursor-pointer transition-all border-b-2"
-              [class.border-indigo-600]="!isLoginMode()"
-              [class.text-indigo-600]="!isLoginMode()"
+              class="flex-1 text-center font-semibold pb-2 text-sm cursor-pointer transition-all border-b-2"
+              [class.border-indigo-500]="!isLoginMode()"
+              [class.text-indigo-500]="!isLoginMode()"
               [class.border-transparent]="isLoginMode()"
-              [class.text-slate-400]="isLoginMode()"
+              [class.text-app-muted]="isLoginMode()"
             >
               Sign Up
             </button>
@@ -57,8 +57,8 @@ import { AuthService } from '../services/auth.service';
             <div id="login-toast" 
               class="mb-4 p-3.5 rounded-xl flex items-start gap-2 border text-sm"
               [class]="toastType() === 'success' 
-                ? 'bg-emerald-50 border-emerald-100 text-emerald-800' 
-                : 'bg-rose-50 border-rose-100 text-rose-800'"
+                ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' 
+                : 'bg-rose-500/10 border-rose-500/20 text-rose-400'"
             >
               <mat-icon class="text-base">{{ toastType() === 'success' ? 'check_circle' : 'error' }}</mat-icon>
               <span>{{ toastMessage() }}</span>
@@ -68,16 +68,16 @@ import { AuthService } from '../services/auth.service';
           <!-- Authentication Form -->
           <form [formGroup]="authForm" (ngSubmit)="onSubmit()" class="space-y-5">
             <div>
-              <label for="email" class="block text-sm font-medium text-slate-700">Email Address</label>
+              <label for="email" class="block text-sm font-medium text-app-text">Email Address</label>
               <div class="mt-1 relative rounded-md shadow-sm">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <mat-icon class="text-slate-400 text-base">mail</mat-icon>
+                  <mat-icon class="text-app-muted text-base">mail</mat-icon>
                 </div>
                 <input 
                   id="email" 
                   formControlName="email"
                   type="email" 
-                  class="block w-full pl-10 pr-3 py-2.5 border border-slate-200 rounded-xl text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-slate-50/50"
+                  class="block w-full pl-10 pr-3 py-2.5 border border-app-border rounded-xl text-sm placeholder-app-muted bg-app-card text-app-text focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   placeholder="name@company.com"
                 >
               </div>
@@ -90,16 +90,16 @@ import { AuthService } from '../services/auth.service';
             </div>
 
             <div>
-              <label for="password" class="block text-sm font-medium text-slate-700">Password</label>
+              <label for="password" class="block text-sm font-medium text-app-text">Password</label>
               <div class="mt-1 relative rounded-md shadow-sm">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <mat-icon class="text-slate-400 text-base">lock</mat-icon>
+                  <mat-icon class="text-app-muted text-base">lock</mat-icon>
                 </div>
                 <input 
                   id="password" 
                   formControlName="password"
                   type="password" 
-                  class="block w-full pl-10 pr-3 py-2.5 border border-slate-200 rounded-xl text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-slate-50/50"
+                  class="block w-full pl-10 pr-3 py-2.5 border border-app-border rounded-xl text-sm placeholder-app-muted bg-app-card text-app-text focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   placeholder="••••••••"
                 >
               </div>
@@ -114,14 +114,14 @@ import { AuthService } from '../services/auth.service';
             <!-- Role Selector (Visible only in register mode) -->
             @if (!isLoginMode()) {
               <div>
-                <label class="block text-sm font-medium text-slate-700 mb-1">Account Role</label>
+                <label class="block text-sm font-medium text-app-text mb-1">Account Role</label>
                 <div class="grid grid-cols-2 gap-3">
                   <button 
                     type="button"
                     (click)="selectedRole.set('user')"
                     [class]="selectedRole() === 'user'
-                      ? 'flex items-center justify-center gap-2 py-2 px-3 border-2 border-indigo-600 bg-indigo-50/30 text-indigo-700 rounded-xl text-sm font-medium cursor-pointer'
-                      : 'flex items-center justify-center gap-2 py-2 px-3 border border-slate-200 text-slate-600 rounded-xl text-sm cursor-pointer hover:bg-slate-50'"
+                      ? 'flex items-center justify-center gap-2 py-2 px-3 border-2 border-indigo-600 bg-indigo-600/10 text-indigo-400 rounded-xl text-sm font-semibold cursor-pointer'
+                      : 'flex items-center justify-center gap-2 py-2 px-3 border border-app-border text-app-muted rounded-xl text-sm cursor-pointer hover:bg-app-card'"
                   >
                     <mat-icon class="text-base">person</mat-icon>
                     SaaS Owner
@@ -130,8 +130,8 @@ import { AuthService } from '../services/auth.service';
                     type="button"
                     (click)="selectedRole.set('admin')"
                     [class]="selectedRole() === 'admin'
-                      ? 'flex items-center justify-center gap-2 py-2 px-3 border-2 border-indigo-600 bg-indigo-50/30 text-indigo-700 rounded-xl text-sm font-medium cursor-pointer'
-                      : 'flex items-center justify-center gap-2 py-2 px-3 border border-slate-200 text-slate-600 rounded-xl text-sm cursor-pointer hover:bg-slate-50'"
+                      ? 'flex items-center justify-center gap-2 py-2 px-3 border-2 border-indigo-600 bg-indigo-600/10 text-indigo-400 rounded-xl text-sm font-semibold cursor-pointer'
+                      : 'flex items-center justify-center gap-2 py-2 px-3 border border-app-border text-app-muted rounded-xl text-sm cursor-pointer hover:bg-app-card'"
                   >
                     <mat-icon class="text-base">admin_panel_settings</mat-icon>
                     Super Admin
@@ -145,7 +145,7 @@ import { AuthService } from '../services/auth.service';
               id="btn-auth-submit"
               type="submit" 
               [disabled]="authForm.invalid || isLoading()"
-              class="w-full flex justify-center items-center gap-2 py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all font-sans cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              class="w-full flex justify-center items-center gap-2 py-3 px-4 border border-transparent rounded-xl shadow-md text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all font-sans cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
               @if (isLoading()) {
                 <div class="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -158,25 +158,25 @@ import { AuthService } from '../services/auth.service';
           </form>
 
           <!-- Quick Access Sandbox accounts (Awesome UX to log in with 1-click) -->
-          <div class="mt-6 border-t border-slate-100 pt-5 text-center">
-            <span class="text-xs text-slate-400 font-medium tracking-wide uppercase">Quick Login for Sandbox</span>
+          <div class="mt-6 border-t border-app-border pt-5 text-center">
+            <span class="text-xs text-app-muted font-medium tracking-wide uppercase">Quick Login for Sandbox</span>
             <div class="mt-3 flex gap-2 justify-center">
               <button 
                 id="btn-demo-owner"
                 type="button" 
                 (click)="fillDemo('owner@saas.com', 'user')"
-                class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200 rounded-lg text-xs font-medium cursor-pointer transition-colors"
+                class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-app-card hover:bg-app-bg text-app-text border border-app-border rounded-lg text-xs font-semibold cursor-pointer transition-colors"
               >
-                <mat-icon class="text-xs w-4 h-4 leading-none text-slate-500">manage_accounts</mat-icon>
+                <mat-icon class="text-xs w-4 h-4 leading-none text-indigo-500">manage_accounts</mat-icon>
                 Owner Demo
               </button>
               <button 
                 id="btn-demo-admin"
                 type="button" 
                 (click)="fillDemo('admin@saas.com', 'admin')"
-                class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200 rounded-lg text-xs font-medium cursor-pointer transition-colors"
+                class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-app-card hover:bg-app-bg text-app-text border border-app-border rounded-lg text-xs font-semibold cursor-pointer transition-colors"
               >
-                <mat-icon class="text-xs w-4 h-4 leading-none text-slate-500">security</mat-icon>
+                <mat-icon class="text-xs w-4 h-4 leading-none text-indigo-500">security</mat-icon>
                 Admin Demo
               </button>
             </div>
@@ -246,9 +246,12 @@ export class Login {
         const res = await this.authService.login(email, password);
         this.showToast('Logged in successfully!', 'success');
         const redirectUrl = localStorage.getItem('redirectAfterLogin');
+        const user = this.authService.currentUser();
         if (redirectUrl) {
           localStorage.removeItem('redirectAfterLogin');
           this.router.navigateByUrl(redirectUrl);
+        } else if (user && user.role === 'admin') {
+          this.router.navigate(['/admin']);
         } else {
           this.router.navigate(['/dashboard']);
         }

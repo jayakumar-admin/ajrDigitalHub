@@ -2,6 +2,7 @@ import { Component, ChangeDetectionStrategy, input, output, inject, OnInit } fro
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
+import { Router } from '@angular/router';
 import { ProjectData } from '../../../services/project-detail.service';
 import { AdminStoreService } from '../../../services/admin-store.service';
 import { ButtonLoaderDirective } from '../../../shared/button-loader.directive';
@@ -42,16 +43,36 @@ import { ButtonLoaderDirective } from '../../../shared/button-loader.directive';
          </div>
       </div>
       
-      <div class="mt-6 flex justify-end">
+      <div class="flex justify-between items-center mt-6">
+         <div class="text-app-muted text-xs">
+           Last updated recently.
+         </div>
          <button (click)="onSave()" [appButtonLoader]="store.isLoading()" class="bg-indigo-500 hover:bg-indigo-400 text-app-text px-6 py-2 rounded-lg font-bold text-sm transition">
            Save Changes
          </button>
+      </div>
+
+      <!-- Danger Zone -->
+      <div class="bg-rose-500/5 border border-rose-500/20 rounded-xl p-6 mt-8 space-y-4">
+         <h3 class="text-sm font-bold text-rose-400 flex items-center gap-2">
+            <mat-icon>warning</mat-icon> Danger Zone
+         </h3>
+         <p class="text-xs text-app-muted">
+            Deleting this application will permanently remove all deployment states, keys, logs, and database mappings on this cluster.
+         </p>
+         <div class="flex">
+            <button (click)="onDelete()" class="px-4 py-2 bg-rose-600 hover:bg-rose-750 text-white rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer">
+               <mat-icon class="!w-4 !h-4 !text-[16px]">delete_forever</mat-icon>
+               Destroy Application Instance
+            </button>
+         </div>
       </div>
     </div>
   `
 })
 export class ProjectConfigComponent implements OnInit {
   store = inject(AdminStoreService);
+  router = inject(Router);
   project = input.required<ProjectData>();
   save = output<Partial<ProjectData>>();
 
@@ -81,5 +102,15 @@ export class ProjectConfigComponent implements OnInit {
   onSave() {
     this.store.updateProject(this.project().id, this.model).subscribe();
     this.save.emit(this.model);
+  }
+
+  onDelete() {
+    if (confirm(`Are you absolutely sure you want to destroy application '${this.project().name}'? This action is irreversible.`)) {
+      this.store.deleteProject(this.project().id).subscribe({
+        next: () => {
+          this.router.navigate(['/admin']);
+        }
+      });
+    }
   }
 }

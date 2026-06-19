@@ -217,43 +217,37 @@ export class AdminStoreService {
   // Fetch initial apps & options
   refreshAll() {
     this.isLoading.set(true);
-    this.api.get<any>('/admin/system/overview').subscribe({
+    this.api.get<any>('/admin/apps').subscribe({
       next: (data) => {
-        if (data && data.apps) {
-          const mapped: ProjectData[] = data.apps.map((app: any) => ({
+        if (Array.isArray(data)) {
+          const mapped: ProjectData[] = data.map((app: any) => ({
             id: app.id,
             name: app.name,
-            domain: app.url || app.domain || '',
-            status: app.status === 'ONLINE' ? 'live' : (app.status === 'SCALING' ? 'deploying' : (app.status === 'OFFLINE' ? 'failed' : app.status)),
-            plan: 'Pro',
-            apiUsage: app.apiHits || 0,
-            lastUpdated: new Date().toISOString(),
-            environment: 'Production',
-            features: { marketplace: true, services: true, analytics: true },
-            apiKey: 'sk_live_' + app.id,
-            policies: {
+            domain: app.domain || '',
+            status: app.status || 'live',
+            plan: app.plan || 'Pro',
+            apiUsage: app.apiUsage || 0,
+            lastUpdated: app.lastUpdated || new Date().toISOString(),
+            environment: app.environment || 'Production',
+            features: app.features || { marketplace: true, services: true, analytics: true },
+            apiKey: app.apiKey || 'sk_live_' + app.id,
+            policies: app.policies || {
               api: { rpmLimit: 1000, rpHourLimit: 50000, allowedOrigins: '*', ipWhitelist: '', endpointLimits: [] },
               security: { authRequired: true, tokenExpiryMinutes: 60, accessRoles: 'admin,user', geoRestrictions: 'None', sessionLimits: 5 },
               usage: { maxDailyCalls: 100000, maxUsers: 5000, storageLimitGb: 50 }
             },
-            logs: [
-              { id: '1', timestamp: new Date().toISOString(), type: 'API', severity: 'Info', message: 'API usage metrics running standard' }
-            ],
-            users: [
-              { id: 'u1', name: 'Master Owner', email: 'admin@ajr.dev', role: 'Owner', status: 'Active', lastActive: new Date().toISOString() }
-            ],
-            apiKeys: [
-              { id: 'k1', name: 'Default Token', keyPrefix: 'sk_live_abc...', created: new Date().toISOString(), lastUsed: new Date().toISOString(), permissions: ['Read', 'Write'] }
-            ],
-            alerts: [],
-            backups: [],
-            auditLogs: [],
-            plugins: [],
-            billing: {
-              plan: 'Pro Plan',
+            logs: app.logs || [],
+            users: app.users || [],
+            apiKeys: app.apiKeys || [],
+            alerts: app.alerts || [],
+            backups: app.backups || [],
+            auditLogs: app.auditLogs || [],
+            plugins: app.plugins || [],
+            billing: app.billing || {
+              plan: app.plan || 'Pro Plan',
               currentSpend: 145.50,
               estimatedSpend: 299.00,
-              apiCalls: app.apiHits || 0,
+              apiCalls: app.apiUsage || 0,
               apiLimit: 100000,
               storageGb: 42,
               storageLimit: 50
@@ -322,7 +316,7 @@ export class AdminStoreService {
   loadProject(id: string) {
     this.isLoading.set(true);
     this.currentProjectId.set(id);
-    this.api.get<any>(`/admin/apps/${id}`).subscribe({
+    this.api.get<any>(`/admin/usage/${id}`).subscribe({
       next: (det) => {
         if (det) {
           const mappedStatus = det.status === 'live' ? 'live' : (det.status === 'deploying' ? 'deploying' : 'failed');
@@ -349,6 +343,16 @@ export class AdminStoreService {
         this.isLoading.set(false);
       }
     });
+  }
+
+  deleteProject(id: string): Observable<boolean> {
+    return this.api.delete<any>(`/admin/apps/${id}`).pipe(
+      tap(() => {
+        this.projects.update(projects => projects.filter(p => p.id !== id));
+        this.showToast('Application deleted successfully!', 'success');
+      }),
+      map(() => true)
+    );
   }
 
   updateProject(id: string, partial: Partial<ProjectData>): Observable<boolean> {
@@ -440,7 +444,7 @@ export class AdminStoreService {
     );
   }
 
-  addProject(newProj: { name: string; domain: string; environment: 'Production' | 'Staging' | 'Sandbox'; plan: 'Lite' | 'Standard' | 'Enterprise'; billing: any }) {
+  addProject(newProj: { name: string; domain: string; environment: 'Production' | 'Staging' | 'Sandbox'; plan: 'Starter' | 'Pro' | 'Enterprise' | 'Lite' | 'Standard'; billing: any }) {
     this.isLoading.set(true);
     this.api.provisionApp(newProj).subscribe({
       next: (response: any) => {

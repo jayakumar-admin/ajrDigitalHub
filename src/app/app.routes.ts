@@ -10,9 +10,39 @@ import { MarketplacePreviewComponent } from './pages/marketplace-preview/marketp
 import { ServicesComponent } from './pages/services/services';
 import { InvoiceBuilderComponent } from './pages/invoice-builder';
 import { authGuard } from './guards/auth.guard';
+import { roleGuard } from './guards/role.guard';
+import { AdminGuard } from './guards/admin.guard';
+
+// Import Admin components
+import { AdminComponent } from './pages/admin/admin';
+import { AdminLoginComponent } from './pages/admin-login/admin-login';
+import { MarketplaceConfigComponent } from './pages/admin/marketplace-config/marketplace-config.component';
+import { SystemCoreComponent } from './pages/admin/system-core/system-core.component';
+import { ProjectDetailComponent } from './pages/admin/project-detail/project-detail';
 
 export const routes: Routes = [
   { path: 'login', component: Login },
+  { path: 'admin-login', component: AdminLoginComponent },
+  { 
+    path: 'admin', 
+    component: AdminComponent,
+    canActivate: [AdminGuard]
+  },
+  { 
+    path: 'admin/marketplace-config', 
+    component: MarketplaceConfigComponent,
+    canActivate: [AdminGuard]
+  },
+  { 
+    path: 'admin/system-core', 
+    component: SystemCoreComponent,
+    canActivate: [AdminGuard]
+  },
+  { 
+    path: 'admin/apps/:id', 
+    component: ProjectDetailComponent,
+    canActivate: [AdminGuard]
+  },
   { path: 'home', component: HomeComponent },
   { path: 'marketplace', component: MarketplaceComponent },
   { path: 'marketplace/preview/:id', component: MarketplacePreviewComponent },

@@ -47,7 +47,7 @@ import { MatIconModule } from '@angular/material/icon';
                 </div>
              </div>
              
-             <div class="flex-grow overflow-auto relative h-[800px]">
+             <div class="flex-grow overflow-auto relative h-full">
                 @if (useIframe()) {
                    <iframe [srcdoc]="sanitizedHtml()" class="w-full h-full border-none" sandbox="allow-scripts allow-same-origin"></iframe>
                 } @else {
@@ -73,11 +73,15 @@ export class PreviewComponent {
   @Input() set html(val: string) {
     this.htmlContent.set(val || '');
   }
+  @Input() set css(val: string) {
+    this.cssContent.set(val || '');
+  }
   @Input() set device(val: string) {
     this.activeDevice.set(val);
   }
   
   htmlContent = signal<string>('');
+  cssContent = signal<string>('');
   activeDevice = signal<string>('desktop');
   zoom = signal(0.75);
   sanitizedHtml = signal<SafeHtml>('');
@@ -94,6 +98,7 @@ export class PreviewComponent {
   constructor() {
     effect(() => {
       const content = this.htmlContent();
+      const cssStyles = this.cssContent();
       const fullDoc = `
         <!DOCTYPE html>
         <html>
@@ -105,6 +110,7 @@ export class PreviewComponent {
               /* Hide scrollbar but allow scrolling */
               ::-webkit-scrollbar { display: none; }
               body { -ms-overflow-style: none; scrollbar-width: none; }
+              ${cssStyles}
             </style>
           </head>
           <body class="bg-transparent overflow-x-hidden">

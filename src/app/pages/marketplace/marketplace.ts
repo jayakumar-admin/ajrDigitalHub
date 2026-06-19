@@ -27,6 +27,10 @@ export class MarketplaceComponent implements OnInit {
   dynamicItems = signal<any[]>([]); // Items from CMS
   showLoginModal = signal(false);
 
+  // Live preview dialog states
+  showPreviewModal = signal(false);
+  previewProduct = signal<any>(null);
+
   confirmLogin() {
     this.showLoginModal.set(false);
     localStorage.setItem('redirectAfterLogin', this.router.url);
@@ -114,6 +118,12 @@ export class MarketplaceComponent implements OnInit {
   }
   
   viewPreview(product: any) {
-    this.router.navigate(['/marketplace/preview', product.id]);
+    this.previewProduct.set(product);
+    this.showPreviewModal.set(true);
+  }
+
+  closePreview() {
+    this.showPreviewModal.set(false);
+    this.previewProduct.set(null);
   }
 }

@@ -33,8 +33,8 @@ interface Form {
       <!-- List Headers -->
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 class="text-2xl font-bold tracking-tight text-slate-900 font-sans">Dynamic Forms</h2>
-          <p class="text-sm text-slate-500">Create, deploy, and collect feedback with shareable public forms.</p>
+          <h2 class="text-2xl font-bold tracking-tight text-app-text font-sans">Dynamic Forms</h2>
+          <p class="text-sm text-app-muted">Create, deploy, and collect feedback with shareable public forms.</p>
         </div>
         <button 
           id="btn-create-new-form"
@@ -50,8 +50,8 @@ interface Form {
       @if (toastMessage()) {
         <div id="forms-toast" class="p-4 rounded-xl flex items-center gap-2 border text-sm max-w-md"
           [class]="toastType() === 'success' 
-            ? 'bg-emerald-50 border-emerald-100 text-emerald-800' 
-            : 'bg-rose-50 border-rose-100 text-rose-800'"
+            ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' 
+            : 'bg-rose-500/10 border-rose-500/20 text-rose-400'"
         >
           <mat-icon class="text-base">{{ toastType() === 'success' ? 'check_circle' : 'error' }}</mat-icon>
           <span>{{ toastMessage() }}</span>
@@ -61,7 +61,7 @@ interface Form {
       <!-- Main Columns -->
       <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
         
-        <!-- Forms list (Left side - spans 2 cols if builder panel is open or closed) -->
+        <!-- Forms list -->
         <div [class]="showBuildPanel() ? 'xl:col-span-2 space-y-4' : 'xl:col-span-3 space-y-4'">
           
           @if (isLoadingList()) {
@@ -70,12 +70,12 @@ interface Form {
             </div>
           } @else if (forms().length === 0) {
             <!-- Empty State -->
-            <div id="empty-state-card" class="bg-white rounded-2xl border border-slate-100 shadow-sm p-12 text-center max-w-xl mx-auto">
-              <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600 mb-4">
+            <div id="empty-state-card" class="bg-app-card rounded-2xl border border-app-border shadow-sm p-12 text-center max-w-xl mx-auto">
+              <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-600/10 text-indigo-400 mb-4">
                 <mat-icon class="text-3xl leading-none">post_add</mat-icon>
               </div>
-              <h3 class="text-lg font-semibold text-slate-800 mb-1">No forms built yet</h3>
-              <p class="text-sm text-slate-500 mb-6 leading-relaxed">
+              <h3 class="text-lg font-semibold text-app-text mb-1">No forms built yet</h3>
+              <p class="text-sm text-app-muted mb-6 leading-relaxed">
                 Start collecting customer leads, registrations, or sales feedback by designing your first fully custom dynamic form.
               </p>
               <button 
@@ -90,24 +90,24 @@ interface Form {
             <!-- Grid of Forms -->
             <div class="grid grid-cols-1 gap-4">
               @for (form of forms(); track form.id) {
-                <div [id]="'form-card-' + form.id" class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 hover:border-slate-200 transition-all card-hover flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div [id]="'form-card-' + form.id" class="bg-app-card rounded-2xl border border-app-border shadow-sm p-5 hover:border-app-border transition-all card-hover flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                   <div class="space-y-1">
                     <div class="flex items-center gap-2">
-                      <h4 class="text-base font-semibold text-slate-900">{{ form.name }}</h4>
+                      <h4 class="text-base font-semibold text-app-text">{{ form.name }}</h4>
                       <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold"
-                        [class]="form.isActive ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 'bg-slate-50 text-slate-600 border border-slate-200'">
+                        [class]="form.isActive ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-app-bg text-app-muted border border-app-border'">
                         {{ form.isActive ? 'Active' : 'Draft' }}
                       </span>
                     </div>
-                    <p class="text-xs text-slate-500 line-clamp-1">{{ form.description || 'No description provided' }}</p>
+                    <p class="text-xs text-app-muted line-clamp-1">{{ form.description || 'No description provided' }}</p>
                     
                     <!-- Metrics Row -->
-                    <div class="flex items-center gap-4 pt-1 font-mono text-[11px] text-slate-400">
+                    <div class="flex items-center gap-4 pt-1 font-mono text-[11px] text-app-muted">
                       <span class="flex items-center gap-1">
                         <mat-icon class="text-xs h-3 w-3 leading-none">format_list_bulleted</mat-icon>
                         {{ form.fields.length }} Fields
                       </span>
-                      <span class="flex items-center gap-1 font-semibold text-indigo-600">
+                      <span class="flex items-center gap-1 font-semibold text-indigo-400">
                         <mat-icon class="text-xs h-3 w-3 leading-none">analytics</mat-icon>
                         {{ form.submissionsCount || 0 }} Submissions
                       </span>
@@ -120,7 +120,7 @@ interface Form {
                     <button 
                       [id]="'btn-copy-' + form.id"
                       (click)="copyLink(form.id)"
-                      class="flex-1 md:flex-none inline-flex items-center justify-center gap-1.5 px-3 py-2 border border-slate-200 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-600 text-xs font-semibold cursor-pointer transition-all"
+                      class="flex-1 md:flex-none inline-flex items-center justify-center gap-1.5 px-3 py-2 border border-app-border rounded-xl bg-app-card hover:bg-app-bg text-app-text text-xs font-semibold cursor-pointer transition-all"
                     >
                       <mat-icon class="text-xs leading-none">share</mat-icon>
                       Copy Link
@@ -130,7 +130,7 @@ interface Form {
                     <a 
                       [href]="'/form/' + form.id"
                       target="_blank"
-                      class="flex-1 md:flex-none inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-xl text-xs font-semibold transition-all text-center"
+                      class="flex-1 md:flex-none inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 rounded-xl text-xs font-semibold transition-all text-center"
                     >
                       <mat-icon class="text-xs leading-none">open_in_new</mat-icon>
                       Open Form
@@ -148,7 +148,7 @@ interface Form {
                     <!-- Inactivate / Delete (Owner control) -->
                     <button 
                       (click)="onDelete(form.id)"
-                      class="inline-flex items-center justify-center p-2 border border-slate-200 hover:border-rose-100 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all cursor-pointer"
+                      class="inline-flex items-center justify-center p-2 border border-app-border hover:border-rose-500/25 text-app-muted hover:text-rose-400 hover:bg-rose-500/10 rounded-xl transition-all cursor-pointer"
                     >
                       <mat-icon class="text-sm">delete</mat-icon>
                     </button>
@@ -161,16 +161,16 @@ interface Form {
 
         <!-- Form Builder Panel on Right -->
         @if (showBuildPanel()) {
-          <div id="form-builder-panel" class="bg-white rounded-2xl border border-slate-100 shadow-xl p-5 md:p-6 space-y-6 flex flex-col xl:col-span-1 animate-fadeIn">
+          <div id="form-builder-panel" class="bg-app-card rounded-2xl border border-app-border shadow-xl p-5 md:p-6 space-y-6 flex flex-col xl:col-span-1 animate-fadeIn">
             
-            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-              <h3 class="text-lg font-bold text-slate-900 flex items-center gap-1.5">
-                <mat-icon class="text-indigo-600">design_services</mat-icon>
+            <div class="flex items-center justify-between pb-3 border-b border-app-border">
+               <h3 class="text-lg font-bold text-app-text flex items-center gap-1.5">
+                <mat-icon class="text-indigo-500">design_services</mat-icon>
                 Form Builder
               </h3>
               <button 
                 (click)="showBuildPanel.set(false)"
-                class="hover:bg-slate-100 p-1.5 rounded-lg text-slate-400"
+                class="hover:bg-app-bg p-1.5 rounded-lg text-app-muted"
               >
                 <mat-icon>close</mat-icon>
               </button>
@@ -179,23 +179,23 @@ interface Form {
             <!-- Form Information Setup -->
             <div class="space-y-4">
               <div>
-                <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider">Form Name</label>
+                <label class="block text-xs font-semibold text-app-muted uppercase tracking-wider">Form Name</label>
                 <input 
                   type="text" 
                   [(ngModel)]="newFormName"
                   [ngModelOptions]="{standalone: true}"
-                  class="mt-1 block w-full px-3 py-2 border border-slate-200 rounded-xl text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  class="mt-1 block w-full px-3 py-2 border border-app-border rounded-xl text-sm bg-app-bg text-app-text placeholder-app-muted focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   placeholder="e.g. Sales Onboarding Inquiry"
                 >
               </div>
 
               <div>
-                <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider">Description</label>
+                <label class="block text-xs font-semibold text-app-muted uppercase tracking-wider">Description</label>
                 <textarea 
                   [(ngModel)]="newFormDesc"
                   [ngModelOptions]="{standalone: true}"
                   rows="2"
-                  class="mt-1 block w-full px-3 py-2 border border-slate-200 rounded-xl text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  class="mt-1 block w-full px-3 py-2 border border-app-border bg-app-bg text-app-text rounded-xl text-sm placeholder-app-muted focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   placeholder="Tell your clients why they are filling out this form..."
                 ></textarea>
               </div>
@@ -203,12 +203,12 @@ interface Form {
 
             <!-- Field Builder List -->
             <div class="space-y-4">
-              <div class="flex items-center justify-between pb-1 border-b border-slate-100">
-                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Form Fields ({{ newFields().length }})</span>
+              <div class="flex items-center justify-between pb-1 border-b border-app-border">
+                <span class="text-xs font-bold text-app-muted uppercase tracking-wider">Form Fields ({{ newFields().length }})</span>
                 <button 
                   id="btn-add-field"
                   (click)="addNewField()"
-                  class="inline-flex items-center gap-1 px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-lg text-xs font-bold cursor-pointer transition-all"
+                  class="inline-flex items-center gap-1 px-2.5 py-1 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 rounded-lg text-xs font-bold cursor-pointer transition-all"
                 >
                   <mat-icon class="text-xs h-3.5 w-3.5">add_circle</mat-icon>
                   Add Field
@@ -216,15 +216,15 @@ interface Form {
               </div>
 
               @if (newFields().length === 0) {
-                <p class="text-xs text-center text-slate-400 py-4 italic">No fields configured. Click "Add Field" to begin designing.</p>
+                <p class="text-xs text-center text-app-muted py-4 italic">No fields configured. Click "Add Field" to begin designing.</p>
               } @else {
                 <div class="space-y-4 max-h-[350px] overflow-y-auto pr-1">
                   @for (field of newFields(); track field.id; let idx = $index) {
-                    <div class="bg-slate-50/50 rounded-xl p-3 border border-slate-100 space-y-3 relative group">
+                    <div class="bg-app-bg rounded-xl p-3 border border-app-border space-y-3 relative group">
                       
                       <!-- Field Header actions -->
                       <div class="flex items-center justify-between">
-                        <span class="text-[10px] font-mono text-slate-400 font-bold uppercase">Field #{{ idx + 1 }}</span>
+                        <span class="text-[10px] font-mono text-app-muted font-bold uppercase">Field #{{ idx + 1 }}</span>
                         <div class="flex items-center gap-1">
                           
                           <!-- Move field UP -->
@@ -232,7 +232,7 @@ interface Form {
                             type="button"
                             [disabled]="idx === 0"
                             (click)="moveField(idx, 'up')"
-                            class="p-1 text-slate-400 hover:text-slate-600 disabled:opacity-30"
+                            class="p-1 text-app-muted hover:text-app-text disabled:opacity-30"
                           >
                             <mat-icon class="text-xs">arrow_upward</mat-icon>
                           </button>
@@ -242,7 +242,7 @@ interface Form {
                             type="button"
                             [disabled]="idx === newFields().length - 1"
                             (click)="moveField(idx, 'down')"
-                            class="p-1 text-slate-400 hover:text-slate-600 disabled:opacity-30"
+                            class="p-1 text-app-muted hover:text-app-text disabled:opacity-30"
                           >
                             <mat-icon class="text-xs">arrow_downward</mat-icon>
                           </button>
@@ -251,7 +251,7 @@ interface Form {
                           <button 
                             type="button"
                             (click)="removeField(field.id)"
-                            class="p-1 text-slate-400 hover:text-rose-600"
+                            class="p-1 text-app-muted hover:text-rose-400"
                           >
                             <mat-icon class="text-xs">delete</mat-icon>
                           </button>
@@ -265,7 +265,7 @@ interface Form {
                             type="text" 
                             [(ngModel)]="field.label"
                             [ngModelOptions]="{standalone: true}"
-                            class="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs font-medium focus:ring-1 focus:ring-indigo-500 focus:outline-none"
+                            class="w-full px-2.5 py-1.5 border border-app-border rounded-lg text-xs font-medium bg-app-bg text-app-text focus:ring-1 focus:ring-indigo-500 focus:outline-none"
                             placeholder="Field Label (e.g., Full Name)"
                           >
                         </div>
@@ -275,7 +275,7 @@ interface Form {
                           <select 
                             [(ngModel)]="field.type"
                             [ngModelOptions]="{standalone: true}"
-                            class="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs bg-white focus:outline-none"
+                            class="w-full px-2.5 py-1.5 border border-app-border rounded-lg text-xs bg-app-bg text-app-text focus:outline-none"
                           >
                             <option value="text">Single Line Text</option>
                             <option value="textarea">Paragraph Text</option>
@@ -298,7 +298,7 @@ interface Form {
                               [ngModelOptions]="{standalone: true}"
                               class="rounded text-indigo-600"
                             >
-                            <span class="text-xs text-slate-600 font-medium select-none">Mandatory</span>
+                            <span class="text-xs text-app-muted font-medium select-none">Mandatory</span>
                           </label>
                         </div>
                       </div>
@@ -310,7 +310,7 @@ interface Form {
                             type="text" 
                             [(ngModel)]="field.placeholder"
                             [ngModelOptions]="{standalone: true}"
-                            class="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none"
+                            class="w-full px-2.5 py-1.5 border border-app-border bg-app-bg text-app-text rounded-lg text-xs focus:outline-none"
                             placeholder="Input placeholder info (optional)"
                           >
                         </div>
@@ -321,7 +321,7 @@ interface Form {
                             <input 
                               type="text" 
                               (change)="onFieldOptionsChange($event, field)"
-                              class="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs focus:ring-1 focus:ring-indigo-500 focus:outline-none bg-indigo-50/20"
+                              class="w-full px-2.5 py-1.5 border border-app-border bg-app-bg text-app-text rounded-lg text-xs focus:ring-1 focus:ring-indigo-500 focus:outline-none"
                               placeholder="Choice Options (split with comma, e.g. Yes, No, Maybe)"
                               [value]="field.options ? field.options.join(', ') : ''"
                             >
@@ -336,7 +336,7 @@ interface Form {
             </div>
 
             <!-- Save Controls -->
-            <div class="pt-4 border-t border-slate-100 flex gap-2">
+            <div class="pt-4 border-t border-app-border flex gap-2">
               <button 
                 id="btn-save-form"
                 (click)="onSaveForm()"
@@ -353,7 +353,7 @@ interface Form {
               </button>
               <button 
                 (click)="showBuildPanel.set(false)"
-                class="px-4 py-2.5 border border-slate-200 hover:bg-slate-50 text-slate-600 font-semibold rounded-xl text-sm transition-all cursor-pointer"
+                class="px-4 py-2.5 border border-app-border hover:bg-app-bg text-app-text font-semibold rounded-xl text-sm transition-all cursor-pointer"
               >
                 Cancel
               </button>
@@ -400,7 +400,7 @@ export class FormList {
     this.isLoadingList.set(true);
     try {
       const res: any = await this.http.get<any>('/api/forms').toPromise();
-      this.forms.set(res || []);
+      this.forms.set(res?.data || res || []);
     } catch (e) {
       this.showToast('Could not load forms', 'error');
     } finally {

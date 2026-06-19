@@ -22,37 +22,42 @@
     <ajr-data-flow class="absolute top-0 left-0 w-full h-full opacity-60 pointer-events-none"></ajr-data-flow>
     
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      
+      <!-- Psychological FOMO Banner (glowing) -->
+      @if (growthConfig()?.fomoEnabled) {
+        <div class="mb-8 mx-auto max-w-max bg-rose-500/10 border border-rose-500/35 text-rose-400 text-xs px-5 py-2.5 rounded-2xl font-mono font-bold flex items-center gap-2.5 shadow-lg shadow-rose-500/10 animate-pulse">
+          <span class="h-2 w-2 rounded-full bg-rose-500 animate-ping"></span>
+          <span>{{ growthConfig()?.fomoMessage || 'Only 3 license bundles remaining for today!' }}</span>
+        </div>
+      }
+
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
         
-        <!-- Left Hero Content slider -->
+        <!-- Left Hero Content (Version A vs Version B) -->
         <div class="lg:col-span-7 flex flex-col justify-center">
-          @if (slides().length > 0 && activeSlide()) {
-            <!-- Dynamic Slide Rendering with custom animations -->
-            <div [appScrollReveal]="{ direction: 'left', speed: 800 }" class="relative min-h-[380px] flex flex-col justify-center">
-              
-              <!-- Subtitle tag -->
-              <span id="hero-slide-badge" class="inline-flex items-center gap-2 text-[10px] bg-indigo-500/10 border border-indigo-500/25 text-indigo-400 px-3.5 py-1.5 rounded-xl font-bold uppercase tracking-widest max-w-max mb-6 select-none font-mono">
+          
+          <!-- Hero version A -->
+          @if (heroVersion() === 'A') {
+            <div [appScrollReveal]="{ direction: 'left', speed: 800 }" class="relative flex flex-col justify-center">
+              <span class="inline-flex items-center gap-2 text-[10px] bg-indigo-500/10 border border-indigo-500/25 text-indigo-400 px-3.5 py-1.5 rounded-xl font-bold uppercase tracking-widest max-w-max mb-6 select-none font-mono">
                 <span class="h-1.5 w-1.5 rounded-full bg-indigo-400 animate-ping"></span>
-                {{ activeSlide()!.subtitle }}
+                {{ growthConfig()?.heroSubTitleA || 'The Premier Digital Hub' }}
               </span>
               
-              <!-- Main landing dynamic title -->
-              <h1 id="hero-slide-title" class="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white mb-6 leading-[1.08] font-sans">
+              <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white mb-6 leading-[1.08] font-sans uppercase">
                 Manage, Deploy & Scale <br/>
                 <span class="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-500 bg-clip-text text-transparent">
-                  {{ activeSlide()!.title }}
+                  {{ growthConfig()?.heroTitleA || 'Your Enterprise Workspace' }}
                 </span>
               </h1>
               
-              <!-- Description -->
-              <p id="hero-slide-desc" class="text-sm sm:text-base text-slate-300 leading-relaxed mb-8 max-w-xl">
-                {{ activeSlide()!.description }}
+              <p class="text-sm sm:text-base text-slate-300 leading-relaxed mb-8 max-w-xl">
+                Deploy lightning-fast cloud applications with real-time analytics, dynamic billing models, and a centralized control center.
               </p>
 
-              <!-- Action Button Linked directly -->
               <div class="flex flex-wrap gap-4 items-center">
-                <ajr-glow-button [routerLink]="activeSlide()!.buttonLink" class="shadow-lg shadow-indigo-600/15">
-                  {{ activeSlide()!.buttonText }}
+                <ajr-glow-button (click)="onCtaClick(growthConfig()?.buttonLink || '/invoice-builder')" class="shadow-lg shadow-indigo-600/15">
+                  {{ growthConfig()?.heroCtaA || 'Deploy SaaS Now' }}
                   <mat-icon class="!text-[16px] !w-[16px] !h-[16px] leading-none flex items-center justify-center">arrow_forward</mat-icon>
                 </ajr-glow-button>
                 
@@ -61,103 +66,160 @@
                   <span>Explore Products</span>
                 </button>
               </div>
-
-              <!-- Bullet Carousels Navigation -->
-              <div class="flex items-center gap-3 mt-10">
-                @for (sld of slides(); track sld.id; let sIdx = $index) {
-                  <button (click)="setSlide(sIdx)"
-                          [class]="currentSlideIndex() === sIdx ? 'bg-indigo-500 scale-x-150 w-8' : 'bg-white/10 w-2 hover:bg-white/30'"
-                          class="h-2 rounded-full transition-all duration-300 cursor-pointer"
-                          [title]="'Go to Slide ' + (sIdx + 1)">
-                  </button>
-                }
-              </div>
-
             </div>
-          } @else {
-            <!-- Beautiful static animated fallback matching slider look -->
-            <div [appScrollReveal]="{ direction: 'left' }" class="relative flex flex-col justify-center">
-              <span id="hero-static-badge" class="inline-flex items-center gap-1.5 text-[10px] bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 px-3.5 py-1.5 rounded-xl font-mono uppercase tracking-widest max-w-max mb-6">
-                <span class="h-2 w-2 rounded-full bg-indigo-500 animate-pulse"></span>
-                Enterprise Hub Sandbox
+          }
+          <!-- Hero version B -->
+          @else {
+            <div [appScrollReveal]="{ direction: 'left', speed: 800 }" class="relative flex flex-col justify-center">
+              <span class="inline-flex items-center gap-2 text-[10px] bg-cyan-500/10 border border-cyan-500/25 text-cyan-400 px-3.5 py-1.5 rounded-xl font-bold uppercase tracking-widest max-w-max mb-6 select-none font-mono">
+                <span class="h-1.5 w-1.5 rounded-full bg-cyan-400 animate-ping"></span>
+                {{ growthConfig()?.heroSubTitleB || '10x Developer Productivity' }}
               </span>
-              <h1 id="hero-static-title" class="text-4xl sm:text-5xl lg:text-7xl font-sans font-black tracking-tight text-white mb-6 leading-[1.08]">
-                Deploy Fast.<br/>
-                <span class="bg-gradient-to-r from-indigo-400 via-pink-400 to-purple-500 bg-clip-text text-transparent">Scale Everywhere.</span>
-              </h1>
-              <p id="hero-static-desc" class="text-sm sm:text-base text-slate-300 leading-relaxed mb-8 max-w-xl">
-                Build digital invoicing systems, acquire premium microservices, sync database collections, and inspect performance telemetry in real-time.
-              </p>
               
-              <div class="flex flex-wrap gap-4 items-center mb-10">
-                <ajr-glow-button routerLink="/invoice-builder" class="shadow-lg shadow-indigo-600/15">
-                  Start Building Now
-                  <mat-icon class="!text-[16px] !w-[16px] !h-[16px]">arrow_forward</mat-icon>
-                </ajr-glow-button>
-                <button routerLink="/marketplace" class="bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-white font-bold px-6 h-12 rounded-xl transition-all uppercase tracking-wider text-[10px] flex items-center gap-2">
-                  <mat-icon class="!text-[14px] !w-[14px] !h-[14px]">rocket_launch</mat-icon>
-                  Explore Products
-                </button>
-              </div>
+              <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white mb-6 leading-[1.08] font-sans uppercase">
+                <span class="bg-gradient-to-r from-cyan-400 via-blue-400 to-indigo-500 bg-clip-text text-transparent">
+                  {{ growthConfig()?.heroTitleB || 'Transform Code Into Passive Cash Flow' }}
+                </span>
+              </h1>
+              
+              <p class="text-sm sm:text-base text-slate-300 leading-relaxed mb-8 max-w-xl">
+                Focus entirely on product-led growth. Scale developer workflows, automate onboarding cycles, and maximize digital conversions today.
+              </p>
 
-              <!-- Mini stats horizontal layout -->
-              <div class="flex flex-wrap gap-10 items-center border-t border-white/5 pt-8 mt-4">
-                <div class="flex flex-col">
-                  <span class="text-2xl font-black text-white">500+</span>
-                  <span class="text-[9px] font-mono text-slate-400 uppercase tracking-wider">Deployments Active</span>
-                </div>
-                <div class="h-8 w-px bg-white/10"></div>
-                <div class="flex flex-col">
-                  <span class="text-2xl font-black text-indigo-400">99.99%</span>
-                  <span class="text-[9px] font-mono text-slate-400 uppercase tracking-wider">Uptime SLA</span>
-                </div>
-                <div class="h-8 w-px bg-white/10"></div>
-                <div class="flex flex-col">
-                  <span class="text-2xl font-black text-rose-400">12K+</span>
-                  <span class="text-[9px] font-mono text-slate-400 uppercase tracking-wider">Authenticated Users</span>
-                </div>
+              <div class="flex flex-wrap gap-4 items-center">
+                <ajr-glow-button (click)="onCtaClick(growthConfig()?.buttonLink || '/marketplace')" class="shadow-lg shadow-cyan-500/15 !from-cyan-500 !to-blue-600">
+                  {{ growthConfig()?.heroCtaB || 'Explore Marketplace Now' }}
+                  <mat-icon class="!text-[16px] !w-[16px] !h-[16px] leading-none flex items-center justify-center">arrow_forward</mat-icon>
+                </ajr-glow-button>
+                
+                <button (click)="onCtaClick('/invoice-builder')" class="bg-white/5 backdrop-blur-xl border border-white/10 hover:border-white/20 text-white font-bold px-6 h-12 rounded-xl transition-all uppercase tracking-wider text-[10px] flex items-center gap-2">
+                  <mat-icon class="!text-[14px] !w-[14px] !h-[14px]">bolt</mat-icon>
+                  <span>SaaS Sandbox</span>
+                </button>
               </div>
             </div>
           }
+
+          <!-- Social Proof under Hero -->
+          @if (growthConfig()?.socialProofEnabled) {
+            <div class="mt-8 flex items-center gap-3 text-xs text-slate-400 border-t border-white/5 pt-6 font-mono">
+              <mat-icon class="text-emerald-400 !text-[16px] !w-[16px] !h-[16px]">verified</mat-icon>
+              <span>{{ growthConfig()?.socialProofMessage || 'Used by 1,200+ developers across 80+ companies' }}</span>
+            </div>
+          }
+
         </div>
 
-        <!-- Right Hero Interactive Countdown Discount Card -->
-        <div [appScrollReveal]="{ direction: 'right', delay: 150 }" class="lg:col-span-5 relative mt-4 lg:mt-0">
+        <!-- Right Hero Interactive Cards: Countdown Discount AND Live Metrics -->
+        <div [appScrollReveal]="{ direction: 'right', delay: 150 }" class="lg:col-span-5 relative mt-4 lg:mt-0 flex flex-col gap-6">
           
-          <!-- Outer decorative grid background for card -->
           <div class="absolute -inset-2 rounded-[32px] bg-gradient-to-tr from-indigo-500/20 to-pink-500/20 opacity-40 blur-lg pointer-events-none"></div>
-
+          
+          <!-- Live Telemetry Counters -->
           <ajr-floating-card>
-            <div class="relative z-10 text-center py-4 px-2">
-              <span class="inline-flex px-3 py-1 bg-indigo-500/20 text-indigo-300 text-[10px] font-bold uppercase tracking-wider rounded-xl mb-6 border border-indigo-500/30 font-mono">
-                Launch Anniversary Offer
-              </span>
-              <h3 class="text-2xl font-black text-white mb-6 tracking-tight uppercase">60% OFF Professional Plan</h3>
-              
-              <!-- Countdown component with styled borders -->
-              <div class="bg-slate-950/50 rounded-2xl p-4 border border-white/5 mb-6">
-                <ajr-countdown-timer [endTime]="offerEndTime()" class="brightness-125"></ajr-countdown-timer>
+            <div class="relative z-10 text-left py-4 px-2 space-y-5">
+              <div class="flex items-center justify-between border-b border-white/5 pb-4">
+                <span class="text-xs font-bold text-white uppercase tracking-wider font-mono">Live Platform Telemetry</span>
+                <span class="relative flex h-2 w-2">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                </span>
               </div>
-
-              <p class="text-xs text-slate-400 leading-relaxed mb-8">
-                Upgrade now to unlock all premium template themes, execute payment interfaces, and secure priorities in our database clusters.
-              </p>
-
-              <button 
-                routerLink="/invoice-builder"
-                class="w-full relative group overflow-hidden bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-bold text-xs uppercase tracking-widest py-4 rounded-xl transition-all shadow-xl shadow-indigo-600/20"
-              >
-                <!-- Flash shine effect on hover -->
-                <div class="absolute inset-0 w-1/2 h-full bg-white/15 skew-x-[-25deg] -translate-x-full group-hover:animate-shine"></div>
-                <span>CLAIM SPECIAL OFFER &rarr;</span>
-              </button>
+              
+              <div class="grid grid-cols-2 gap-4">
+                <div class="bg-slate-950/60 border border-white/5 p-4 rounded-2xl">
+                  <span class="text-[8px] font-mono text-slate-400 uppercase tracking-widest block mb-1">Active Developers</span>
+                  <span class="text-xl font-black text-white font-mono tracking-tight">{{ activeUsersCount() | number }}</span>
+                </div>
+                
+                <div class="bg-slate-950/60 border border-white/5 p-4 rounded-2xl">
+                  <span class="text-[8px] font-mono text-slate-400 uppercase tracking-widest block mb-1">API Requests Today</span>
+                  <span class="text-xl font-black text-indigo-400 font-mono tracking-tight">{{ apiCallsCount() | number }}</span>
+                </div>
+                
+                <div class="bg-slate-950/60 border border-white/5 p-4 rounded-2xl">
+                  <span class="text-[8px] font-mono text-slate-400 uppercase tracking-widest block mb-1">SaaS Revenue</span>
+                  <span class="text-xl font-black text-emerald-400 font-mono tracking-tight">₹{{ (revenueCount() / 100000).toFixed(1) }}L</span>
+                </div>
+                
+                <div class="bg-slate-950/60 border border-white/5 p-4 rounded-2xl">
+                  <span class="text-[8px] font-mono text-slate-400 uppercase tracking-widest block mb-1">Apps Deployed</span>
+                  <span class="text-xl font-black text-pink-400 font-mono tracking-tight">{{ appsDeployedCount() | number }}</span>
+                </div>
+              </div>
             </div>
           </ajr-floating-card>
+
+          <!-- Countdown special offer card -->
+          @if (growthConfig()?.countdownEnabled) {
+            <ajr-floating-card>
+              <div class="relative z-10 text-center py-4 px-2">
+                <span class="inline-flex px-3 py-1 bg-indigo-500/20 text-indigo-300 text-[10px] font-bold uppercase tracking-wider rounded-xl mb-4 border border-indigo-500/30 font-mono">
+                  Limited Conversion Slots
+                </span>
+                <h3 class="text-lg font-black text-white mb-4 tracking-tight uppercase">Special 60% Launch Discount</h3>
+                
+                <div class="bg-slate-950/50 rounded-2xl p-4 border border-white/5 mb-4">
+                  <ajr-countdown-timer [endTime]="offerEndTime()" class="brightness-125"></ajr-countdown-timer>
+                </div>
+                <button 
+                  (click)="onCtaClick('/invoice-builder')"
+                  class="w-full relative group overflow-hidden bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-bold text-xs uppercase tracking-widest py-4 rounded-xl transition-all shadow-xl shadow-indigo-600/20"
+                >
+                  <div class="absolute inset-0 w-1/2 h-full bg-white/15 skew-x-[-25deg] -translate-x-full group-hover:animate-shine"></div>
+                  <span>CLAIM LAUNCH OFFER &rarr;</span>
+                </button>
+              </div>
+            </ajr-floating-card>
+          }
+
         </div>
 
       </div>
     </div>
   </section>
+
+  <!-- ==============================================
+       1b. LIVE SYSTEM STATUS STRIP
+       ============================================== -->
+  <div class="bg-slate-950/80 border-y border-white/5 py-4 px-6 relative z-20 backdrop-blur-md">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-6">
+      
+      <div class="flex items-center gap-2">
+        <span class="relative flex h-2 w-2">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+        </span>
+        <span class="text-[10px] font-mono text-slate-400 uppercase tracking-wider">API Gateway:</span>
+        <span class="text-[10px] font-mono text-emerald-400 font-bold uppercase">Operational</span>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <span class="relative flex h-2 w-2">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+        </span>
+        <span class="text-[10px] font-mono text-slate-400 uppercase tracking-wider">Postgres DB:</span>
+        <span class="text-[10px] font-mono text-emerald-400 font-bold uppercase">99.99% Healthy</span>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <span class="relative flex h-2 w-2">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+        </span>
+        <span class="text-[10px] font-mono text-slate-400 uppercase tracking-wider">WhatsApp API:</span>
+        <span class="text-[10px] font-mono text-emerald-400 font-bold uppercase">Active & Synced</span>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <mat-icon class="text-indigo-400 !text-[14px] !w-[14px] !h-[14px] leading-none flex items-center justify-center">speed</mat-icon>
+        <span class="text-[10px] font-mono text-slate-400 uppercase tracking-wider">Avg Latency:</span>
+        <span class="text-[10px] font-mono text-indigo-400 font-bold uppercase">{{ latencyMs() }}ms</span>
+      </div>
+      
+    </div>
+  </div>
 
   <!-- ==============================================
        2. FEATURE HIGHLIGHTS SECTION
@@ -413,6 +475,21 @@
             
             <div [appScrollReveal]="{ direction: 'up', delay: idx * 100 }" class="group bg-slate-900/60 border border-white/5 hover:border-indigo-500/25 rounded-3xl p-5 flex flex-col justify-between transition-all duration-300 hover:-translate-y-2 shadow-xl hover:shadow-indigo-500/5 relative overflow-hidden">
               
+              <!-- Absolute sales badges -->
+              @if (idx === 0) {
+                <span class="absolute top-4 left-4 z-20 px-2.5 py-1 bg-rose-500/90 text-white text-[8px] font-black uppercase tracking-widest rounded-xl flex items-center gap-1 shadow-md">
+                  Trending 🔥
+                </span>
+              } @else if (idx === 1) {
+                <span class="absolute top-4 left-4 z-20 px-2.5 py-1 bg-amber-500/90 text-white text-[8px] font-black uppercase tracking-widest rounded-xl flex items-center gap-1 shadow-md">
+                  Best Seller ⭐
+                </span>
+              } @else {
+                <span class="absolute top-4 left-4 z-20 px-2.5 py-1 bg-cyan-500/90 text-white text-[8px] font-black uppercase tracking-widest rounded-xl flex items-center gap-1 shadow-md">
+                  New 🚀
+                </span>
+              }
+
               <!-- Custom colored categories absolute tag -->
               <span class="absolute top-4 right-4 z-20 px-3 py-1 bg-slate-950/80 border border-white/10 rounded-xl text-[9px] font-bold text-slate-300 uppercase tracking-widest font-mono">
                 {{ p.category }}
@@ -434,6 +511,17 @@
                 <h3 class="text-lg font-black text-white hover:text-indigo-400 transition-colors uppercase mb-2">
                   {{ p.title }}
                 </h3>
+                
+                <!-- Social proof conversion metrics per product -->
+                <div class="flex items-center gap-2 mb-4 text-[10px] text-slate-400 font-mono">
+                  <span class="flex items-center gap-0.5 text-amber-400 font-bold">
+                    <mat-icon class="!text-[12px] !w-[12px] !h-[12px] leading-none flex items-center justify-center">star</mat-icon> 
+                    {{ idx === 0 ? '4.9' : (idx === 1 ? '4.8' : '4.7') }}
+                  </span>
+                  <span>•</span>
+                  <span>Purchased {{ idx === 0 ? '512' : (idx === 1 ? '342' : '184') }} times</span>
+                </div>
+
                 <p class="text-xs text-slate-400 leading-relaxed mb-6">
                   {{ p.description }}
                 </p>
@@ -447,10 +535,10 @@
                 </div>
                 
                 <div class="flex items-center gap-2">
-                  <a routerLink="/marketplace" class="bg-white/5 hover:bg-white/10 text-white font-bold text-[10px] uppercase tracking-wider px-3 py-2.5 rounded-lg border border-white/5 transition-all">
-                    Preview
-                  </a>
-                  <button (click)="buyNow(p)" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-[10px] uppercase tracking-wider px-4 py-2.5 rounded-lg transition-all shadow-md shadow-indigo-600/10">
+                  <button (click)="openPreview(p)" class="bg-white/5 hover:bg-white/10 text-white font-bold text-[10px] uppercase tracking-wider px-3 py-2.5 rounded-lg border border-white/5 transition-all cursor-pointer">
+                    Live Demo
+                  </button>
+                  <button (click)="buyNow(p)" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-[10px] uppercase tracking-wider px-4 py-2.5 rounded-lg transition-all shadow-md shadow-indigo-600/10 cursor-pointer">
                     Buy Now
                   </button>
                 </div>
@@ -470,6 +558,121 @@
         </a>
       </div>
 
+    </div>
+  </section>
+
+  <!-- ==============================================
+       5b. PUBLIC TELEMETRY DASHBOARD
+       ============================================== -->
+  <section id="telemetry-dashboard" class="relative py-24 bg-slate-950/40 border-b border-white/5">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div [appScrollReveal]="{ direction: 'up' }" class="text-center max-w-3xl mx-auto mb-16">
+        <span class="text-xs bg-indigo-600/10 border border-indigo-500/20 text-indigo-400 px-3.5 py-1.5 rounded-full font-mono font-bold uppercase tracking-widest select-none">
+          Live Platform Stats
+        </span>
+        <h2 class="text-3xl sm:text-4xl font-extrabold text-white mt-4 mb-4 uppercase">
+          Real-Time Activity & Telemetry
+        </h2>
+        <p class="text-sm text-slate-400">
+          We believe in complete transparency. Observe live usage trends, request distributions, and platform scaling statistics.
+        </p>
+      </div>
+
+      <!-- Telemetry Cards -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <!-- User Growth chart card -->
+        <div [appScrollReveal]="{ direction: 'up', delay: 100 }" class="bg-slate-900/50 backdrop-blur-xl border border-white/5 p-6 rounded-3xl relative overflow-hidden flex flex-col justify-between h-80 shadow-xl">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <span class="text-xs font-bold text-white uppercase tracking-wider font-mono flex items-center gap-2">
+                <mat-icon class="text-indigo-400">group</mat-icon> Developer Onboarding
+              </span>
+              <span class="text-[10px] font-mono text-emerald-400 font-bold bg-emerald-400/10 px-2 py-0.5 rounded border border-emerald-400/20">+12% this week</span>
+            </div>
+            <p class="text-[10px] text-slate-400 mb-4 font-mono">Daily cumulative active developer workspaces</p>
+          </div>
+          <!-- SVG Line Chart -->
+          <div class="w-full h-40 relative flex items-end">
+            <svg class="w-full h-full" viewBox="0 0 500 200" preserveAspectRatio="none">
+              <line x1="0" y1="50" x2="500" y2="50" stroke="rgba(255,255,255,0.03)" stroke-width="1" />
+              <line x1="0" y1="100" x2="500" y2="100" stroke="rgba(255,255,255,0.03)" stroke-width="1" />
+              <line x1="0" y1="150" x2="500" y2="150" stroke="rgba(255,255,255,0.03)" stroke-width="1" />
+              <defs>
+                <linearGradient id="gradient-users" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="rgba(99, 102, 241, 0.3)" />
+                  <stop offset="100%" stop-color="rgba(99, 102, 241, 0)" />
+                </linearGradient>
+              </defs>
+              <path [attr.d]="getSvgAreaPath(chartData().users, 500, 200)" fill="url(#gradient-users)" />
+              <path [attr.d]="getSvgPath(chartData().users, 500, 200)" fill="none" stroke="#6366f1" stroke-width="3" stroke-linecap="round" />
+            </svg>
+          </div>
+        </div>
+
+        <!-- API Traffic Volume chart card -->
+        <div [appScrollReveal]="{ direction: 'up', delay: 150 }" class="bg-slate-900/50 backdrop-blur-xl border border-white/5 p-6 rounded-3xl relative overflow-hidden flex flex-col justify-between h-80 shadow-xl">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <span class="text-xs font-bold text-white uppercase tracking-wider font-mono flex items-center gap-2">
+                <mat-icon class="text-cyan-400">lan</mat-icon> API Traffic Volume
+              </span>
+              <span class="text-[10px] font-mono text-cyan-400 font-bold bg-cyan-400/10 px-2 py-0.5 rounded border border-cyan-400/20">Synced Live</span>
+            </div>
+            <p class="text-[10px] text-slate-400 mb-4 font-mono">Edge request hits across active platform clusters</p>
+          </div>
+          <!-- SVG Line Chart -->
+          <div class="w-full h-40 relative flex items-end">
+            <svg class="w-full h-full" viewBox="0 0 500 200" preserveAspectRatio="none">
+              <line x1="0" y1="50" x2="500" y2="50" stroke="rgba(255,255,255,0.03)" stroke-width="1" />
+              <line x1="0" y1="100" x2="500" y2="100" stroke="rgba(255,255,255,0.03)" stroke-width="1" />
+              <line x1="0" y1="150" x2="500" y2="150" stroke="rgba(255,255,255,0.03)" stroke-width="1" />
+              <defs>
+                <linearGradient id="gradient-api" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="rgba(6, 182, 212, 0.3)" />
+                  <stop offset="100%" stop-color="rgba(6, 182, 212, 0)" />
+                </linearGradient>
+              </defs>
+              <path [attr.d]="getSvgAreaPath(chartData().api, 500, 200)" fill="url(#gradient-api)" />
+              <path [attr.d]="getSvgPath(chartData().api, 500, 200)" fill="none" stroke="#06b6d4" stroke-width="3" stroke-linecap="round" />
+            </svg>
+          </div>
+        </div>
+
+        <!-- WhatsApp + Spend chart card -->
+        <div [appScrollReveal]="{ direction: 'up', delay: 200 }" class="bg-slate-900/50 backdrop-blur-xl border border-white/5 p-6 rounded-3xl relative overflow-hidden flex flex-col justify-between h-80 shadow-xl">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <span class="text-xs font-bold text-white uppercase tracking-wider font-mono flex items-center gap-2">
+                <mat-icon class="text-emerald-400">chat</mat-icon> WhatsApp Delivery
+              </span>
+              <span class="text-[10px] font-mono text-emerald-400 font-bold bg-emerald-400/10 px-2 py-0.5 rounded border border-emerald-400/20">99.8% Success</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2 mb-4 text-[10px] font-mono text-slate-400">
+              <div>Sent: <span class="text-white font-bold">14,242 Today</span></div>
+              <div>Estimated Cost: <span class="text-emerald-400 font-bold">₹0.08 / msg</span></div>
+            </div>
+          </div>
+          <!-- SVG Line Chart -->
+          <div class="w-full h-40 relative flex items-end">
+            <svg class="w-full h-full" viewBox="0 0 500 200" preserveAspectRatio="none">
+              <line x1="0" y1="50" x2="500" y2="50" stroke="rgba(255,255,255,0.03)" stroke-width="1" />
+              <line x1="0" y1="100" x2="500" y2="100" stroke="rgba(255,255,255,0.03)" stroke-width="1" />
+              <line x1="0" y1="150" x2="500" y2="150" stroke="rgba(255,255,255,0.03)" stroke-width="1" />
+              <defs>
+                <linearGradient id="gradient-whatsapp" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="rgba(16, 185, 129, 0.3)" />
+                  <stop offset="100%" stop-color="rgba(16, 185, 129, 0)" />
+                </linearGradient>
+              </defs>
+              <path [attr.d]="getSvgAreaPath(chartData().apps, 500, 200)" fill="url(#gradient-whatsapp)" />
+              <path [attr.d]="getSvgPath(chartData().apps, 500, 200)" fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round" />
+            </svg>
+          </div>
+        </div>
+
+      </div>
     </div>
   </section>
 
@@ -875,6 +1078,41 @@
             Initialize Auth Entry &rarr;
           </button>
         </div>
+      </div>
+    </div>
+  }
+  <!-- ==============================================
+       12. SANDBOXED LIVE PREVIEW MODAL
+       ============================================== -->
+  @if (showPreviewModal() && previewProduct()) {
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md p-4 animate-in fade-in duration-300">
+      <div class="bg-slate-900 border border-white/10 rounded-3xl w-full max-w-5xl h-[85vh] flex flex-col overflow-hidden shadow-2xl relative animate-in zoom-in-95 duration-300">
+        
+        <!-- Modal Header -->
+        <div class="bg-slate-950 border-b border-white/5 py-4.5 px-6 flex items-center justify-between">
+          <div>
+            <h3 class="text-sm font-bold text-white uppercase tracking-wider font-mono">{{ previewProduct().title }}</h3>
+            <p class="text-[10px] text-slate-400 font-mono mt-0.5">Sandboxed Secure Iframe Environment (Scripts Allowed)</p>
+          </div>
+          <div class="flex items-center gap-4">
+            <button (click)="buyNow(previewProduct())" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-[10px] uppercase tracking-wider px-4 py-2 rounded-xl transition-all shadow-md">
+              Buy Now - ₹{{ previewProduct().price }}
+            </button>
+            <button (click)="closePreview()" class="text-slate-400 hover:text-white transition-colors flex items-center justify-center">
+              <mat-icon class="!w-[20px] !h-[20px] !text-[20px]">close</mat-icon>
+            </button>
+          </div>
+        </div>
+
+        <!-- Iframe Body Area -->
+        <div class="flex-grow bg-slate-950 p-4 relative">
+          <iframe 
+            [srcdoc]="previewProduct().html || previewProduct().html_content || '<h1>No preview available</h1>'" 
+            class="w-full h-full border-0 rounded-2xl bg-white"
+            sandbox="allow-scripts">
+          </iframe>
+        </div>
+
       </div>
     </div>
   }

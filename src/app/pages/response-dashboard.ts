@@ -44,14 +44,14 @@ interface Analytics {
       <!-- Back Header Row -->
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 font-sans">
         <div class="space-y-1">
-          <a routerLink="/dashboard/forms" class="inline-flex items-center gap-1 text-xs font-semibold text-slate-500 hover:text-indigo-600 transition-colors">
+          <a routerLink="/dashboard/forms" class="inline-flex items-center gap-1 text-xs font-semibold text-app-muted hover:text-indigo-400 transition-colors">
             <mat-icon class="text-sm">arrow_back</mat-icon>
             Back to Dynamic Forms
           </a>
-          <h2 class="text-2xl font-bold text-slate-900 leading-tight">
+          <h2 class="text-2xl font-bold text-app-text leading-tight">
             {{ form()?.name || 'Form CRM' }}
           </h2>
-          <p class="text-xs text-slate-500 max-w-2xl">{{ form()?.description || 'View client responses, filter insights, and export collected entries.' }}</p>
+          <p class="text-xs text-app-muted max-w-2xl">{{ form()?.description || 'View client responses, filter insights, and export collected entries.' }}</p>
         </div>
 
         <div class="flex items-center gap-2">
@@ -60,7 +60,7 @@ interface Analytics {
             id="btn-export-csv"
             (click)="onExportCSV()"
             [disabled]="records().length === 0"
-            class="inline-flex items-center justify-center gap-2 px-4 py-2.5 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-semibold rounded-xl text-xs shadow-sm transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+            class="inline-flex items-center justify-center gap-2 px-4 py-2.5 border border-app-border bg-app-card hover:bg-app-bg text-app-text font-semibold rounded-xl text-xs shadow-sm transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <mat-icon class="text-sm">download</mat-icon>
             Export Sheet (CSV)
@@ -70,32 +70,32 @@ interface Analytics {
 
       <!-- Live Statistics Cards -->
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div class="bg-white border border-slate-100 p-5 rounded-2xl shadow-sm flex items-center gap-4">
-          <div class="h-11 w-11 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+        <div class="bg-app-card border border-app-border p-5 rounded-2xl shadow-sm flex items-center gap-4">
+          <div class="h-11 w-11 rounded-xl bg-indigo-600/10 text-indigo-400 flex items-center justify-center">
             <mat-icon>folder_shared</mat-icon>
           </div>
           <div>
-            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wide">Total Collected</span>
-            <p id="stat-total-submissions" class="text-2xl font-bold text-slate-900 font-sans mt-0.5">{{ analytics()?.totalSubmissions || 0 }}</p>
+            <span class="text-xs font-semibold text-app-muted uppercase tracking-wide">Total Collected</span>
+            <p id="stat-total-submissions" class="text-2xl font-bold text-app-text font-sans mt-0.5">{{ analytics()?.totalSubmissions || 0 }}</p>
           </div>
         </div>
 
-        <div class="bg-white border border-slate-100 p-5 rounded-2xl shadow-sm flex items-center gap-4">
-          <div class="h-11 w-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+        <div class="bg-app-card border border-app-border p-5 rounded-2xl shadow-sm flex items-center gap-4">
+          <div class="h-11 w-11 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
             <mat-icon>speed</mat-icon>
           </div>
           <div>
-            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wide">Conversion Status</span>
-            <p class="text-2xl font-bold text-slate-900 font-sans mt-0.5">100%</p>
+            <span class="text-xs font-semibold text-app-muted uppercase tracking-wide">Conversion Status</span>
+            <p class="text-2xl font-bold text-app-text font-sans mt-0.5">100%</p>
           </div>
         </div>
 
-        <div class="bg-white border border-slate-100 p-5 rounded-2xl shadow-sm flex items-center gap-4">
-          <div class="h-11 w-11 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
+        <div class="bg-app-card border border-app-border p-5 rounded-2xl shadow-sm flex items-center gap-4">
+          <div class="h-11 w-11 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center">
             <mat-icon>update</mat-icon>
           </div>
           <div>
-            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wide">Real-Time Refresh</span>
+            <span class="text-xs font-semibold text-app-muted uppercase tracking-wide">Real-Time Refresh</span>
             <span class="inline-flex items-center gap-1 text-sm font-semibold text-emerald-600 mt-1">
               <span class="relative flex h-2 w-2">
                 <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
@@ -108,16 +108,16 @@ interface Analytics {
       </div>
 
       <!-- Tabs (Submissions table vs Graphs) -->
-      <div class="bg-white border border-slate-100 rounded-3xl shadow-sm overflow-hidden min-h-[450px]">
-        <div class="flex border-b border-slate-100 px-6">
+      <div class="bg-app-card border border-app-border rounded-3xl shadow-sm overflow-hidden min-h-[450px]">
+        <div class="flex border-b border-app-border px-6">
           <button 
             id="tab-responses-table"
             (click)="activeTab.set('submissions')"
             class="py-4 font-semibold text-sm cursor-pointer transition-all border-b-2 mr-6 flex items-center gap-2"
-            [class.border-indigo-600]="activeTab() === 'submissions'"
-            [class.text-indigo-600]="activeTab() === 'submissions'"
+            [class.border-indigo-500]="activeTab() === 'submissions'"
+            [class.text-indigo-400]="activeTab() === 'submissions'"
             [class.border-transparent]="activeTab() !== 'submissions'"
-            [class.text-slate-400]="activeTab() !== 'submissions'"
+            [class.text-app-muted]="activeTab() !== 'submissions'"
           >
             <mat-icon class="text-sm">table_chart</mat-icon>
             Submissions Sheet
@@ -127,10 +127,10 @@ interface Analytics {
             id="tab-responses-analytics"
             (click)="activeTab.set('analytics')"
             class="py-4 font-semibold text-sm cursor-pointer transition-all border-b-2 flex items-center gap-2"
-            [class.border-indigo-600]="activeTab() === 'analytics'"
-            [class.text-indigo-600]="activeTab() === 'analytics'"
+            [class.border-indigo-500]="activeTab() === 'analytics'"
+            [class.text-indigo-400]="activeTab() === 'analytics'"
             [class.border-transparent]="activeTab() !== 'analytics'"
-            [class.text-slate-400]="activeTab() !== 'analytics'"
+            [class.text-app-muted]="activeTab() !== 'analytics'"
           >
             <mat-icon class="text-sm">bar_chart</mat-icon>
             Analytics Insights
@@ -146,17 +146,17 @@ interface Analytics {
               <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div class="relative w-full sm:max-w-xs">
                   <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <mat-icon class="text-slate-400 text-base">search</mat-icon>
+                    <mat-icon class="text-app-muted text-base">search</mat-icon>
                   </div>
                   <input 
                     type="text" 
                     (input)="onSearchChange($event)"
                     placeholder="Search inputs..." 
-                    class="block w-full pl-9 pr-3 py-2 border border-slate-200 rounded-xl text-xs placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 bg-slate-50/20"
+                    class="block w-full pl-9 pr-3 py-2 border border-app-border rounded-xl text-xs placeholder-app-muted focus:outline-none focus:ring-1 focus:ring-indigo-500 bg-app-bg text-app-text"
                   >
                 </div>
                 
-                <span class="text-xs text-slate-400 font-mono">Showing {{ filteredRecords().length }} entries</span>
+                <span class="text-xs text-app-muted font-mono">Showing {{ filteredRecords().length }} entries</span>
               </div>
 
               <!-- Responses Table block -->
@@ -165,13 +165,13 @@ interface Analytics {
                   <div class="h-8 w-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
                 </div>
               } @else if (filteredRecords().length === 0) {
-                <div class="text-center py-16 text-slate-400 text-xs italic bg-slate-50/50 rounded-2xl border border-dashed border-slate-200">
+                <div class="text-center py-16 text-app-muted text-xs italic bg-app-bg rounded-2xl border border-dashed border-app-border">
                   No submissions match the current query.
                 </div>
               } @else {
-                <div class="overflow-x-auto rounded-2xl border border-slate-150">
-                  <table class="w-full text-left text-xs text-slate-700 min-w-[700px]">
-                    <thead class="bg-slate-50 text-slate-500 uppercase tracking-wider font-mono text-[10px] border-b border-slate-100">
+                <div class="overflow-x-auto rounded-2xl border border-app-border">
+                  <table class="w-full text-left text-xs text-app-text min-w-[700px]">
+                    <thead class="bg-app-bg text-app-muted uppercase tracking-wider font-mono text-[10px] border-b border-app-border">
                       <tr>
                         <th class="px-5 py-3.5 font-bold">Submitted Date</th>
                         
@@ -183,10 +183,10 @@ interface Analytics {
                         <th class="px-5 py-3.5 font-bold">Metadata / Device</th>
                       </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100">
+                    <tbody class="divide-y divide-app-border">
                       @for (record of currentPageRecords(); track record.id) {
-                        <tr class="hover:bg-slate-50/50 transition-all font-sans">
-                          <td class="px-5 py-3.5 font-mono text-[11px] whitespace-nowrap text-slate-500">
+                        <tr class="hover:bg-app-bg/50 transition-all font-sans">
+                          <td class="px-5 py-3.5 font-mono text-[11px] whitespace-nowrap text-app-muted">
                             {{ record.submittedAt | date:'yyyy-MM-dd HH:mm' }}
                           </td>
                           
@@ -198,7 +198,7 @@ interface Analytics {
                                 @if (isArr(record.responses[field.id])) {
                                   <span class="flex flex-wrap gap-1">
                                     @for (opt of record.responses[field.id]; track opt) {
-                                      <span class="inline-flex items-center px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-700 text-[10px] font-medium font-mono">
+                                      <span class="inline-flex items-center px-1.5 py-0.5 rounded bg-indigo-500/10 text-indigo-400 text-[10px] font-medium font-mono">
                                         {{ opt }}
                                       </span>
                                     }
@@ -207,12 +207,12 @@ interface Analytics {
                                   {{ record.responses[field.id] }}
                                 }
                               } @else {
-                                <span class="text-slate-300">-</span>
+                                <span class="text-app-muted">-</span>
                               }
                             </td>
                           }
                           
-                          <td class="px-5 py-3.5 text-slate-400 text-[10px] whitespace-nowrap flex flex-col gap-0.5">
+                          <td class="px-5 py-3.5 text-app-muted text-[10px] whitespace-nowrap flex flex-col gap-0.5">
                             <span class="font-mono">IP: {{ record.metadata?.ip || '127.0.0.1' }}</span>
                             <span>{{ record.metadata?.device || 'Chrome (OS X)' }}</span>
                           </td>
@@ -223,23 +223,23 @@ interface Analytics {
                 </div>
 
                 <!-- Simple Pagination Controls -->
-                <div class="flex items-center justify-between pt-4 border-t border-slate-100">
-                  <span class="text-xs text-slate-400">
-                    Page <b class="text-slate-700">{{ page() }}</b> of <b class="text-slate-700">{{ maxPage() }}</b>
+                <div class="flex items-center justify-between pt-4 border-t border-app-border">
+                  <span class="text-xs text-app-muted">
+                    Page <b class="text-app-text">{{ page() }}</b> of <b class="text-app-text">{{ maxPage() }}</b>
                   </span>
                   
                   <div class="inline-flex gap-2">
                     <button 
                       [disabled]="page() === 1"
                       (click)="page.set(page() - 1)"
-                      class="px-3 py-1.5 border border-slate-200 hover:bg-slate-50 text-xs font-semibold rounded-lg disabled:opacity-40 transition-colors cursor-pointer"
+                      class="px-3 py-1.5 border border-app-border hover:bg-app-bg text-app-text text-xs font-semibold rounded-lg disabled:opacity-40 transition-colors cursor-pointer"
                     >
                       Previous
                     </button>
                     <button 
                       [disabled]="page() === maxPage()"
                       (click)="page.set(page() + 1)"
-                      class="px-3 py-1.5 border border-slate-200 hover:bg-slate-50 text-xs font-semibold rounded-lg disabled:opacity-40 transition-colors cursor-pointer"
+                      class="px-3 py-1.5 border border-app-border hover:bg-app-bg text-app-text text-xs font-semibold rounded-lg disabled:opacity-40 transition-colors cursor-pointer"
                     >
                       Next
                     </button>
@@ -254,23 +254,23 @@ interface Analytics {
             <div class="space-y-10 font-sans">
               
               <!-- Submissions over Time Curve -->
-              <div class="bg-slate-50/50 border border-slate-100 rounded-2xl p-5 space-y-4">
+              <div class="bg-app-bg/50 border border-app-border rounded-2xl p-5 space-y-4">
                 <div>
-                  <h3 class="text-sm font-bold text-slate-800">Timeline Performance (Submissions Over Time)</h3>
-                  <p class="text-xs text-slate-400">Submissions history tracked daily.</p>
+                  <h3 class="text-sm font-bold text-app-text">Timeline Performance (Submissions Over Time)</h3>
+                  <p class="text-xs text-app-muted">Submissions history tracked daily.</p>
                 </div>
 
                 <!-- Beautiful Responsive SVG Curve Chart -->
-                <div class="relative w-full h-44 bg-white rounded-xl border border-slate-100 p-2 overflow-hidden flex items-end">
+                <div class="relative w-full h-44 bg-app-bg rounded-xl border border-app-border p-2 overflow-hidden flex items-end">
                   @if (chartPoints().length < 2) {
-                    <p class="text-xs text-slate-400 italic mx-auto pb-10">Insufficient timeframe data (collect more coordinates).</p>
+                    <p class="text-xs text-app-muted italic mx-auto pb-10">Insufficient timeframe data (collect more coordinates).</p>
                   } @else {
                     <!-- SVG Polyline Curve -->
                     <svg class="w-full h-full" viewBox="0 0 500 120" preserveAspectRatio="none">
                       <!-- Grid lines -->
-                      <line x1="0" y1="30" x2="500" y2="30" stroke="#f1f5f9" stroke-width="1" />
-                      <line x1="0" y1="60" x2="500" y2="60" stroke="#f1f5f9" stroke-width="1" />
-                      <line x1="0" y1="90" x2="500" y2="90" stroke="#f1f5f9" stroke-width="1" />
+                      <line x1="0" y1="30" x2="500" y2="30" stroke="var(--app-border)" stroke-width="1" />
+                      <line x1="0" y1="60" x2="500" y2="60" stroke="var(--app-border)" stroke-width="1" />
+                      <line x1="0" y1="90" x2="500" y2="90" stroke="var(--app-border)" stroke-width="1" />
                       
                       <!-- Line segment -->
                       <polyline
@@ -282,7 +282,7 @@ interface Analytics {
                     </svg>
 
                     <!-- Horizontal timeline labels overlay -->
-                    <div class="absolute bottom-1.5 left-2 right-2 flex justify-between text-[10px] font-mono text-slate-400 select-none">
+                    <div class="absolute bottom-1.5 left-2 right-2 flex justify-between text-[10px] font-mono text-app-muted select-none">
                       <span>{{ chartPoints()[0].date }}</span>
                       <span>{{ chartPoints()[chartPoints().length - 1].date }}</span>
                     </div>
@@ -293,15 +293,15 @@ interface Analytics {
               <!-- Field distribution bar indicators -->
               <div class="space-y-6">
                 <div>
-                  <h3 class="text-sm font-bold text-slate-800">Choice Distribution Insights</h3>
-                  <p class="text-xs text-slate-400">Choice breakdown for Dropdown, Multiple-choice Checkboxes and Radio options.</p>
+                  <h3 class="text-sm font-bold text-app-text">Choice Distribution Insights</h3>
+                  <p class="text-xs text-app-muted">Choice breakdown for Dropdown, Multiple-choice Checkboxes and Radio options.</p>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <!-- Loops through form selection fields to display option tallies -->
                   @for (field of selectableFields(); track field.id) {
-                    <div class="bg-white border border-slate-100 rounded-2xl p-5 space-y-4">
-                      <span class="inline-flex items-center gap-1.5 text-xs font-bold text-slate-700 bg-slate-50 border border-slate-100 px-2 py-1 rounded-lg">
+                    <div class="bg-app-card border border-app-border rounded-2xl p-5 space-y-4">
+                      <span class="inline-flex items-center gap-1.5 text-xs font-bold text-app-text bg-app-bg border border-app-border px-2 py-1 rounded-lg">
                         <mat-icon class="text-xs text-indigo-500 w-4 h-4 leading-none">bar_chart</mat-icon>
                         {{ field.label }}
                       </span>
@@ -310,11 +310,11 @@ interface Analytics {
                         @for (opt of field.options || []; track opt) {
                           <div class="space-y-1">
                             <div class="flex items-center justify-between text-xs">
-                              <span class="font-medium text-slate-600">{{ opt }}</span>
-                              <span class="font-bold text-slate-900 font-mono">{{ getTallyCount(field.id, opt) }} picks ({{ getTallyPercent(field.id, opt) }}%)</span>
+                              <span class="font-medium text-app-muted">{{ opt }}</span>
+                              <span class="font-bold text-app-text font-mono">{{ getTallyCount(field.id, opt) }} picks ({{ getTallyPercent(field.id, opt) }}%)</span>
                             </div>
                             <!-- Beautiful Tailwind horizontal Progress Meter -->
-                            <div class="w-full h-2.5 bg-slate-50 rounded-full overflow-hidden border border-slate-100">
+                            <div class="w-full h-2.5 bg-app-bg rounded-full overflow-hidden border border-app-border">
                               <div class="h-full bg-indigo-600 rounded-full transition-all duration-500"
                                 [style.width]="getTallyPercent(field.id, opt) + '%'"></div>
                             </div>
@@ -323,7 +323,7 @@ interface Analytics {
                       </div>
                     </div>
                   } @empty {
-                    <div class="col-span-2 text-center py-8 text-slate-400 text-xs italic bg-slate-50 border border-dashed rounded-2xl">
+                    <div class="col-span-2 text-center py-8 text-app-muted text-xs italic bg-app-bg border border-dashed border-app-border rounded-2xl">
                       Configure drop-downs, checklists, or radio components in your fields to see choice distribution metrics.
                     </div>
                   }

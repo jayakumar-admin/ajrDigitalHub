@@ -12,8 +12,11 @@ import marketplaceRoutes from '../modules/marketplace/marketplace.routes';
 import settingsRoutes from '../modules/settings/settings.routes';
 import shopsRoutes from '../modules/shops/shops.routes';
 import adminSystemRoutes from '../modules/admin-system/admin-system.routes';
+import invoiceRoutes from '../modules/invoice/invoice.routes';
 import { broadcastToSse } from '../modules/admin-system/admin-system.controller';
 import { BaseService } from './base.service';
+
+import cookieParser from 'cookie-parser';
 
 const app = express();
 const logService = new BaseService('logs');
@@ -172,6 +175,7 @@ app.use(cors({
 }));
 app.use(morgan('dev'));
 app.use(express.json());
+app.use(cookieParser());
 
 // Request Logging Middleware & SSE Realtime Stream
 app.use(async (req, res, next) => {
@@ -221,6 +225,7 @@ app.use('/api/admin/analytics', analyticsRoutes);
 
 // Unified dynamic real-time administrative system APIs
 app.use('/api/admin', adminSystemRoutes);
+app.use('/api/invoice', invoiceRoutes);
 
 // Shared aliases
 app.use('/api', dynamicRoutes);

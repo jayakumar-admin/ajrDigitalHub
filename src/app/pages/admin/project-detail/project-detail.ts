@@ -1030,7 +1030,7 @@ export class ProjectDetailComponent implements OnInit {
 
   ngOnInit() {
     this.route.paramMap.subscribe(params => {
-      const id = params.get('appId');
+      const id = params.get('id');
       if (id) {
         this.projectService.loadProject(id);
       }

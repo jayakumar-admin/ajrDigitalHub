@@ -15,6 +15,7 @@ interface MarketplaceItem {
   price: number;
   category: string;
   html_content: string;
+  css_content?: string;
   status: string;
   created_at?: Date;
 }
@@ -49,8 +50,9 @@ export class MarketplaceConfigComponent implements OnInit {
   loadItems() {
     this.isLoading.set(true);
     this.marketplaceService.getAdminItems().subscribe({
-      next: (res) => {
-        this.items.set(res);
+      next: (res: any) => {
+        const rawItems = Array.isArray(res) ? res : (res?.data || []);
+        this.items.set(rawItems);
         this.isLoading.set(false);
       },
       error: () => this.isLoading.set(false)
@@ -68,12 +70,13 @@ export class MarketplaceConfigComponent implements OnInit {
     });
   }
 
-  onSelectTemplate(template: BuilderTemplate) {
+  onSelectTemplate(template: any) {
      const item = this.activeItem();
      if (item) {
         this.activeItem.set({
           ...item,
-          html_content: template.html
+          html_content: template.html || '',
+          css_content: template.css || ''
         });
      }
   }

@@ -7,18 +7,18 @@ import { AuthService } from '../services/auth.service';
   imports: [RouterOutlet, RouterLink, RouterLinkActive, MatIconModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="min-h-screen bg-slate-50 flex flex-col md:flex-row">
+    <div class="min-h-screen bg-app-bg text-app-text flex flex-col md:flex-row">
       
       <!-- Side Navigation Rail -->
-      <aside class="w-full md:w-64 bg-white border-r border-slate-100 flex flex-col transition-all shrink-0">
+      <aside class="w-full md:w-64 bg-app-card border-r border-app-border flex flex-col transition-all shrink-0">
         <!-- Logo Header -->
-        <div class="h-16 flex items-center px-6 border-b border-slate-100 gap-3">
+        <div class="h-16 flex items-center px-6 border-b border-app-border gap-3">
           <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-600 text-white shadow-sm">
             <mat-icon class="text-xl h-5 w-5 leading-none">dynamic_form</mat-icon>
           </div>
           <div>
-            <h1 class="text-sm font-semibold tracking-tight text-slate-800">FormBuilder SaaS</h1>
-            <span class="text-[10px] font-mono text-indigo-600 font-bold uppercase tracking-wider">Suite v1.0</span>
+            <h1 class="text-sm font-semibold tracking-tight text-app-text">FormBuilder SaaS</h1>
+            <span class="text-[10px] font-mono text-indigo-400 font-bold uppercase tracking-wider">Suite v1.0</span>
           </div>
         </div>
 
@@ -26,24 +26,24 @@ import { AuthService } from '../services/auth.service';
         <nav class="flex-1 px-4 py-6 space-y-1">
           <a 
             routerLink="/dashboard/forms" 
-            routerLinkActive="bg-indigo-50 text-indigo-700"
+            routerLinkActive="bg-indigo-500/15 text-indigo-400 font-semibold"
             [routerLinkActiveOptions]="{ exact: false }"
-            class="flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 rounded-xl transition-all group cursor-pointer"
+            class="flex items-center gap-3 px-4 py-3 text-sm font-medium text-app-muted hover:bg-app-bg hover:text-app-text rounded-xl transition-all group cursor-pointer"
           >
-            <mat-icon class="text-slate-400 group-hover:text-slate-500">list_alt</mat-icon>
+            <mat-icon class="text-app-muted group-hover:text-app-text">list_alt</mat-icon>
             <span>My Dynamic Forms</span>
           </a>
         </nav>
 
         <!-- Current User Footer Card -->
-        <div class="p-4 border-t border-slate-100 bg-slate-50/50 m-4 rounded-2xl">
+        <div class="p-4 border-t border-app-border bg-app-bg/50 m-4 rounded-2xl">
           <div class="flex items-center gap-3 mb-2">
-            <div class="h-9 w-9 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-sm">
+            <div class="h-9 w-9 rounded-full bg-indigo-600/20 text-indigo-400 flex items-center justify-center font-bold text-sm">
               {{ authService.currentUser()?.email?.charAt(0)?.toUpperCase() || 'U' }}
             </div>
             <div class="truncate max-w-[140px]">
-              <p class="text-xs font-semibold text-slate-800 truncate">{{ authService.currentUser()?.email }}</p>
-              <span class="inline-flex items-center px-1.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-indigo-100 text-indigo-800 border border-indigo-200">
+              <p class="text-xs font-semibold text-app-text truncate">{{ authService.currentUser()?.email }}</p>
+              <span class="inline-flex items-center px-1.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-indigo-600/15 text-indigo-400 border border-indigo-500/20">
                 {{ authService.currentUser()?.role || 'user' }}
               </span>
             </div>
@@ -51,7 +51,7 @@ import { AuthService } from '../services/auth.service';
           <button 
             id="btn-sidebar-logout"
             (click)="onLogout()"
-            class="w-full flex items-center justify-center gap-2 mt-2 py-2 border border-slate-200 text-slate-600 hover:text-rose-600 hover:bg-rose-50 hover:border-rose-100 rounded-xl text-xs font-semibold tracking-wide transition-all cursor-pointer"
+            class="w-full flex items-center justify-center gap-2 mt-2 py-2 border border-app-border text-app-text hover:text-rose-400 hover:bg-rose-500/10 hover:border-rose-500/20 rounded-xl text-xs font-semibold tracking-wide transition-all cursor-pointer"
           >
             <mat-icon class="text-sm">logout</mat-icon>
             Sign Out
@@ -63,17 +63,17 @@ import { AuthService } from '../services/auth.service';
       <div class="flex-1 flex flex-col min-w-0">
         
         <!-- Top Sticky Header -->
-        <header class="h-16 bg-white border-b border-slate-100 flex items-center justify-between px-6 md:px-8 z-10 shrink-0">
+        <header class="h-16 bg-app-card border-b border-app-border flex items-center justify-between px-6 md:px-8 z-10 shrink-0">
           <div class="flex items-center gap-2">
-            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
               ● Live Sandbox
             </span>
           </div>
 
           <div class="flex items-center gap-4">
             <div class="hidden sm:flex flex-col text-right">
-              <span class="text-xs font-medium text-slate-500">Workspace Owner</span>
-              <span class="text-sm font-semibold text-slate-900">{{ authService.currentUser()?.email }}</span>
+              <span class="text-xs font-medium text-app-muted">Workspace Owner</span>
+              <span class="text-sm font-semibold text-app-text">{{ authService.currentUser()?.email }}</span>
             </div>
           </div>
         </header>

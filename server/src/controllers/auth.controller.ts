@@ -109,4 +109,56 @@ export class AuthController {
     // optionally fetch the latest user info from DB
     res.json({ user: req.user });
   }
+
+  async register(req: Request, res: Response) {
+    const { email, password, role } = req.body;
+    
+    if (!email || !password) {
+      res.status(400).json({ error: 'Email and password are required' });
+      return;
+    }
+
+    try {
+      let existingUser = null;
+      if (isPostgresEnabled) {
+        const result = await query('SELECT id FROM records WHERE collection = $1 AND data->>\'email\' = $2', ['users', email]);
+        if (result.rowCount && result.rowCount > 0) {
+          existingUser = result.rows[0];
+        }
+      } else {
+        const result = await this.usersService.findAll();
+        existingUser = result.data.find((u: any) => u.email === email);
+      }
+
+      if (existingUser) {
+        res.status(400).json({ error: 'Email already registered' });
+        return;
+      }
+
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const userRole = role === 'admin' ? 'admin' : 'user';
+      const fullName = userRole === 'admin' ? 'Super Admin' : 'SaaS Owner';
+
+      const newUser = await this.usersService.create({
+        email,
+        password: hashedPassword,
+        role: userRole,
+        fullName,
+        status: 'active'
+      });
+
+      res.status(201).json({
+        message: 'Registration successful',
+        user: {
+          id: newUser.id,
+          email: newUser.email,
+          role: newUser.role,
+          fullName: newUser.fullName
+        }
+      });
+    } catch (e) {
+      console.error(e);
+      res.status(500).json({ error: 'Internal server error during registration' });
+    }
+  }
 }

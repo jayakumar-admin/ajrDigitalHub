@@ -16,7 +16,7 @@ export class ThemeService {
 
   loadTheme() {
     if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('ajr-hub-theme') as AppTheme;
+      const saved = (localStorage.getItem('theme') || localStorage.getItem('ajr-hub-theme')) as AppTheme;
       if (saved && ['dark', 'light', 'neon'].includes(saved)) {
         this.setTheme(saved);
       } else {
@@ -30,22 +30,20 @@ export class ThemeService {
     this.theme$.next(theme);
     
     if (typeof window !== 'undefined') {
-      localStorage.setItem('ajr-hub-theme', theme);
+      localStorage.setItem('theme', theme);
+      localStorage.setItem('ajr-hub-theme', theme); // keep both for fallback safety
       
-      const body = document.body;
       const html = document.documentElement;
-      
+      const body = document.body;
       const themeClass = theme + '-theme';
 
-      // Update body classes
-      body.classList.remove('dark-theme', 'light-theme', 'neon-theme');
-      body.classList.add(themeClass);
+      // Update html and body classNames dynamically
+      html.className = themeClass;
+      body.className = themeClass;
 
       // Support for standard tailwind "dark:" utilities
       if (theme === 'dark' || theme === 'neon') {
         html.classList.add('dark');
-      } else {
-        html.classList.remove('dark');
       }
     }
   }

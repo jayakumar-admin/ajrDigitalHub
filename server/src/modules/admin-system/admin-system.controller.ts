@@ -181,9 +181,10 @@ async function ensureSeeded(service: BaseService, collection: string) {
 
   if (collection === 'services') {
     const services = [
-      { id: 's1', name: 'Invoice PDF Engine', description: 'Managed automated invoice compilation and PDF render triggers', status: 'running', metrics: '28.4 GB/mo' },
-      { id: 's2', name: 'Dynamic Image Optimizer', description: 'On-the-fly image scaling, edge optimization and WebP compression', status: 'running', metrics: '42.1K req/h' },
-      { id: 's3', name: 'WebSockets Event Broker', description: 'Realtime event streaming hub for multi-agent interactive workflows', status: 'stopped', metrics: '0 connections' }
+      { id: 's1', name: 'API Server', description: 'Main REST API backend services and JWT authentication gate', status: 'running', metrics: '98 ms avg' },
+      { id: 's2', name: 'Database Service', description: 'PostgreSQL instance storing dynamic form configuration schemas and submissions', status: 'running', metrics: '37 active pools' },
+      { id: 's3', name: 'WhatsApp API', description: 'Outbound communications gateway for customer mobile invoice alerts', status: 'running', metrics: '450 requests' },
+      { id: 's4', name: 'Email Service', description: 'SMTP and SendGrid integration for PDF receipt notifications', status: 'running', metrics: '1.25K sent' }
     ];
     for (const s of services) {
       await service.create(s);
@@ -692,6 +693,44 @@ export const adminSystemController = {
       await ensureSeeded(appsService, 'apps');
       const updated = await appsService.update(id as string, req.body);
       return res.json(successResponse(updated));
+    } catch (err: any) {
+      return res.status(500).json(errorResponse(err.message));
+    }
+  },
+
+  async getApps(req: Request, res: Response): Promise<any> {
+    try {
+      const appsService = new BaseService('apps');
+      await ensureSeeded(appsService, 'apps');
+      const result = await appsService.findAll({ limit: 100 });
+      return res.json(result.data);
+    } catch (err: any) {
+      return res.status(500).json(errorResponse(err.message));
+    }
+  },
+
+  async getAppUsage(req: Request, res: Response): Promise<any> {
+    try {
+      const { appId } = req.params;
+      const appsService = new BaseService('apps');
+      await ensureSeeded(appsService, 'apps');
+      const app = await appsService.findOne(appId as string);
+      if (!app) {
+        return res.status(404).json(errorResponse('Application not found', 404));
+      }
+      return res.json(app);
+    } catch (err: any) {
+      return res.status(500).json(errorResponse(err.message));
+    }
+  },
+
+  async deleteApp(req: Request, res: Response): Promise<any> {
+    try {
+      const { id } = req.params;
+      const appsService = new BaseService('apps');
+      await ensureSeeded(appsService, 'apps');
+      const success = await appsService.delete(id as string);
+      return res.json(successResponse({ success }));
     } catch (err: any) {
       return res.status(500).json(errorResponse(err.message));
     }

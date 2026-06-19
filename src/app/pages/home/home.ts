@@ -82,6 +82,24 @@ export class HomeComponent implements OnInit, OnDestroy {
   currentSlideIndex = signal<number>(0);
   private autoPlayTimer: any = null;
 
+  // Sandboxed Iframe Preview Modal State
+  showPreviewModal = signal(false);
+  previewProduct = signal<any>(null);
+
+  // Growth & A/B testing system state
+  growthConfig = signal<any>(null);
+  heroVersion = signal<'A' | 'B'>('A');
+
+  // Animated metric counters
+  activeUsersCount = signal<number>(0);
+  apiCallsCount = signal<number>(0);
+  revenueCount = signal<number>(0);
+  appsDeployedCount = signal<number>(0);
+
+  // Live telemetry status
+  latencyMs = signal<number>(124);
+  private liveTickInterval: any = null;
+
   activeSlide = computed(() => {
     const list = this.slides();
     const idx = this.currentSlideIndex();
@@ -89,6 +107,22 @@ export class HomeComponent implements OnInit, OnDestroy {
       return list[idx];
     }
     return null;
+  });
+
+  // SVG Line Chart Calculators
+  chartData = computed(() => {
+    const config = this.growthConfig();
+    const activeUsers = config?.activeUsersOverride || 1284;
+    const apiCalls = config?.apiCallsOverride || 98234;
+    const revenue = config?.revenueOverride || 1240000;
+    const apps = config?.appsDeployedOverride || 342;
+
+    return {
+      users: [Math.round(activeUsers * 0.15), Math.round(activeUsers * 0.38), Math.round(activeUsers * 0.52), Math.round(activeUsers * 0.68), Math.round(activeUsers * 0.82), Math.round(activeUsers * 0.94), activeUsers],
+      api: [Math.round(apiCalls * 0.35), Math.round(apiCalls * 0.58), Math.round(apiCalls * 0.49), Math.round(apiCalls * 0.72), Math.round(apiCalls * 0.88), Math.round(apiCalls * 0.95), apiCalls],
+      revenue: [Math.round(revenue * 0.12), Math.round(revenue * 0.28), Math.round(revenue * 0.45), Math.round(revenue * 0.58), Math.round(revenue * 0.72), Math.round(revenue * 0.88), revenue],
+      apps: [Math.round(apps * 0.1), Math.round(apps * 0.3), Math.round(apps * 0.45), Math.round(apps * 0.6), Math.round(apps * 0.78), Math.round(apps * 0.9), apps]
+    };
   });
 
   // 24 hours from now for the demo
@@ -102,6 +136,58 @@ export class HomeComponent implements OnInit, OnDestroy {
       error: (err) => console.error('Landing config error:', err)
     });
 
+    // Fetch Growth and A/B configurations
+    this.apiService.get<any>('/settings/growth_config').subscribe({
+      next: (res: any) => {
+        const config = res?.data || res;
+        this.growthConfig.set(config);
+
+        // A/B test allocation logic
+        let version: 'A' | 'B' = 'A';
+        if (config.activeHeroVersion === 'A' || config.activeHeroVersion === 'B') {
+          version = config.activeHeroVersion;
+        } else {
+          // split testing
+          const savedVersion = sessionStorage.getItem('heroVersion');
+          if (savedVersion === 'A' || savedVersion === 'B') {
+            version = savedVersion;
+          } else {
+            version = Math.random() < 0.5 ? 'A' : 'B';
+            sessionStorage.setItem('heroVersion', version);
+          }
+        }
+        this.heroVersion.set(version);
+
+        // Track View Telemetry
+        this.apiService.post('/settings/growth/track', { type: 'view', version }).subscribe();
+
+        // Trigger count-up metrics animations
+        this.animateMetric(config.activeUsersOverride || 1284, (v) => this.activeUsersCount.set(v));
+        this.animateMetric(config.apiCallsOverride || 98234, (v) => this.apiCallsCount.set(v));
+        this.animateMetric(config.revenueOverride || 1240000, (v) => this.revenueCount.set(v));
+        this.animateMetric(config.appsDeployedOverride || 342, (v) => this.appsDeployedCount.set(v));
+
+        if (config.countdownEndTime) {
+          this.offerEndTime.set(new Date(config.countdownEndTime).getTime());
+        }
+      },
+      error: (err) => {
+        console.error('Growth Config Error, falling back:', err);
+        this.heroVersion.set('A');
+        this.animateMetric(1284, (v) => this.activeUsersCount.set(v));
+        this.animateMetric(98234, (v) => this.apiCallsCount.set(v));
+        this.animateMetric(1240000, (v) => this.revenueCount.set(v));
+        this.animateMetric(342, (v) => this.appsDeployedCount.set(v));
+      }
+    });
+
+    // Start live status indicators ticks
+    this.liveTickInterval = setInterval(() => {
+      const base = 124;
+      const dev = Math.floor(Math.random() * 8) - 4;
+      this.latencyMs.set(base + dev);
+    }, 4000);
+
     this.loadTestimonials();
     this.loadSliderBanners();
     this.loadFeaturedProducts();
@@ -111,6 +197,78 @@ export class HomeComponent implements OnInit, OnDestroy {
     if (this.autoPlayTimer) {
       clearInterval(this.autoPlayTimer);
     }
+    if (this.liveTickInterval) {
+      clearInterval(this.liveTickInterval);
+    }
+  }
+
+  // Count-up numbers easing animator
+  private animateMetric(target: number, setter: (val: number) => void) {
+    const duration = 1800; // 1.8 seconds fluid animation
+    const startTime = Date.now();
+    const startVal = 0;
+    
+    const tick = () => {
+      const elapsed = Date.now() - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      // Ease out quad
+      const eased = progress * (2 - progress);
+      const current = Math.round(startVal + (target - startVal) * eased);
+      setter(current);
+      if (progress < 1) {
+        requestAnimationFrame(tick);
+      }
+    };
+    requestAnimationFrame(tick);
+  }
+
+  // Track Conversion Telemetry
+  trackConversion() {
+    const version = this.heroVersion();
+    this.apiService.post('/settings/growth/track', { type: 'conversion', version }).subscribe({
+      error: (e) => console.error('Failed to log conversion tracker:', e)
+    });
+  }
+
+  onCtaClick(buttonLink: string) {
+    this.trackConversion();
+    this.router.navigateByUrl(buttonLink);
+  }
+
+  // Sandboxed iframe preview modal functions
+  openPreview(product: any) {
+    this.trackConversion(); // Treat preview interest as micro-conversion!
+    this.previewProduct.set(product);
+    this.showPreviewModal.set(true);
+  }
+
+  closePreview() {
+    this.showPreviewModal.set(false);
+    this.previewProduct.set(null);
+  }
+
+  // Generates SVG Line string path coordinates for simple visual charting
+  getSvgPath(data: number[], width = 500, height = 200): string {
+    if (!data || data.length === 0) return '';
+    const maxVal = Math.max(...data) || 1;
+    const minVal = Math.min(...data) || 0;
+    const range = maxVal - minVal || 1;
+    const padding = 15;
+
+    return data.map((val, idx) => {
+      const x = (idx / (data.length - 1)) * (width - padding * 2) + padding;
+      const y = height - ((val - minVal) / range) * (height - padding * 2) - padding;
+      return `${idx === 0 ? 'M' : 'L'} ${x.toFixed(1)} ${y.toFixed(1)}`;
+    }).join(' ');
+  }
+
+  getSvgAreaPath(data: number[], width = 500, height = 200): string {
+    const linePath = this.getSvgPath(data, width, height);
+    if (!linePath) return '';
+    const padding = 15;
+    const startX = padding;
+    const endX = width - padding;
+    return `${linePath} L ${endX.toFixed(1)} ${height.toFixed(1)} L ${startX.toFixed(1)} ${height.toFixed(1)} Z`;
   }
 
   private loadFeaturedProducts() {
@@ -136,6 +294,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   buyNow(product: any) {
+    this.trackConversion();
     if (!this.authService.currentUser()) {
       localStorage.setItem('pendingPurchase', JSON.stringify(product));
       this.showLoginModal.set(true);
