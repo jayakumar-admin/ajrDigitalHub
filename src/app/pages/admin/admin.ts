@@ -9,12 +9,13 @@ import { AjrAdminAppCard, AjrRateConfig } from './admin-components';
 import { UiConfigService } from '../../services/ui-config.service';
 import { HeroSliderConfigComponent } from './hero-slider-config/hero-slider-config';
 import { ApiService } from '../../services/api.service';
+import { AdminBillingComponent } from './billing/billing.component';
 
 @Component({
   selector: 'app-admin-master',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, FormsModule, MatIconModule, AjrAdminAppCard, AjrRateConfig, HeroSliderConfigComponent],
+  imports: [CommonModule, FormsModule, MatIconModule, AjrAdminAppCard, AjrRateConfig, HeroSliderConfigComponent, AdminBillingComponent],
   template: `
     <div class="min-h-screen bg-app-bg font-sans pb-20 text-app-text fade-in">
       
@@ -103,6 +104,9 @@ import { ApiService } from '../../services/api.service';
                <button (click)="activeSection.set('comms')" [class]="activeSection() === 'comms' ? 'bg-indigo-50/20 text-indigo-500 font-bold' : 'text-app-text hover:bg-app-bg hover:text-indigo-400'" class="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm transition-all text-left">
                   <mat-icon class="!w-[18px] !h-[18px] !text-[18px]">contact_phone</mat-icon> WhatsApp & Email Setup
                </button>
+               <button (click)="activeSection.set('billing')" [class]="activeSection() === 'billing' ? 'bg-indigo-50/20 text-indigo-500 font-bold' : 'text-app-text hover:bg-app-bg hover:text-indigo-400'" class="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm transition-all text-left">
+                  <mat-icon class="!w-[18px] !h-[18px] !text-[18px]">receipt_long</mat-icon> Automated Billing
+               </button>
                <button (click)="activeSection.set('services')" [class]="activeSection() === 'services' ? 'bg-indigo-50/20 text-indigo-500 font-bold' : 'text-app-text hover:bg-app-bg hover:text-indigo-400'" class="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm transition-all text-left">
                   <mat-icon class="!w-[18px] !h-[18px] !text-[18px]">cloud_done</mat-icon> Service Status Monitor
                </button>
@@ -190,10 +194,40 @@ import { ApiService } from '../../services/api.service';
                              <option value="Sandbox">Sandbox (Test)</option>
                            </select>
                          </div>
-                         <div class="col-span-full flex justify-end gap-3 pt-2">
-                           <button type="button" (click)="showProvisionForm.set(false)" class="px-4 py-2 bg-transparent text-app-muted text-xs font-semibold rounded-xl hover:text-app-text transition-colors">Discard</button>
-                           <button type="submit" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold transition-all shadow-md">Deploy App Node</button>
-                         </div>
+                          
+                          <!-- Firebase Integration Optional Fields -->
+                          <div class="col-span-full border-t border-app-border pt-4 mt-2">
+                            <span class="block text-xs font-bold uppercase tracking-wider text-orange-500 mb-2 flex items-center gap-1.5">
+                              <mat-icon class="!w-4 !h-4 !text-[16px]">sync</mat-icon> Firebase Integration (Optional)
+                            </span>
+                            <p class="text-[11px] text-app-muted mb-4">Provide Firebase config parameters if you want to enable NOC Telemetry, Real-time Logs and Storage monitoring for this application.</p>
+                          </div>
+                          
+                          <div>
+                            <label class="block text-xs text-app-muted uppercase font-semibold mb-1">Firebase Project ID</label>
+                            <input type="text" [(ngModel)]="newApp.firebase_project_id" name="firebase_project_id" class="w-full px-3 py-2 bg-app-bg border border-app-border rounded-xl text-sm outline-none focus:ring-1 focus:ring-orange-500 font-mono" placeholder="e.g. acme-billing">
+                          </div>
+                          <div>
+                            <label class="block text-xs text-app-muted uppercase font-semibold mb-1">Firebase API Key</label>
+                            <input type="password" [(ngModel)]="newApp.firebase_api_key" name="firebase_api_key" class="w-full px-3 py-2 bg-app-bg border border-app-border rounded-xl text-sm outline-none focus:ring-1 focus:ring-orange-500 font-mono" placeholder="e.g. AIzaSy...">
+                          </div>
+                          <div>
+                            <label class="block text-xs text-app-muted uppercase font-semibold mb-1">Firebase Auth Domain</label>
+                            <input type="text" [(ngModel)]="newApp.firebase_auth_domain" name="firebase_auth_domain" class="w-full px-3 py-2 bg-app-bg border border-app-border rounded-xl text-sm outline-none focus:ring-1 focus:ring-orange-500 font-mono" placeholder="e.g. acme-billing.firebaseapp.com">
+                          </div>
+                          <div>
+                            <label class="block text-xs text-app-muted uppercase font-semibold mb-1">Firebase Storage Bucket</label>
+                            <input type="text" [(ngModel)]="newApp.firebase_storage_bucket" name="firebase_storage_bucket" class="w-full px-3 py-2 bg-app-bg border border-app-border rounded-xl text-sm outline-none focus:ring-1 focus:ring-orange-500 font-mono" placeholder="e.g. acme-billing.firebasestorage.app">
+                          </div>
+                          <div class="col-span-full">
+                            <label class="block text-xs text-app-muted uppercase font-semibold mb-1">Firebase App ID (Web App)</label>
+                            <input type="text" [(ngModel)]="newApp.firebase_app_id" name="firebase_app_id" class="w-full px-3 py-2 bg-app-bg border border-app-border rounded-xl text-sm outline-none focus:ring-1 focus:ring-orange-500 font-mono" placeholder="e.g. 1:1234567890:web:abcdef123456">
+                          </div>
+
+                          <div class="col-span-full flex justify-end gap-3 pt-4 border-t border-app-border mt-4">
+                            <button type="button" (click)="showProvisionForm.set(false)" class="px-4 py-2 bg-transparent text-app-muted text-xs font-semibold rounded-xl hover:text-app-text transition-colors">Discard</button>
+                            <button type="submit" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold transition-all shadow-md">Deploy App Node</button>
+                          </div>
                        </form>
                     </div>
                   }
@@ -272,6 +306,13 @@ import { ApiService } from '../../services/api.service';
            @if (activeSection() === 'ratelimit') {
               <div class="animate-in fade-in slide-in-from-bottom-2 duration-300 max-w-2xl">
                  <ajr-rate-config [config]="adminService.rateLimiter()"></ajr-rate-config>
+              </div>
+           }
+
+           <!-- Billing View -->
+           @if (activeSection() === 'billing') {
+              <div class="animate-in fade-in slide-in-from-bottom-2 duration-300">
+                 <app-admin-billing></app-admin-billing>
               </div>
            }
 
@@ -671,7 +712,7 @@ export class AdminComponent implements OnInit {
   uiConfig = inject(UiConfigService);
   apiService = inject(ApiService);
   
-  activeSection = signal<'applications' | 'config' | 'ratelimit' | 'analytics' | 'heroslider' | 'growth' | 'comms' | 'services'>('applications');
+  activeSection = signal<'applications' | 'config' | 'ratelimit' | 'analytics' | 'heroslider' | 'growth' | 'comms' | 'services' | 'billing'>('applications');
   
   // Growth control panel state
   growthConfig = signal<any>(null);
@@ -683,7 +724,13 @@ export class AdminComponent implements OnInit {
     name: '',
     domain: '',
     plan: 'Lite' as 'Lite' | 'Standard' | 'Pro' | 'Enterprise',
-    environment: 'Production' as 'Production' | 'Staging' | 'Sandbox'
+    environment: 'Production' as 'Production' | 'Staging' | 'Sandbox',
+    firebase_project_id: '',
+    firebase_api_key: '',
+    firebase_auth_domain: '',
+    firebase_storage_bucket: '',
+    firebase_app_id: '',
+    firebase_measurement_id: ''
   };
 
   // Global Config state
@@ -714,14 +761,18 @@ export class AdminComponent implements OnInit {
   ];
 
   constructor() {
-    this.showTour.set(localStorage.getItem('admin-tour-done') !== 'true');
+    if (typeof window !== 'undefined') {
+      this.showTour.set(localStorage.getItem('admin-tour-done') !== 'true');
+    }
   }
 
   ngOnInit() {
-    this.loadGrowthConfig();
-    this.loadServices();
-    this.loadCommsConfig();
-    this.loadTelemetry();
+    if (typeof window !== 'undefined') {
+      this.loadGrowthConfig();
+      this.loadServices();
+      this.loadCommsConfig();
+      this.loadTelemetry();
+    }
 
     // Map store signals to component state
     const config = this.adminService.websiteConfig();
@@ -736,7 +787,9 @@ export class AdminComponent implements OnInit {
   }
 
   dismissTour() {
-    localStorage.setItem('admin-tour-done', 'true');
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('admin-tour-done', 'true');
+    }
     this.showTour.set(false);
   }
 
@@ -748,6 +801,12 @@ export class AdminComponent implements OnInit {
       domain: this.newApp.domain,
       environment: this.newApp.environment,
       plan: this.newApp.plan,
+      firebase_project_id: this.newApp.firebase_project_id,
+      firebase_api_key: this.newApp.firebase_api_key,
+      firebase_auth_domain: this.newApp.firebase_auth_domain,
+      firebase_storage_bucket: this.newApp.firebase_storage_bucket,
+      firebase_app_id: this.newApp.firebase_app_id,
+      firebase_measurement_id: this.newApp.firebase_measurement_id,
       billing: {
         plan: `${this.newApp.plan} Plan`,
         currentSpend: 0,
@@ -760,7 +819,18 @@ export class AdminComponent implements OnInit {
     };
     this.store.addProject(payload);
     this.showProvisionForm.set(false);
-    this.newApp = { name: '', domain: '', plan: 'Lite', environment: 'Production' };
+    this.newApp = {
+      name: '',
+      domain: '',
+      plan: 'Lite',
+      environment: 'Production',
+      firebase_project_id: '',
+      firebase_api_key: '',
+      firebase_auth_domain: '',
+      firebase_storage_bucket: '',
+      firebase_app_id: '',
+      firebase_measurement_id: ''
+    };
   }
 
   // Global Config actions

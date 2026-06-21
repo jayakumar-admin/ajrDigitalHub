@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, inject, computed } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { SystemCoreService, AppTelemetry } from '../../../services/system-core.service';
@@ -24,6 +24,12 @@ import { TelemetryChartComponent } from './telemetry-chart.component';
 export class SystemCoreComponent {
   service = inject(SystemCoreService);
   private store = inject(AdminStoreService);
+
+  activeTab = signal<'telemetry' | 'firebase'>('telemetry');
+
+  setTab(tab: 'telemetry' | 'firebase') {
+    this.activeTab.set(tab);
+  }
 
   // Computed array mapping store projects together with live simulated metrics
   appsTelemetry = computed<AppTelemetry[]>(() => {

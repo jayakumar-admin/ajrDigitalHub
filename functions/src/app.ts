@@ -5,6 +5,7 @@ import marketplaceRoutes from './routes/marketplace.routes';
 import saasRoutes from './routes/saas.routes';
 import adminDataRoutes from './routes/admin-data.routes';
 import authRoutes from './routes/auth.routes';
+import billingRoutes from './routes/billing.routes';
 import { usageTracker } from './middlewares/usage';
 import { requireAuth, requireRole } from './middlewares/auth.middleware';
 
@@ -22,6 +23,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/marketplace', marketplaceRoutes);
 app.use('/api/admin/apps', requireAuth, requireRole('admin'), saasRoutes);
 app.use('/api/admin/data', requireAuth, requireRole('admin'), adminDataRoutes);
+app.use('/api/admin/billing', requireAuth, requireRole('admin'), billingRoutes);
 
 // Dynamic Data Handler (The Dynamic Schema system requested)
 import dynamicRoutes from './routes/dynamic.routes';
@@ -41,3 +43,5 @@ app.use('/api/admin/pages', requireAuth, requireRole('admin'), dynamicRoutes);
 app.get('/health', (req, res) => res.json({ status: 'UP', service: 'AJR Digital HUB Backend' }));
 
 export default app;
+export { billingService } from './services/billingService';
+export { analyticsService } from './services/analytics.service';

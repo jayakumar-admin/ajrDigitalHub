@@ -1,10 +1,11 @@
-import { Component, ChangeDetectionStrategy, input, output, inject, OnInit } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, output, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
 import { ProjectData } from '../../../services/project-detail.service';
 import { AdminStoreService } from '../../../services/admin-store.service';
+import { ApiService } from '../../../services/api.service';
 import { ButtonLoaderDirective } from '../../../shared/button-loader.directive';
 
 @Component({
@@ -45,11 +46,58 @@ import { ButtonLoaderDirective } from '../../../shared/button-loader.directive';
       
       <div class="flex justify-between items-center mt-6">
          <div class="text-app-muted text-xs">
-           Last updated recently.
+            Last updated recently.
          </div>
          <button (click)="onSave()" [appButtonLoader]="store.isLoading()" class="bg-indigo-500 hover:bg-indigo-400 text-app-text px-6 py-2 rounded-lg font-bold text-sm transition">
-           Save Changes
+            Save Changes
          </button>
+      </div>
+
+      <!-- Firebase Integration Section -->
+      <div class="bg-app-bg border border-app-border rounded-xl p-6 space-y-6">
+         <h3 class="text-sm font-bold text-app-text flex items-center gap-2">
+            <mat-icon class="text-orange-500">sync</mat-icon> Firebase Integration Configuration
+         </h3>
+         <p class="text-xs text-app-muted">
+            Connect this application to its corresponding Firebase project. Dynamic logs, live-streams, and usage counters are routed privately via backend secure APIs.
+         </p>
+         
+         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+               <label for="fb-project-id" class="block text-xs font-bold uppercase tracking-wider text-app-muted mb-2">Project ID</label>
+               <input id="fb-project-id" type="text" [(ngModel)]="firebaseModel.projectId" placeholder="e.g. acme-billing-portal" class="w-full px-4 py-2.5 bg-app-bg border border-app-border rounded-lg text-sm text-app-text focus:border-orange-500/50 outline-none transition-all font-mono">
+            </div>
+            <div>
+               <label for="fb-api-key" class="block text-xs font-bold uppercase tracking-wider text-app-muted mb-2">API Key</label>
+               <input id="fb-api-key" type="password" [(ngModel)]="firebaseModel.apiKey" placeholder="AIzaSy..." class="w-full px-4 py-2.5 bg-app-bg border border-app-border rounded-lg text-sm text-app-text focus:border-orange-500/50 outline-none transition-all font-mono">
+            </div>
+         </div>
+
+         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+               <label for="fb-auth-domain" class="block text-xs font-bold uppercase tracking-wider text-app-muted mb-2">Auth Domain</label>
+               <input id="fb-auth-domain" type="text" [(ngModel)]="firebaseModel.authDomain" placeholder="e.g. acme-billing-portal.firebaseapp.com" class="w-full px-4 py-2.5 bg-app-bg border border-app-border rounded-lg text-sm text-app-text focus:border-orange-500/50 outline-none transition-all font-mono">
+            </div>
+            <div>
+               <label for="fb-storage-bucket" class="block text-xs font-bold uppercase tracking-wider text-app-muted mb-2">Storage Bucket</label>
+               <input id="fb-storage-bucket" type="text" [(ngModel)]="firebaseModel.storageBucket" placeholder="e.g. acme-billing-portal.firebasestorage.app" class="w-full px-4 py-2.5 bg-app-bg border border-app-border rounded-lg text-sm text-app-text focus:border-orange-500/50 outline-none transition-all font-mono">
+            </div>
+         </div>
+
+         <div>
+            <label for="fb-app-id" class="block text-xs font-bold uppercase tracking-wider text-app-muted mb-2">App ID (Web Application)</label>
+            <input id="fb-app-id" type="text" [(ngModel)]="firebaseModel.appId" placeholder="e.g. 1:1234567890:web:abcdef123456" class="w-full px-4 py-2.5 bg-app-bg border border-app-border rounded-lg text-sm text-app-text focus:border-orange-500/50 outline-none transition-all font-mono">
+         </div>
+
+         <div class="flex gap-4 pt-4 border-t border-app-border">
+            <button (click)="onSaveFirebaseConfig()" [appButtonLoader]="isSavingFirebase()" [disabled]="!firebaseModel.projectId || !firebaseModel.apiKey" class="px-5 py-2.5 bg-orange-600 hover:bg-orange-500 text-white rounded-lg text-sm font-bold transition flex items-center gap-2 cursor-pointer border border-orange-500 disabled:opacity-50">
+               Save Config
+            </button>
+            <button (click)="onTestFirebaseConnection()" [disabled]="!firebaseModel.projectId || !firebaseModel.apiKey || isTestingConnection()" class="px-5 py-2.5 bg-app-bg hover:bg-app-card text-app-text border border-app-border rounded-lg text-sm font-bold transition flex items-center gap-2 cursor-pointer">
+               <span *ngIf="isTestingConnection()" class="w-3.5 h-3.5 border-2 border-orange-500 border-t-transparent rounded-full animate-spin"></span>
+               Test Connection
+            </button>
+         </div>
       </div>
 
       <!-- Danger Zone -->
@@ -73,6 +121,7 @@ import { ButtonLoaderDirective } from '../../../shared/button-loader.directive';
 export class ProjectConfigComponent implements OnInit {
   store = inject(AdminStoreService);
   router = inject(Router);
+  apiService = inject(ApiService);
   project = input.required<ProjectData>();
   save = output<Partial<ProjectData>>();
 
@@ -86,6 +135,18 @@ export class ProjectConfigComponent implements OnInit {
     }
   };
 
+  firebaseModel = {
+    projectId: '',
+    apiKey: '',
+    authDomain: '',
+    storageBucket: '',
+    appId: '',
+    measurementId: ''
+  };
+
+  isTestingConnection = signal(false);
+  isSavingFirebase = signal(false);
+
   ngOnInit() {
     const p = this.project();
     this.model = {
@@ -97,11 +158,57 @@ export class ProjectConfigComponent implements OnInit {
         analytics: p.features?.analytics ?? true
       }
     };
+
+    if (p.firebase_config) {
+      this.firebaseModel = {
+        projectId: p.firebase_config.projectId || '',
+        apiKey: p.firebase_config.apiKey || '',
+        authDomain: p.firebase_config.authDomain || '',
+        storageBucket: p.firebase_config.storageBucket || '',
+        appId: p.firebase_config.appId || '',
+        measurementId: p.firebase_config.measurementId || ''
+      };
+    }
   }
 
   onSave() {
     this.store.updateProject(this.project().id, this.model).subscribe();
     this.save.emit(this.model);
+  }
+
+  onSaveFirebaseConfig() {
+    this.isSavingFirebase.set(true);
+    const appId = this.project().id;
+    this.apiService.post<any>(`/admin/apps/${appId}/firebase-config`, this.firebaseModel).subscribe({
+      next: () => {
+        this.store.showToast('Firebase integration configured successfully!', 'success');
+        this.isSavingFirebase.set(false);
+        this.store.loadProject(appId);
+      },
+      error: (err) => {
+        this.store.showToast('Failed to save config: ' + (err.error?.error || err.message), 'error');
+        this.isSavingFirebase.set(false);
+      }
+    });
+  }
+
+  onTestFirebaseConnection() {
+    this.isTestingConnection.set(true);
+    const appId = this.project().id;
+    this.apiService.post<any>(`/admin/apps/${appId}/firebase/test-connection`, this.firebaseModel).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.store.showToast('Connection verified! Credentials are valid.', 'success');
+        } else {
+          this.store.showToast('Verification failed: Invalid API Key or Project ID.', 'error');
+        }
+        this.isTestingConnection.set(false);
+      },
+      error: (err) => {
+        this.store.showToast('Connection test failed: ' + (err.error?.error || err.message), 'error');
+        this.isTestingConnection.set(false);
+      }
+    });
   }
 
   onDelete() {

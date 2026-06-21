@@ -20,6 +20,10 @@ async function bootstrap() {
       const client = await pool.connect();
       console.log('✅ PostgreSQL Connected (Supabase)');
       client.release();
+
+      // Seed database/run migrations
+      const { seedDatabase } = require('../seed');
+      await seedDatabase();
     } catch (err) {
       console.error('❌ PostgreSQL Connection Failed:', err);
     }
@@ -33,6 +37,17 @@ async function bootstrap() {
   } else {
     console.warn('⚠️ Firebase Admin not initialized (Check FIREBASE_SERVICE_ACCOUNT)');
   }
+
+  // 2b. Start Firebase Sync Cron (Every 5 minutes)
+  const { FirebaseService } = require('../services/firebase.service');
+  const firebaseService = new FirebaseService();
+  setTimeout(() => {
+    firebaseService.syncAllFirebaseApps().catch((err: any) => console.error('Error in initial Firebase sync:', err.message));
+  }, 10000); // Wait 10s after start to run initial sync
+  
+  setInterval(() => {
+    firebaseService.syncAllFirebaseApps().catch((err: any) => console.error('Error in Firebase sync interval:', err.message));
+  }, 300000); // 5 minutes
 
   // 3. Start Express Server
   app.listen(PORT, () => {

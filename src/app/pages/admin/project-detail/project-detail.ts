@@ -1024,6 +1024,24 @@ export class ProjectDetailComponent implements OnInit {
       const p = this.projectService.currentProject();
       if (p) {
         this.editData = JSON.parse(JSON.stringify(p)) as ProjectData;
+        
+        // Sync database configurations to the cloudService state signal
+        this.cloudService.state.update(s => ({
+          ...s,
+          whatsapp: {
+            ...s.whatsapp,
+            enabled: p.whatsapp?.enabled ?? false,
+            token: p.whatsapp?.api_key || '',
+            phoneId: p.whatsapp?.phone_number || ''
+          },
+          email: {
+            ...s.email,
+            enabled: p.email?.enabled ?? false,
+            host: p.email?.smtp_host || '',
+            username: p.email?.user || '',
+            port: Number(p.email?.smtp_port || 587)
+          }
+        }));
       }
     });
   }

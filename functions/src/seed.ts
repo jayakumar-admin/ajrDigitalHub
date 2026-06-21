@@ -25,7 +25,21 @@ export const seedDatabase = async () => {
 
     // App Config
     const appService = new BaseService('apps');
-    await appService.create({ name: 'AJR Hub Core', domain: 'hub.ajr.digital', apiKey: 'ajr_primary_7788', status: 'active', environment: 'Production' });
+    const coreApp = await appService.create({ name: 'AJR Hub Core', domain: 'hub.ajr.digital', apiKey: 'ajr_primary_7788', status: 'active', environment: 'Production' });
+
+    // App Integrations
+    const integrationService = new BaseService('app_integrations');
+    await integrationService.create({
+      app_id: coreApp.id,
+      firebase_config: {
+        projectId: 'ajrdigitalhubb',
+        apiKey: 'AIzaSyBtWfHieFNNu6w1suumi95v_ysxNn1ezpM',
+        authDomain: 'ajrdigitalhubb.firebaseapp.com',
+        storageBucket: 'ajrdigitalhubb.firebasestorage.app',
+        appId: '1:79343567176:web:a868a770a260bec337b37d',
+        measurementId: ''
+      }
+    });
 
     // Settings
     const settingsService = new BaseService('settings');
@@ -73,7 +87,7 @@ export const seedDatabase = async () => {
   }
 
   try {
-    // 1. Ensure Table
+    // 1. Ensure Tables Exist
     await query(`
       CREATE TABLE IF NOT EXISTS records (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -84,7 +98,110 @@ export const seedDatabase = async () => {
       );
       CREATE INDEX IF NOT EXISTS idx_collection ON records(collection);
       CREATE INDEX IF NOT EXISTS idx_data ON records USING GIN (data);
+
+      CREATE TABLE IF NOT EXISTS apps (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        name VARCHAR(255) NOT NULL,
+        environment VARCHAR(50) DEFAULT 'Staging',
+        domain VARCHAR(255) NOT NULL,
+        api_key VARCHAR(255),
+        status VARCHAR(50) DEFAULT 'active',
+        cpu_cores NUMERIC DEFAULT 0.5,
+        memory_mb INTEGER DEFAULT 512,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+
+      CREATE TABLE IF NOT EXISTS app_integrations (
+        app_id UUID PRIMARY KEY REFERENCES apps(id) ON DELETE CASCADE,
+        firebase_config JSONB NOT NULL,
+        cached_metrics JSONB DEFAULT '{}'::jsonb,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        CONSTRAINT unique_app_id UNIQUE (app_id)
+      );
+
+      CREATE TABLE IF NOT EXISTS app_config (
+        app_id UUID PRIMARY KEY REFERENCES apps(id) ON DELETE CASCADE,
+        theme VARCHAR(50) DEFAULT 'dark',
+        features JSONB DEFAULT '{}'::jsonb,
+        hero_config JSONB DEFAULT '{}'::jsonb,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+
+      CREATE TABLE IF NOT EXISTS app_rate_limits (
+        app_id UUID PRIMARY KEY REFERENCES apps(id) ON DELETE CASCADE,
+        rpm INTEGER DEFAULT 60,
+        rph INTEGER DEFAULT 2000,
+        burst_limit INTEGER DEFAULT 10,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+
+      CREATE TABLE IF NOT EXISTS usage_logs (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        app_id UUID REFERENCES apps(id) ON DELETE CASCADE,
+        endpoint TEXT NOT NULL,
+        hits INTEGER DEFAULT 1,
+        latency INTEGER DEFAULT 0,
+        status_code INTEGER DEFAULT 200,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+
+      CREATE TABLE IF NOT EXISTS analytics_logs (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        app_id UUID REFERENCES apps(id) ON DELETE CASCADE,
+        metric_type TEXT NOT NULL,
+        value NUMERIC NOT NULL,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+
+      CREATE TABLE IF NOT EXISTS billing (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        app_id UUID REFERENCES apps(id) ON DELETE CASCADE,
+        usage_json JSONB DEFAULT '{}'::jsonb,
+        amount NUMERIC DEFAULT 0,
+        status TEXT DEFAULT 'pending',
+        due_date TIMESTAMP WITH TIME ZONE,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+
+      CREATE TABLE IF NOT EXISTS whatsapp_config (
+        app_id UUID PRIMARY KEY REFERENCES apps(id) ON DELETE CASCADE,
+        phone_number TEXT,
+        api_key TEXT,
+        enabled BOOLEAN DEFAULT false,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+
+      CREATE TABLE IF NOT EXISTS email_config (
+        app_id UUID PRIMARY KEY REFERENCES apps(id) ON DELETE CASCADE,
+        smtp_host TEXT,
+        smtp_port INTEGER,
+        "user" TEXT,
+        pass TEXT,
+        enabled BOOLEAN DEFAULT false,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
     `);
+
+    // 1b. Schema Migrations (Rename column timestamp to created_at in analytics_logs if exists)
+    try {
+      await query(`
+        ALTER TABLE analytics_logs RENAME COLUMN timestamp TO created_at;
+      `);
+      console.log('🌱 Schema Migration: Renamed analytics_logs.timestamp to created_at');
+    } catch (err: any) {
+      // Ignore error if column RENAME failed (already renamed or doesn't exist)
+    }
+
+    // 1c. Add UNIQUE constraint to app_integrations if somehow missing on exists
+    try {
+      await query(`
+        ALTER TABLE app_integrations ADD CONSTRAINT unique_app_id UNIQUE (app_id);
+      `);
+    } catch (err) {
+      // Ignore if constraint already exists
+    }
+
 
     // 2. Check and Seed Admin and User
     const adminCheck = await query('SELECT id FROM records WHERE collection = $1 AND data->>\'email\' = $2', ['users', 'admin@ajr.com']);

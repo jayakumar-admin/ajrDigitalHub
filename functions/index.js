@@ -1,4 +1,5 @@
 const { onRequest } = require('firebase-functions/v2/https');
+const { onSchedule } = require('firebase-functions/v2/scheduler');
 
 // Correct Path: Pointing to the compiled bundle, NOT ./src/app
 const mod = require('./dist/server.js');
@@ -11,3 +12,27 @@ exports.api = onRequest({
     memory: "512MiB",       // Allocated extra overhead for Prisma engine binary processing
     timeoutSeconds: 60     // Gives the Supabase database connection plenty of time to warm up
 }, app);
+
+exports.monthlyBillingCron = onSchedule({
+    schedule: '0 0 1 * *', // 1st of every month at midnight
+    timeoutSeconds: 300,
+    memory: '1GiB'
+}, async (event) => {
+    if (mod.billingService) {
+        await mod.billingService.runMonthlyBilling();
+    } else {
+        console.error('billingService is not exported in the server bundle');
+    }
+});
+
+exports.aggregateAnalyticsCron = onSchedule({
+    schedule: '* * * * *', // Every minute
+    timeoutSeconds: 60,
+    memory: '256MiB'
+}, async (event) => {
+    if (mod.analyticsService) {
+        await mod.analyticsService.aggregateLogs();
+    } else {
+        console.error('analyticsService is not exported in the server bundle');
+    }
+});

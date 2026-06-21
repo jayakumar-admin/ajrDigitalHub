@@ -1,6 +1,12 @@
 import { Request, Response } from 'express';
 import { BaseService } from '../../core/base.service';
 import { successResponse, errorResponse } from '../../utils/response';
+import { query } from '../../db';
+import { isPostgresEnabled } from '../../config/db';
+import { firestore } from '../../config/firebase';
+import { FirebaseService } from '../../services/firebase.service';
+
+const firebaseService = new FirebaseService();
 
 // In-Memory/Real SSE client registry
 export const sseClients: Set<Response> = new Set();
@@ -26,7 +32,7 @@ async function ensureSeeded(service: BaseService, collection: string) {
   if (collection === 'apps') {
     const appsToSeed = [
       {
-        id: 'app_1',
+        id: '33333333-3333-4333-a333-333333333333',
         name: 'AJR Commerce',
         domain: 'ajr-commerce.vercel.app',
         status: 'live',
@@ -81,7 +87,7 @@ async function ensureSeeded(service: BaseService, collection: string) {
         }
       },
       {
-        id: 'app_2',
+        id: '33333333-3333-4333-a333-333333333334',
         name: 'Internal Tools',
         domain: 'internal.ajr.dev',
         status: 'deploying',
@@ -117,7 +123,7 @@ async function ensureSeeded(service: BaseService, collection: string) {
         }
       },
       {
-        id: 'app_3',
+        id: '33333333-3333-4333-a333-333333333335',
         name: 'Legacy CRM',
         domain: 'crm.ajr.io',
         status: 'failed',
@@ -155,6 +161,43 @@ async function ensureSeeded(service: BaseService, collection: string) {
     ];
     for (const app of appsToSeed) {
       await service.create(app);
+
+      if (isPostgresEnabled) {
+        try {
+          const checkApp = await query('SELECT id FROM apps WHERE id = $1', [app.id]);
+          if (checkApp.rowCount === 0) {
+            await query(
+              `INSERT INTO apps (id, name, domain, api_key, status, environment) VALUES ($1, $2, $3, $4, $5, $6)`,
+              [app.id, app.name, app.domain, app.apiKey, app.status, app.environment]
+            );
+            await query(`INSERT INTO app_config (app_id, theme, features) VALUES ($1, 'dark', $2)`, [app.id, JSON.stringify(app.features)]);
+            await query(`INSERT INTO app_rate_limits (app_id, rpm, rph, burst_limit) VALUES ($1, $2, $3, 10)`, [app.id, app.policies.api.rpmLimit, app.policies.api.rpHourLimit]);
+            await query(
+              `INSERT INTO billing (app_id, usage_json, amount, status) VALUES ($1, $2, $3, 'pending')`,
+              [app.id, JSON.stringify({ api: app.apiUsage, whatsapp: 0, plan: app.plan }), app.billing.currentSpend]
+            );
+            await query(`INSERT INTO whatsapp_config (app_id, enabled) VALUES ($1, false)`, [app.id]);
+            await query(`INSERT INTO email_config (app_id, enabled) VALUES ($1, false)`, [app.id]);
+            await query(`
+              INSERT INTO app_integrations (app_id, firebase_config) 
+              VALUES ($1, $2)
+              ON CONFLICT (app_id) DO NOTHING
+            `, [
+              app.id,
+              JSON.stringify({
+                projectId: 'ajrdigitalhubb',
+                apiKey: 'AIzaSyBtWfHieFNNu6w1suumi95v_ysxNn1ezpM',
+                authDomain: 'ajrdigitalhubb.firebaseapp.com',
+                storageBucket: 'ajrdigitalhubb.firebasestorage.app',
+                appId: '1:79343567176:web:a868a770a260bec337b37d',
+                measurementId: ''
+              })
+            ]);
+          }
+        } catch (e) {
+          console.error('Failed to seed relational data for app:', app.name, e);
+        }
+      }
     }
   }
 
@@ -171,8 +214,8 @@ async function ensureSeeded(service: BaseService, collection: string) {
 
   if (collection === 'deployments') {
     const deploys = [
-      { id: 'd1', appId: 'app_1', version: 'v2.4.1', status: 'success', progress: 100, timestamp: new Date(Date.now() - 3600 * 1000).toISOString() },
-      { id: 'd2', appId: 'app_2', version: 'v1.1.0-beta', status: 'building', progress: 65, timestamp: new Date().toISOString() }
+      { id: 'd1', appId: '33333333-3333-4333-a333-333333333333', version: 'v2.4.1', status: 'success', progress: 100, timestamp: new Date(Date.now() - 3600 * 1000).toISOString() },
+      { id: 'd2', appId: '33333333-3333-4333-a333-333333333334', version: 'v1.1.0-beta', status: 'building', progress: 65, timestamp: new Date().toISOString() }
     ];
     for (const d of deploys) {
       await service.create(d);
@@ -204,6 +247,152 @@ async function ensureSeeded(service: BaseService, collection: string) {
       ]
     });
   }
+}
+
+// Relational details fetch helper
+async function fetchAppProjectData(appId: string, reqIp: string): Promise<any> {
+  const appsService = new BaseService('apps');
+  await ensureSeeded(appsService, 'apps');
+
+  if (isPostgresEnabled) {
+    const appRes = await query('SELECT * FROM apps WHERE id = $1', [appId]);
+    if (appRes.rows.length === 0) {
+      return null;
+    }
+    const app = appRes.rows[0];
+
+    const configRes = await query('SELECT * FROM app_config WHERE app_id = $1', [appId]);
+    const rateLimitRes = await query('SELECT * FROM app_rate_limits WHERE app_id = $1', [appId]);
+    const billingRes = await query('SELECT * FROM billing WHERE app_id = $1 ORDER BY created_at DESC LIMIT 1', [appId]);
+    const whatsappRes = await query('SELECT * FROM whatsapp_config WHERE app_id = $1', [appId]);
+    const emailRes = await query('SELECT * FROM email_config WHERE app_id = $1', [appId]);
+
+    const logsRes = await query(
+      `SELECT id, created_at as timestamp, 'API' as type, 
+              CASE WHEN status_code >= 400 THEN 'Warning' ELSE 'Info' END as severity,
+              'Endpoint: ' || endpoint || ' | Latency: ' || latency || 'ms | Status: ' || status_code as message
+       FROM usage_logs 
+       WHERE app_id = $1 
+       ORDER BY created_at DESC 
+       LIMIT 50`,
+      [appId]
+    );
+
+    const integrationRes = await query('SELECT firebase_config, cached_metrics FROM app_integrations WHERE app_id = $1', [appId]);
+    const integration = integrationRes.rows[0] || {};
+
+    const usageStatsRes = await query(`
+      SELECT 
+        COALESCE(SUM(hits), 0)::integer as total_hits,
+        COALESCE(AVG(latency), 0)::integer as avg_latency,
+        COALESCE(SUM(CASE WHEN status_code >= 400 THEN hits ELSE 0 END), 0)::integer as error_count
+      FROM usage_logs
+      WHERE app_id = $1
+    `, [appId]);
+    const usageStats = usageStatsRes.rows[0] || { total_hits: 0, avg_latency: 0, error_count: 0 };
+
+    const config = configRes.rows[0] || {};
+    const rateLimit = rateLimitRes.rows[0] || {};
+    const billing = billingRes.rows[0] || {};
+    const whatsapp = whatsappRes.rows[0] || {};
+    const email = emailRes.rows[0] || {};
+
+    const plan = billing.usage_json?.plan || 'Pro';
+    const apiUsage = billing.usage_json?.api || 0;
+
+    return {
+      id: app.id,
+      name: app.name,
+      domain: app.domain,
+      status: app.status || 'live',
+      plan: plan,
+      apiUsage: usageStats.total_hits || apiUsage,
+      lastUpdated: app.updated_at || app.created_at || new Date().toISOString(),
+      environment: app.environment || 'Production',
+      features: config.features || { marketplace: true, services: true, analytics: true },
+      apiKey: app.api_key || 'sk_live_' + app.id,
+      policies: {
+        api: { 
+          rpmLimit: rateLimit.rpm || 1000, 
+          rpHourLimit: rateLimit.rph || 50000, 
+          allowedOrigins: '*', 
+          ipWhitelist: '', 
+          borderLimit: 10,
+          endpointLimits: [] 
+        },
+        security: { 
+          authRequired: true, 
+          tokenExpiryMinutes: 60, 
+          accessRoles: 'admin,user', 
+          geoRestrictions: 'None', 
+          sessionLimits: 5 
+        },
+        usage: { 
+          maxDailyCalls: 100000, 
+          maxUsers: 5000, 
+          storageLimitGb: 50 
+        }
+      },
+      billing: {
+        plan: plan + ' Plan',
+        currentSpend: Number(billing.amount || 0),
+        estimatedSpend: Number(billing.amount || 0) + 150.00,
+        apiCalls: usageStats.total_hits || apiUsage,
+        avgLatency: usageStats.avg_latency || 0,
+        errorCount: usageStats.error_count || 0,
+        apiLimit: rateLimit.rph || 100000,
+        storageGb: 42,
+        storageLimit: 50
+      },
+      logs: logsRes.rows.map(r => ({
+        id: r.id,
+        timestamp: r.timestamp,
+        type: r.type,
+        severity: r.severity,
+        message: r.message
+      })),
+      users: [
+        { id: 'u1', name: 'Admin One', email: 'admin@ajr.dev', role: 'Owner', status: 'Active', lastActive: new Date().toISOString() }
+      ],
+      apiKeys: [
+        { id: 'k1', name: 'Root API Key', keyPrefix: app.api_key ? app.api_key.substring(0, 10) + '...' : 'sk_live...', created: app.created_at, lastUsed: new Date().toISOString(), permissions: ['Read', 'Write'] }
+      ],
+      backups: [
+        { id: 'b1', date: new Date().toISOString(), sizeMb: 120.5, status: 'Completed' }
+      ],
+      auditLogs: [
+        { id: 'al1', timestamp: new Date().toISOString(), user: 'admin@ajr.com', action: 'Config Load', resource: 'System', ip: reqIp }
+      ],
+      whatsapp: {
+        phone_number: whatsapp.phone_number || '',
+        api_key: whatsapp.api_key || '',
+        enabled: whatsapp.enabled || false
+      },
+      email: {
+        smtp_host: email.smtp_host || '',
+        smtp_port: email.smtp_port || 587,
+        user: email.user || '',
+        pass: email.pass || '',
+        enabled: email.enabled || false
+      },
+      firebase_config: integration.firebase_config || null,
+      cached_metrics: integration.cached_metrics || null
+    };
+  }
+
+  const app = await appsService.findOne(appId);
+  if (app) {
+    const integrationService = new BaseService('app_integrations');
+    const integrationList = await integrationService.findAll({ limit: 1, filters: { app_id: appId } });
+    if (integrationList.data.length > 0) {
+      app.firebase_config = integrationList.data[0].firebase_config || null;
+      app.cached_metrics = integrationList.data[0].cached_metrics || null;
+    } else {
+      app.firebase_config = null;
+      app.cached_metrics = null;
+    }
+  }
+  return app;
 }
 
 export const adminSystemController = {
@@ -432,6 +621,18 @@ export const adminSystemController = {
       };
       const created = await depService.create(newDeployment);
 
+      // Write initial deployment record to Firestore if active
+      if (firestore) {
+        await firestore.collection('edge_deployments').doc(created.id).set({
+          id: created.id,
+          appId: newDeployment.appId,
+          version: newDeployment.version,
+          status: 'building',
+          progress: 0,
+          timestamp: newDeployment.timestamp
+        });
+      }
+
       // Async step-by-step progress simulation in server side
       let progress = 10;
       const intervalTimer = setInterval(async () => {
@@ -440,6 +641,18 @@ export const adminSystemController = {
           progress = 100;
           clearInterval(intervalTimer);
           await depService.update(created.id, { status: 'success', progress });
+          
+          if (firestore) {
+            await firestore.collection('edge_deployments').doc(created.id).set({
+              id: created.id,
+              appId: newDeployment.appId,
+              version: newDeployment.version,
+              status: 'success',
+              progress: 100,
+              timestamp: newDeployment.timestamp
+            }, { merge: true });
+          }
+
           broadcastToSse({
             type: 'deploy-update',
             appId: newDeployment.appId,
@@ -449,6 +662,18 @@ export const adminSystemController = {
           });
         } else {
           await depService.update(created.id, { status: 'building', progress });
+
+          if (firestore) {
+            await firestore.collection('edge_deployments').doc(created.id).set({
+              id: created.id,
+              appId: newDeployment.appId,
+              version: newDeployment.version,
+              status: 'building',
+              progress,
+              timestamp: newDeployment.timestamp
+            }, { merge: true });
+          }
+
           broadcastToSse({
             type: 'deploy-update',
             appId: newDeployment.appId,
@@ -673,9 +898,7 @@ export const adminSystemController = {
   async getAppDetail(req: Request, res: Response): Promise<any> {
     try {
       const { id } = req.params;
-      const appsService = new BaseService('apps');
-      await ensureSeeded(appsService, 'apps');
-      const app = await appsService.findOne(id as string);
+      const app = await fetchAppProjectData(id as string, req.ip || '127.0.0.1');
       if (!app) {
         return res.status(404).json(errorResponse('Application not found', 404));
       }
@@ -691,6 +914,48 @@ export const adminSystemController = {
       const { id } = req.params;
       const appsService = new BaseService('apps');
       await ensureSeeded(appsService, 'apps');
+
+      if (isPostgresEnabled) {
+        const { name, domain, environment, status, features, policies } = req.body;
+        
+        // 1. Update apps table
+        if (name !== undefined || domain !== undefined || environment !== undefined || status !== undefined) {
+          await query(
+            `UPDATE apps 
+             SET name = COALESCE($1, name), 
+                 domain = COALESCE($2, domain), 
+                 environment = COALESCE($3, environment), 
+                 status = COALESCE($4, status),
+                 updated_at = NOW() 
+             WHERE id = $5`,
+            [name, domain, environment, status, id]
+          );
+        }
+
+        // 2. Update app_config table
+        if (features !== undefined) {
+          await query(
+            `UPDATE app_config 
+             SET features = $1 
+             WHERE app_id = $2`,
+            [JSON.stringify(features), id]
+          );
+        }
+
+        // 3. Update app_rate_limits table
+        if (policies?.api?.rpmLimit !== undefined || policies?.api?.rpHourLimit !== undefined) {
+          const rpm = policies.api.rpmLimit;
+          const rph = policies.api.rpHourLimit || (rpm * 60);
+          await query(
+            `UPDATE app_rate_limits 
+             SET rpm = COALESCE($1, rpm), 
+                 rph = COALESCE($2, rph) 
+             WHERE app_id = $3`,
+            [rpm, rph, id]
+          );
+        }
+      }
+
       const updated = await appsService.update(id as string, req.body);
       return res.json(successResponse(updated));
     } catch (err: any) {
@@ -712,9 +977,7 @@ export const adminSystemController = {
   async getAppUsage(req: Request, res: Response): Promise<any> {
     try {
       const { appId } = req.params;
-      const appsService = new BaseService('apps');
-      await ensureSeeded(appsService, 'apps');
-      const app = await appsService.findOne(appId as string);
+      const app = await fetchAppProjectData(appId as string, req.ip || '127.0.0.1');
       if (!app) {
         return res.status(404).json(errorResponse('Application not found', 404));
       }
@@ -729,6 +992,11 @@ export const adminSystemController = {
       const { id } = req.params;
       const appsService = new BaseService('apps');
       await ensureSeeded(appsService, 'apps');
+      
+      if (isPostgresEnabled) {
+        await query('DELETE FROM apps WHERE id = $1', [id]);
+      }
+
       const success = await appsService.delete(id as string);
       return res.json(successResponse({ success }));
     } catch (err: any) {

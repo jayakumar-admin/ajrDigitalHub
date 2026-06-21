@@ -52,15 +52,17 @@ export class MarketplaceComponent implements OnInit {
 
   ngOnInit() {
     this.loadProducts();
-    const pendingRaw = localStorage.getItem('pendingPurchase');
-    if (pendingRaw && this.authService.currentUser()) {
-      try {
-        const product = JSON.parse(pendingRaw);
-        localStorage.removeItem('pendingPurchase');
-        setTimeout(() => {
-          this.buyNow(product);
-        }, 1000);
-      } catch (e) {}
+    if (typeof window !== 'undefined') {
+      const pendingRaw = localStorage.getItem('pendingPurchase');
+      if (pendingRaw && this.authService.currentUser()) {
+        try {
+          const product = JSON.parse(pendingRaw);
+          localStorage.removeItem('pendingPurchase');
+          setTimeout(() => {
+            this.buyNow(product);
+          }, 1000);
+        } catch (e) {}
+      }
     }
   }
 

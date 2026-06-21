@@ -1,23 +1,51 @@
-import { query } from '../db';
+import { query, pool } from '../db';
 
 export const analyticsService = {
-  async getOverview(appId?: number, daysRange: number = 30) {
-    // This is a simplified version of the analytics logic from the original server.ts
-    // In a real app we'd have aggregation queries here
-    const res = await query(
-      'SELECT COUNT(*) as total FROM dynamic_records WHERE collection_name = $1 AND (created_at > NOW() - INTERVAL \'$2 days\')',
-      ['usage_logs', daysRange]
-    );
-    return {
-      totalRequests: parseInt(res.rows[0]?.total || '0'),
-      period: daysRange
-    };
-  },
+  async aggregateLogs() {
+    if (!pool) return;
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+      
+      // Calculate hits and error rate per app for the past minute
+      const aggQuery = `
+        SELECT app_id,
+               COUNT(*) as total_hits,
+               AVG(latency) as avg_latency,
+               SUM(CASE WHEN status_code >= 400 THEN 1 ELSE 0 END) as errors
+        FROM usage_logs
+        WHERE created_at >= NOW() - INTERVAL '1 minute'
+        GROUP BY app_id
+      `;
+      const result = await client.query(aggQuery);
 
-  async logUsage(data: { appId: number, path: string, method: string, status: number, responseTime: number, deviceInfo: string }) {
-    return query(
-      'INSERT INTO dynamic_records (collection_name, data) VALUES ($1, $2)',
-      ['usage_logs', JSON.stringify(data)]
-    );
+      for (const row of result.rows) {
+        // Insert aggregated metrics
+        await client.query(
+          `INSERT INTO analytics_logs (app_id, metric_type, value) VALUES ($1, 'hits', $2)`,
+          [row.app_id, row.total_hits]
+        );
+        await client.query(
+          `INSERT INTO analytics_logs (app_id, metric_type, value) VALUES ($1, 'latency', $2)`,
+          [row.app_id, row.avg_latency || 0]
+        );
+        const errorRate = row.total_hits > 0 ? (row.errors / row.total_hits) * 100 : 0;
+        await client.query(
+          `INSERT INTO analytics_logs (app_id, metric_type, value) VALUES ($1, 'error_rate', $2)`,
+          [row.app_id, errorRate]
+        );
+      }
+
+      // We can keep usage_logs for a while instead of deleting instantly, 
+      // but let's clear out ones older than 30 days to save space.
+      await client.query(`DELETE FROM usage_logs WHERE created_at < NOW() - INTERVAL '30 days'`);
+
+      await client.query('COMMIT');
+    } catch (e) {
+      await client.query('ROLLBACK');
+      console.error('Failed to aggregate logs', e);
+    } finally {
+      client.release();
+    }
   }
 };

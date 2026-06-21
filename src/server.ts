@@ -5,6 +5,7 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import path from 'path';
 import fs from 'fs';
+import { fileURLToPath } from 'url';
 
 // Constants
 const PORT = 3000;
@@ -15,8 +16,7 @@ if (typeof __dirname !== 'undefined') {
   currentDir = __dirname;
 // @ts-ignore
 } else if (typeof import.meta !== 'undefined' && import.meta.url) {
-// @ts-ignore
-  currentDir = path.dirname(new URL(import.meta.url).pathname);
+  currentDir = path.dirname(fileURLToPath(import.meta.url));
 }
 const DATA_FILE = path.join(currentDir, 'schema_datastores.json');
 

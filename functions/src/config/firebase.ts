@@ -1,5 +1,6 @@
 import { initializeApp, cert, getApp, getApps } from 'firebase-admin/app';
 import { getStorage } from 'firebase-admin/storage';
+import { getFirestore } from 'firebase-admin/firestore';
 import * as dotenv from 'dotenv';
 import path from 'path';
 
@@ -12,6 +13,7 @@ const storageBucket = process.env['FIREBASE_STORAGE_BUCKET'];
 
 let firebaseApp: any = null;
 let bucket: any = null;
+let firestore: any = null;
 
 function parseServiceAccount(jsonStr: string): any {
   const clean = jsonStr.trim();
@@ -54,15 +56,17 @@ if (serviceAccountJson && storageBucket) {
     }
     
     bucket = getStorage().bucket();
+    firestore = getFirestore();
     console.log('✅ Firebase Admin initialized successfully');
   } catch (err) {
     console.error('❌ Failed to initialize Firebase Admin:', err);
     // Explicitly set to null if it failed
     firebaseApp = null;
     bucket = null;
+    firestore = null;
   }
 } else {
-  console.warn('⚠️ Firebase credentials missing. Uploads will not work.');
+  console.warn('⚠️ Firebase credentials missing. Uploads and Firestore sync will not work.');
 }
 
-export { firebaseApp, bucket };
+export { firebaseApp, bucket, firestore };

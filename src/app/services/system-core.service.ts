@@ -2,6 +2,8 @@ import { Injectable, inject, signal, computed, OnDestroy, PLATFORM_ID } from '@a
 import { isPlatformBrowser } from '@angular/common';
 import { AdminStoreService, ProjectData } from './admin-store.service';
 import { interval, Subscription } from 'rxjs';
+import { db } from '../firebase';
+import { collection, onSnapshot, query, setDoc, doc } from 'firebase/firestore';
 
 export interface AppTelemetry {
   appId: string;
@@ -27,6 +29,49 @@ export interface GlobalTelemetry {
   activeNodes: number;
   uptimePercent: number;
   trafficHistory: number[];
+}
+
+export interface FirebaseSyncedApp {
+  id: string;
+  name: string;
+  domain: string;
+  environment: string;
+  status: string;
+  api_key: string;
+  config: {
+    theme: string;
+    features: Record<string, boolean>;
+    hero_config?: any;
+  } | null;
+  rateLimits: {
+    rpm: number;
+    rph: number;
+    burst_limit?: number;
+  } | null;
+  billing: {
+    amount: number;
+    usage_json: Record<string, any>;
+  } | null;
+  syncedAt: string;
+}
+
+export interface FirebaseDeployment {
+  id: string;
+  appId: string;
+  version: string;
+  status: 'building' | 'success' | 'failed';
+  progress: number;
+  timestamp: string;
+}
+
+export interface FirebaseLog {
+  id: string;
+  appId: string;
+  method: string;
+  endpoint: string;
+  statusCode: number;
+  responseTime: number;
+  timestamp: string;
 }
 
 @Injectable({
@@ -57,10 +102,17 @@ export class SystemCoreService implements OnDestroy {
   private platformId = inject(PLATFORM_ID);
   private eventSource?: EventSource;
 
+  // Real-time Firestore synced collections
+  firebaseApps = signal<FirebaseSyncedApp[]>([]);
+  firebaseDeployments = signal<FirebaseDeployment[]>([]);
+  firebaseLogs = signal<FirebaseLog[]>([]);
+  private firebaseUnsubs: (() => void)[] = [];
+
   constructor() {
     this.initializeTelemetry();
     this.startSimulation();
     this.connectLiveSse();
+    this.initFirebaseListeners();
   }
 
   private connectLiveSse() {
@@ -345,6 +397,145 @@ export class SystemCoreService implements OnDestroy {
     }));
   }
 
+  private initFirebaseListeners() {
+    if (!isPlatformBrowser(this.platformId)) return;
+
+    try {
+      // Listen to edge_apps
+      const appsQuery = query(collection(db, 'edge_apps'));
+      const unsubApps = onSnapshot(appsQuery, (snapshot) => {
+        const apps = snapshot.docs.map(doc => ({
+          ...doc.data(),
+          id: doc.id
+        })) as FirebaseSyncedApp[];
+        
+        // If empty, auto-seed with mock records so the UI is immediately fully functional and populated
+        if (apps.length === 0) {
+          this.seedFirebaseMockData();
+        } else {
+          this.firebaseApps.set(apps);
+        }
+      }, (error) => {
+        console.error('Error fetching Firestore edge_apps:', error);
+      });
+
+      // Listen to edge_deployments
+      const deploymentsQuery = query(collection(db, 'edge_deployments'));
+      const unsubDeployments = onSnapshot(deploymentsQuery, (snapshot) => {
+        const deps = snapshot.docs.map(doc => ({
+          ...doc.data(),
+          id: doc.id
+        })) as FirebaseDeployment[];
+        
+        deps.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+        this.firebaseDeployments.set(deps);
+      }, (error) => {
+        console.error('Error fetching Firestore deployments:', error);
+      });
+
+      // Listen to edge_logs
+      const logsQuery = query(collection(db, 'edge_logs'));
+      const unsubLogs = onSnapshot(logsQuery, (snapshot) => {
+        const logs = snapshot.docs.map(doc => ({
+          ...doc.data(),
+          id: doc.id
+        })) as FirebaseLog[];
+        
+        logs.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+        this.firebaseLogs.set(logs.slice(0, 50)); // limit to latest 50
+      }, (error) => {
+        console.error('Error fetching Firestore logs:', error);
+      });
+
+      this.firebaseUnsubs.push(unsubApps, unsubDeployments, unsubLogs);
+    } catch (err) {
+      console.error('Failed to init Firestore listeners:', err);
+    }
+  }
+
+  private async seedFirebaseMockData() {
+    const projects = this.store.projects();
+    if (projects.length === 0) return;
+
+    try {
+      for (const p of projects) {
+        const appId = p.id;
+        const appDocRef = doc(db, 'edge_apps', appId);
+        const seedApp: FirebaseSyncedApp = {
+          id: appId,
+          name: p.name,
+          domain: p.domain,
+          environment: p.environment || 'Live',
+          status: p.status === 'live' ? 'active' : 'inactive',
+          api_key: `sk_live_seed_${appId.substring(0, 6)}`,
+          config: {
+            theme: 'dark',
+            features: {
+              whatsapp: true,
+              email: true,
+              stripe: false
+            }
+          },
+          rateLimits: {
+            rpm: 1000,
+            rph: 50000,
+            burst_limit: 100
+          },
+          billing: {
+            amount: p.status === 'live' ? 24.50 : 0,
+            usage_json: {
+              api: 4120,
+              whatsapp: 148,
+              plan: 'Starter Plus'
+            }
+          },
+          syncedAt: new Date().toISOString()
+        };
+        await setDoc(appDocRef, seedApp);
+
+        // Seed mock deployments
+        const depId1 = `dep_1_${appId.substring(0, 4)}`;
+        await setDoc(doc(db, 'edge_deployments', depId1), {
+          id: depId1,
+          appId,
+          version: 'v2.4.1',
+          status: 'success',
+          progress: 100,
+          timestamp: new Date(Date.now() - 3600000).toISOString()
+        });
+
+        const depId2 = `dep_2_${appId.substring(0, 4)}`;
+        await setDoc(doc(db, 'edge_deployments', depId2), {
+          id: depId2,
+          appId,
+          version: 'v2.4.2-rc1',
+          status: 'building',
+          progress: 65,
+          timestamp: new Date().toISOString()
+        });
+
+        // Seed mock logs
+        for (let i = 0; i < 3; i++) {
+          const logId = `log_${Date.now() - i * 5000}_${appId.substring(0, 4)}`;
+          const endpoints = ['/api/checkout', '/api/auth/session', '/api/users/profile'];
+          const methods = ['POST', 'GET', 'PUT'];
+          await setDoc(doc(db, 'edge_logs', logId), {
+            id: logId,
+            appId,
+            method: methods[i],
+            endpoint: endpoints[i],
+            statusCode: i === 0 ? 201 : 200,
+            responseTime: Math.floor(Math.random() * 150) + 40,
+            timestamp: new Date(Date.now() - i * 5000).toISOString()
+          });
+        }
+      }
+      console.log('🌱 Seeded default mock data in Firestore successfully');
+    } catch (e) {
+      console.error('Failed to seed Firebase mock data:', e);
+    }
+  }
+
   ngOnDestroy() {
     if (this.timerSub) {
       this.timerSub.unsubscribe();
@@ -352,5 +543,6 @@ export class SystemCoreService implements OnDestroy {
     if (this.eventSource) {
       this.eventSource.close();
     }
+    this.firebaseUnsubs.forEach(unsub => unsub());
   }
 }

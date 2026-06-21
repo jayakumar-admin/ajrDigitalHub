@@ -150,6 +150,32 @@ export interface ProjectData extends AdminApp {
   auditLogs: AuditEvent[];
   plugins: ProjectPlugin[];
   billing: BillingData;
+  whatsapp?: {
+    phone_number: string;
+    api_key: string;
+    enabled: boolean;
+  };
+  email?: {
+    smtp_host: string;
+    smtp_port: number;
+    user: string;
+    pass: string;
+    enabled: boolean;
+  };
+  firebase_config?: {
+    projectId: string;
+    apiKey: string;
+    authDomain: string;
+    storageBucket: string;
+    appId: string;
+    measurementId?: string;
+  } | null;
+  cached_metrics?: {
+    status?: any;
+    analytics?: any;
+    storage?: any;
+    lastSynced?: string;
+  } | null;
 }
 
 export interface AppToast {
@@ -211,7 +237,9 @@ export class AdminStoreService {
   });
 
   constructor() {
-    this.refreshAll();
+    if (typeof window !== 'undefined') {
+      this.refreshAll();
+    }
   }
 
   // Fetch initial apps & options
@@ -230,7 +258,7 @@ export class AdminStoreService {
             lastUpdated: app.lastUpdated || new Date().toISOString(),
             environment: app.environment || 'Production',
             features: app.features || { marketplace: true, services: true, analytics: true },
-            apiKey: app.apiKey || 'sk_live_' + app.id,
+            apiKey: app.apiKey || app.api_key || 'sk_live_' + app.id,
             policies: app.policies || {
               api: { rpmLimit: 1000, rpHourLimit: 50000, allowedOrigins: '*', ipWhitelist: '', endpointLimits: [] },
               security: { authRequired: true, tokenExpiryMinutes: 60, accessRoles: 'admin,user', geoRestrictions: 'None', sessionLimits: 5 },
@@ -251,7 +279,9 @@ export class AdminStoreService {
               apiLimit: 100000,
               storageGb: 42,
               storageLimit: 50
-            }
+            },
+            firebase_config: app.firebase_config || null,
+            cached_metrics: app.cached_metrics || null
           }));
           this.projects.set(mapped);
           
@@ -444,7 +474,7 @@ export class AdminStoreService {
     );
   }
 
-  addProject(newProj: { name: string; domain: string; environment: 'Production' | 'Staging' | 'Sandbox'; plan: 'Starter' | 'Pro' | 'Enterprise' | 'Lite' | 'Standard'; billing: any }) {
+  addProject(newProj: any) {
     this.isLoading.set(true);
     this.api.provisionApp(newProj).subscribe({
       next: (response: any) => {
@@ -478,7 +508,9 @@ export class AdminStoreService {
             services: true,
             analytics: true
           },
-          billing: newProj.billing
+          billing: newProj.billing,
+          firebase_config: app.firebase_config || null,
+          cached_metrics: app.cached_metrics || null
         };
 
         this.projects.update(list => [...list, fullProject]);
