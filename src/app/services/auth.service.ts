@@ -61,7 +61,7 @@ export class AuthService {
         this.http.post<any>(this.getApiUrl('/api/auth/login'), { email, password })
       );
       if (res && res.accessToken) {
-        this.sessionSuccess(res.user, res.accessToken);
+        this.sessionSuccess(res.user, res.accessToken, res.refreshToken);
         return res;
       }
       throw new Error(res?.message || 'Login failed');
@@ -81,9 +81,19 @@ export class AuthService {
     }
   }
 
+  getRefreshToken(): string | null {
+    if (isPlatformBrowser(this.platformId)) {
+      return localStorage.getItem('form_builder_refresh_token');
+    }
+    return null;
+  }
+
   async tryRefresh(): Promise<boolean> {
     try {
-      const res: any = await firstValueFrom(this.http.post<any>(this.getApiUrl('/api/auth/refresh'), {}));
+      const rfToken = this.getRefreshToken();
+      const res: any = await firstValueFrom(
+        this.http.post<any>(this.getApiUrl('/api/auth/refresh'), { refreshToken: rfToken })
+      );
       if (res && res.accessToken) {
         this.accessToken.set(res.accessToken);
         if (isPlatformBrowser(this.platformId)) {
@@ -98,7 +108,8 @@ export class AuthService {
   }
 
   refreshToken(): Observable<any> {
-    return this.http.post<any>(this.getApiUrl('/api/auth/refresh'), {}).pipe(
+    const rfToken = this.getRefreshToken();
+    return this.http.post<any>(this.getApiUrl('/api/auth/refresh'), { refreshToken: rfToken }).pipe(
       tap((res) => {
         if (res && res.accessToken) {
           this.accessToken.set(res.accessToken);
@@ -123,16 +134,20 @@ export class AuthService {
     if (isPlatformBrowser(this.platformId)) {
       localStorage.removeItem('form_builder_user');
       localStorage.removeItem('form_builder_token');
+      localStorage.removeItem('form_builder_refresh_token');
     }
     this.router.navigate(['/login']);
   }
 
-  private sessionSuccess(user: User, token: string) {
+  private sessionSuccess(user: User, token: string, refreshToken?: string) {
     this.currentUser.set(user);
     this.accessToken.set(token);
     if (isPlatformBrowser(this.platformId)) {
       localStorage.setItem('form_builder_user', JSON.stringify(user));
       localStorage.setItem('form_builder_token', token);
+      if (refreshToken) {
+        localStorage.setItem('form_builder_refresh_token', refreshToken);
+      }
     }
   }
 }

@@ -37,15 +37,15 @@ export class AjrAdminTabs {
   standalone: true,
   imports: [CommonModule, MatIconModule],
   template: `
-    <div class="inline-flex flex-col gap-1 items-end">
+    <div class="inline-flex flex-col gap-0.5 md:gap-1 items-end">
       <div 
-        class="flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-bold border font-mono tracking-wider"
+        class="flex items-center gap-1 px-1.5 py-0.5 rounded text-[8px] sm:text-[9px] md:text-[10px] font-bold border font-mono tracking-wider"
         [ngClass]="{
           'bg-emerald-500/10 text-emerald-400 border-emerald-500/30': status() === 'live',
           'bg-amber-500/10 text-amber-400 border-amber-500/30 animate-pulse': status() === 'deploying',
           'bg-rose-500/10 text-rose-400 border-rose-500/30': status() === 'failed'
         }">
-        <div class="w-1.5 h-1.5 rounded-full" 
+        <div class="w-1 md:w-1.5 h-1 md:h-1.5 rounded-full" 
           [ngClass]="{
             'bg-emerald-400': status() === 'live',
             'bg-amber-400': status() === 'deploying',
@@ -54,7 +54,7 @@ export class AjrAdminTabs {
         <span class="uppercase">{{ status() }}</span>
       </div>
       @if (lastUpdated()) {
-        <span class="text-[10px] text-app-muted font-mono">Upd: {{ lastUpdated() | date:'HH:mm' }}</span>
+        <span class="text-[8px] sm:text-[9px] md:text-[10px] text-app-muted font-mono leading-none">Upd: {{ lastUpdated() | date:'HH:mm' }}</span>
       }
     </div>
   `
@@ -70,34 +70,34 @@ export class AjrDeployStatus {
   imports: [CommonModule, MatIconModule, AjrDeployStatus],
   template: `
     <div 
-      class="bg-app-card backdrop-blur-xl border border-app-border rounded-xl p-5 shadow-lg hover:border-indigo-500/50 transition-all cursor-pointer group flex flex-col h-full"
+      class="bg-app-card backdrop-blur-xl border border-app-border rounded-xl p-3.5 sm:p-4 md:p-5 shadow-lg hover:border-indigo-500/50 transition-all cursor-pointer group flex flex-col h-full"
       role="button"
       tabindex="0"
       (click)="selectApp.emit(app())"
       (keydown.enter)="selectApp.emit(app())">
       
-      <div class="flex justify-between items-start mb-4">
-        <div>
-          <h3 class="text-lg font-bold text-app-text flex items-center gap-2">
-            {{ app().name }}
-            <span class="px-2 py-0.5 rounded text-[10px] bg-app-bg text-app-muted font-mono tracking-wider border border-app-border">{{ app().environment }}</span>
+      <div class="flex justify-between items-start mb-3 md:mb-4 gap-2">
+        <div class="min-w-0 flex-1">
+          <h3 class="text-sm sm:text-base md:text-lg font-bold text-app-text flex items-center gap-1.5 flex-wrap">
+            <span class="truncate max-w-[120px] sm:max-w-none">{{ app().name }}</span>
+            <span class="px-1 py-0.5 rounded text-[8px] sm:text-[9px] md:text-[10px] bg-app-bg text-app-muted font-mono tracking-wider border border-app-border shrink-0">{{ app().environment }}</span>
           </h3>
-          <p class="text-sm text-app-muted mt-1 font-medium flex items-center gap-1.5 font-mono">
-            <mat-icon class="!text-[14px] !w-[14px] !h-[14px] text-app-muted">language</mat-icon>
-            {{ app().domain }}
+          <p class="text-xs md:text-sm text-app-muted mt-0.5 md:mt-1 font-medium flex items-center gap-1 font-mono truncate">
+            <mat-icon class="!text-[12px] !w-[12px] !h-[12px] md:!text-[14px] md:!w-[14px] md:!h-[14px] text-app-muted shrink-0">language</mat-icon>
+            <span class="truncate">{{ app().domain }}</span>
           </p>
         </div>
-        <ajr-deploy-status [status]="app().status" [lastUpdated]="app().lastUpdated"></ajr-deploy-status>
+        <ajr-deploy-status [status]="app().status" [lastUpdated]="app().lastUpdated" class="shrink-0"></ajr-deploy-status>
       </div>
 
-      <div class="mt-auto pt-4 border-t border-app-border flex items-center justify-between">
-        <div class="flex flex-col">
-          <span class="text-[10px] uppercase font-bold text-app-muted tracking-wider">Assigned Edge Plan</span>
-          <span class="text-sm font-bold text-indigo-400 mt-0.5">{{ app().plan }} Compute</span>
+      <div class="mt-auto pt-3 md:pt-4 border-t border-app-border flex items-center justify-between gap-2">
+        <div class="flex flex-col min-w-0">
+          <span class="text-[8px] sm:text-[9px] md:text-[10px] uppercase font-bold text-app-muted tracking-wider truncate">Assigned Edge Plan</span>
+          <span class="text-xs sm:text-sm font-bold text-indigo-400 mt-0.5 truncate">{{ app().plan }} Compute</span>
         </div>
-        <div class="flex flex-col items-end">
-          <span class="text-[10px] uppercase font-bold text-app-muted tracking-wider">7D Volume</span>
-          <span class="text-sm font-mono font-bold text-app-text mt-0.5">{{ app().apiUsage | number }} <span class="text-app-muted text-xs">reqs</span></span>
+        <div class="flex flex-col items-end shrink-0">
+          <span class="text-[8px] sm:text-[9px] md:text-[10px] uppercase font-bold text-app-muted tracking-wider">7D Volume</span>
+          <span class="text-xs sm:text-sm font-mono font-bold text-app-text mt-0.5">{{ app().apiUsage | number }} <span class="text-app-muted text-[10px]">reqs</span></span>
         </div>
       </div>
     </div>

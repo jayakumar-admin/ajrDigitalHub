@@ -13,11 +13,10 @@ export const saasController = {
         SELECT a.*, 
                json_build_object('rpm', r.rpm, 'rph', r.rph) as rate_limits,
                c.theme, c.features,
-               b.amount as current_spend
+               (SELECT amount FROM billing WHERE app_id = a.id AND status = 'pending' ORDER BY created_at DESC LIMIT 1) as current_spend
         FROM apps a
         LEFT JOIN app_rate_limits r ON a.id = r.app_id
         LEFT JOIN app_config c ON a.id = c.app_id
-        LEFT JOIN billing b ON a.id = b.app_id AND b.status = 'pending'
         ORDER BY a.created_at DESC
       `);
       res.json(result.rows);

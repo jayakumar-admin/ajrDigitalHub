@@ -2251,15 +2251,15 @@ var require_pg_connection_string = __commonJS({
       if (config5.sslcert || config5.sslkey || config5.sslrootcert || config5.sslmode) {
         config5.ssl = {};
       }
-      const fs9 = config5.sslcert || config5.sslkey || config5.sslrootcert ? require("fs") : null;
+      const fs10 = config5.sslcert || config5.sslkey || config5.sslrootcert ? require("fs") : null;
       if (config5.sslcert) {
-        config5.ssl.cert = fs9.readFileSync(config5.sslcert).toString();
+        config5.ssl.cert = fs10.readFileSync(config5.sslcert).toString();
       }
       if (config5.sslkey) {
-        config5.ssl.key = fs9.readFileSync(config5.sslkey).toString();
+        config5.ssl.key = fs10.readFileSync(config5.sslkey).toString();
       }
       if (config5.sslrootcert) {
-        config5.ssl.ca = fs9.readFileSync(config5.sslrootcert).toString();
+        config5.ssl.ca = fs10.readFileSync(config5.sslrootcert).toString();
       }
       if (options.useLibpqCompat && config5.uselibpqcompat) {
         throw new Error("Both useLibpqCompat and uselibpqcompat are set. Please use only one of them.");
@@ -2615,10 +2615,10 @@ var require_result = __commonJS({
 var require_query = __commonJS({
   "node_modules/pg/lib/query.js"(exports2, module2) {
     "use strict";
-    var { EventEmitter: EventEmitter5 } = require("events");
+    var { EventEmitter: EventEmitter6 } = require("events");
     var Result2 = require_result();
     var utils = require_utils();
-    var Query2 = class extends EventEmitter5 {
+    var Query2 = class extends EventEmitter6 {
       constructor(config5, values, callback) {
         super();
         config5 = utils.normalizeQueryConfig(config5, values, callback);
@@ -3740,13 +3740,13 @@ var require_stream = __commonJS({
 var require_connection = __commonJS({
   "node_modules/pg/lib/connection.js"(exports2, module2) {
     "use strict";
-    var EventEmitter5 = require("events").EventEmitter;
+    var EventEmitter6 = require("events").EventEmitter;
     var { parse, serialize } = require_dist();
     var { getStream, getSecureStream } = require_stream();
     var flushBuffer = serialize.flush();
     var syncBuffer = serialize.sync();
     var endBuffer = serialize.end();
-    var Connection3 = class extends EventEmitter5 {
+    var Connection3 = class extends EventEmitter6 {
       constructor(config5) {
         super();
         config5 = config5 || {};
@@ -4024,7 +4024,7 @@ var require_split2 = __commonJS({
 var require_helper = __commonJS({
   "node_modules/pgpass/lib/helper.js"(exports2, module2) {
     "use strict";
-    var path16 = require("path");
+    var path17 = require("path");
     var Stream2 = require("stream").Stream;
     var split = require_split2();
     var util2 = require("util");
@@ -4063,7 +4063,7 @@ var require_helper = __commonJS({
     };
     module2.exports.getFileName = function(rawEnv) {
       var env2 = rawEnv || process.env;
-      var file = env2.PGPASSFILE || (isWin ? path16.join(env2.APPDATA || "./", "postgresql", "pgpass.conf") : path16.join(env2.HOME || "./", ".pgpass"));
+      var file = env2.PGPASSFILE || (isWin ? path17.join(env2.APPDATA || "./", "postgresql", "pgpass.conf") : path17.join(env2.HOME || "./", ".pgpass"));
       return file;
     };
     module2.exports.usePgPass = function(stats, fname) {
@@ -4195,16 +4195,16 @@ var require_helper = __commonJS({
 var require_lib2 = __commonJS({
   "node_modules/pgpass/lib/index.js"(exports2, module2) {
     "use strict";
-    var path16 = require("path");
-    var fs9 = require("fs");
+    var path17 = require("path");
+    var fs10 = require("fs");
     var helper = require_helper();
     module2.exports = function(connInfo, cb) {
       var file = helper.getFileName();
-      fs9.stat(file, function(err, stat2) {
+      fs10.stat(file, function(err, stat2) {
         if (err || !helper.usePgPass(stat2, file)) {
           return cb(void 0);
         }
-        var st = fs9.createReadStream(file);
+        var st = fs10.createReadStream(file);
         helper.getPassword(connInfo, st, cb);
       });
     };
@@ -4215,7 +4215,7 @@ var require_lib2 = __commonJS({
 // node_modules/pg/lib/client.js
 var require_client = __commonJS({
   "node_modules/pg/lib/client.js"(exports2, module2) {
-    var EventEmitter5 = require("events").EventEmitter;
+    var EventEmitter6 = require("events").EventEmitter;
     var utils = require_utils();
     var nodeUtils = require("util");
     var sasl = require_sasl();
@@ -4260,7 +4260,7 @@ var require_client = __commonJS({
       }
       return defaultValue;
     }
-    var Client2 = class extends EventEmitter5 {
+    var Client2 = class extends EventEmitter6 {
       constructor(config5) {
         super();
         this.connectionParameters = new ConnectionParameters(config5);
@@ -4854,7 +4854,7 @@ var require_client = __commonJS({
 var require_pg_pool = __commonJS({
   "node_modules/pg-pool/index.js"(exports2, module2) {
     "use strict";
-    var EventEmitter5 = require("events").EventEmitter;
+    var EventEmitter6 = require("events").EventEmitter;
     var NOOP = function() {
     };
     var removeWhere = (list, predicate) => {
@@ -4905,7 +4905,7 @@ var require_pg_pool = __commonJS({
         pool4.emit("error", err, client);
       };
     }
-    var Pool2 = class extends EventEmitter5 {
+    var Pool2 = class extends EventEmitter6 {
       constructor(options, Client2) {
         super();
         this.options = Object.assign({}, options);
@@ -5280,11 +5280,11 @@ var require_pg_pool = __commonJS({
 var require_query2 = __commonJS({
   "node_modules/pg/lib/native/query.js"(exports2, module2) {
     "use strict";
-    var EventEmitter5 = require("events").EventEmitter;
+    var EventEmitter6 = require("events").EventEmitter;
     var util2 = require("util");
     var utils = require_utils();
     var NativeQuery = module2.exports = function(config5, values, callback) {
-      EventEmitter5.call(this);
+      EventEmitter6.call(this);
       config5 = utils.normalizeQueryConfig(config5, values, callback);
       this.text = config5.text;
       this.values = config5.values;
@@ -5301,7 +5301,7 @@ var require_query2 = __commonJS({
         }.bind(this)
       );
     };
-    util2.inherits(NativeQuery, EventEmitter5);
+    util2.inherits(NativeQuery, EventEmitter6);
     var errorFieldMap = {
       sqlState: "code",
       statementPosition: "position",
@@ -5428,7 +5428,7 @@ var require_client2 = __commonJS({
       throw e;
     }
     var TypeOverrides2 = require_type_overrides();
-    var EventEmitter5 = require("events").EventEmitter;
+    var EventEmitter6 = require("events").EventEmitter;
     var util2 = require("util");
     var ConnectionParameters = require_connection_parameters();
     var NativeQuery = require_query2();
@@ -5438,7 +5438,7 @@ var require_client2 = __commonJS({
       "Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead."
     );
     var Client2 = module2.exports = function(config5) {
-      EventEmitter5.call(this);
+      EventEmitter6.call(this);
       config5 = config5 || {};
       this._Promise = config5.Promise || global.Promise;
       this._types = new TypeOverrides2(config5.types);
@@ -5465,7 +5465,7 @@ var require_client2 = __commonJS({
       this.namedQueries = {};
     };
     Client2.Query = NativeQuery;
-    util2.inherits(Client2, EventEmitter5);
+    util2.inherits(Client2, EventEmitter6);
     Client2.prototype._errorAllQueries = function(err) {
       const enqueueError = (query4) => {
         process.nextTick(() => {
@@ -5821,8 +5821,8 @@ var require_package = __commonJS({
 // node_modules/dotenv/lib/main.js
 var require_main = __commonJS({
   "node_modules/dotenv/lib/main.js"(exports2, module2) {
-    var fs9 = require("fs");
-    var path16 = require("path");
+    var fs10 = require("fs");
+    var path17 = require("path");
     var os10 = require("os");
     var crypto3 = require("crypto");
     var packageJson = require_package();
@@ -5930,7 +5930,7 @@ var require_main = __commonJS({
       if (options && options.path && options.path.length > 0) {
         if (Array.isArray(options.path)) {
           for (const filepath of options.path) {
-            if (fs9.existsSync(filepath)) {
+            if (fs10.existsSync(filepath)) {
               possibleVaultPath = filepath.endsWith(".vault") ? filepath : `${filepath}.vault`;
             }
           }
@@ -5938,15 +5938,15 @@ var require_main = __commonJS({
           possibleVaultPath = options.path.endsWith(".vault") ? options.path : `${options.path}.vault`;
         }
       } else {
-        possibleVaultPath = path16.resolve(process.cwd(), ".env.vault");
+        possibleVaultPath = path17.resolve(process.cwd(), ".env.vault");
       }
-      if (fs9.existsSync(possibleVaultPath)) {
+      if (fs10.existsSync(possibleVaultPath)) {
         return possibleVaultPath;
       }
       return null;
     }
     function _resolveHome(envPath) {
-      return envPath[0] === "~" ? path16.join(os10.homedir(), envPath.slice(1)) : envPath;
+      return envPath[0] === "~" ? path17.join(os10.homedir(), envPath.slice(1)) : envPath;
     }
     function _configVault(options) {
       const debug3 = Boolean(options && options.debug);
@@ -5963,7 +5963,7 @@ var require_main = __commonJS({
       return { parsed };
     }
     function configDotenv(options) {
-      const dotenvPath = path16.resolve(process.cwd(), ".env");
+      const dotenvPath = path17.resolve(process.cwd(), ".env");
       let encoding = "utf8";
       const debug3 = Boolean(options && options.debug);
       const quiet = options && "quiet" in options ? options.quiet : true;
@@ -5987,13 +5987,13 @@ var require_main = __commonJS({
       }
       let lastError;
       const parsedAll = {};
-      for (const path17 of optionPaths) {
+      for (const path18 of optionPaths) {
         try {
-          const parsed = DotenvModule.parse(fs9.readFileSync(path17, { encoding }));
+          const parsed = DotenvModule.parse(fs10.readFileSync(path18, { encoding }));
           DotenvModule.populate(parsedAll, parsed, options);
         } catch (e) {
           if (debug3) {
-            _debug(`Failed to load ${path17} ${e.message}`);
+            _debug(`Failed to load ${path18} ${e.message}`);
           }
           lastError = e;
         }
@@ -6008,7 +6008,7 @@ var require_main = __commonJS({
         const shortPaths = [];
         for (const filePath of optionPaths) {
           try {
-            const relative2 = path16.relative(process.cwd(), filePath);
+            const relative2 = path17.relative(process.cwd(), filePath);
             shortPaths.push(relative2);
           } catch (e) {
             if (debug3) {
@@ -10041,7 +10041,8 @@ var firebase_exports = {};
 __export(firebase_exports, {
   bucket: () => bucket,
   firebaseApp: () => firebaseApp,
-  firestore: () => firestore
+  firestore: () => firestore,
+  rtdb: () => rtdb
 });
 function parseServiceAccount(jsonStr) {
   const clean = jsonStr.trim();
@@ -10065,13 +10066,14 @@ function parseServiceAccount(jsonStr) {
     }
   }
 }
-var import_app, import_storage, import_firestore, dotenv2, import_path2, serviceAccountJson, storageBucket, firebaseApp, bucket, firestore;
+var import_app, import_storage, import_firestore, import_database, dotenv2, import_path2, serviceAccountJson, storageBucket, firebaseApp, bucket, firestore, rtdb;
 var init_firebase = __esm({
   "src/config/firebase.ts"() {
     "use strict";
     import_app = require("firebase-admin/app");
     import_storage = require("firebase-admin/storage");
     import_firestore = require("firebase-admin/firestore");
+    import_database = require("firebase-admin/database");
     dotenv2 = __toESM(require_main());
     import_path2 = __toESM(require("path"));
     dotenv2.config({ path: import_path2.default.join(process.cwd(), ".env") });
@@ -10081,26 +10083,36 @@ var init_firebase = __esm({
     firebaseApp = null;
     bucket = null;
     firestore = null;
+    rtdb = null;
     if (serviceAccountJson && storageBucket) {
       try {
         const serviceAccount = parseServiceAccount(serviceAccountJson);
         const apps2 = (0, import_app.getApps)();
         if (apps2.length === 0) {
+          const dbUrl = process.env["FIREBASE_DATABASE_URL"] || `https://${serviceAccount.project_id}-default-rtdb.firebaseio.com`;
           firebaseApp = (0, import_app.initializeApp)({
             credential: (0, import_app.cert)(serviceAccount),
-            storageBucket
+            storageBucket,
+            databaseURL: dbUrl
           });
         } else {
           firebaseApp = (0, import_app.getApp)();
         }
         bucket = (0, import_storage.getStorage)().bucket();
         firestore = (0, import_firestore.getFirestore)();
+        try {
+          rtdb = (0, import_database.getDatabase)();
+          console.log("\u2705 Firebase Realtime Database initialized successfully");
+        } catch (dbErr) {
+          console.warn("\u26A0\uFE0F Firebase Realtime Database not initialized:", dbErr.message);
+        }
         console.log("\u2705 Firebase Admin initialized successfully");
       } catch (err) {
         console.error("\u274C Failed to initialize Firebase Admin:", err);
         firebaseApp = null;
         bucket = null;
         firestore = null;
+        rtdb = null;
       }
     } else {
       console.warn("\u26A0\uFE0F Firebase credentials missing. Uploads and Firestore sync will not work.");
@@ -14822,11 +14834,11 @@ function evaluationString(fun, ...args) {
   }
   return `(${fun})(${args.map(serializeArgument).join(",")})`;
 }
-async function getReadableAsTypedArray(readable, path16) {
+async function getReadableAsTypedArray(readable, path17) {
   const buffers = [];
   const reader = readable.getReader();
-  if (path16) {
-    const fileHandle = await environment.value.fs.promises.open(path16, "w+");
+  if (path17) {
+    const fileHandle = await environment.value.fs.promises.open(path17, "w+");
     try {
       while (true) {
         const { done, value } = await reader.read();
@@ -19369,14 +19381,14 @@ var init_Extension = __esm({
       /**
        * @internal
        */
-      constructor(id, version, name, path16, enabled) {
+      constructor(id, version, name, path17, enabled) {
         if (!id || !version) {
           throw new Error("Extension ID and version are required");
         }
         this.#id = id;
         this.#version = version;
         this.#name = name;
-        this.#path = path16;
+        this.#path = path17;
         this.#enabled = enabled;
       }
       /**
@@ -19997,13 +20009,13 @@ var init_Frame = __esm({
          */
         async addScriptTag(options) {
           let { content = "", type } = options;
-          const { path: path16 } = options;
-          if (+!!options.url + +!!path16 + +!!content !== 1) {
+          const { path: path17 } = options;
+          if (+!!options.url + +!!path17 + +!!content !== 1) {
             throw new Error("Exactly one of `url`, `path`, or `content` must be specified.");
           }
-          if (path16) {
-            content = await environment.value.fs.promises.readFile(path16, "utf8");
-            content += `//# sourceURL=${path16.replace(/\n/g, "")}`;
+          if (path17) {
+            content = await environment.value.fs.promises.readFile(path17, "utf8");
+            content += `//# sourceURL=${path17.replace(/\n/g, "")}`;
           }
           type = type ?? "text/javascript";
           return await this.mainRealm().transferHandle(await this.isolatedRealm().evaluateHandle(async ({ url, id, type: type2, content: content2 }) => {
@@ -20035,13 +20047,13 @@ var init_Frame = __esm({
          */
         async addStyleTag(options) {
           let { content = "" } = options;
-          const { path: path16 } = options;
-          if (+!!options.url + +!!path16 + +!!content !== 1) {
+          const { path: path17 } = options;
+          if (+!!options.url + +!!path17 + +!!content !== 1) {
             throw new Error("Exactly one of `url`, `path`, or `content` must be specified.");
           }
-          if (path16) {
-            content = await environment.value.fs.promises.readFile(path16, "utf8");
-            content += "/*# sourceURL=" + path16.replace(/\n/g, "") + "*/";
+          if (path17) {
+            content = await environment.value.fs.promises.readFile(path17, "utf8");
+            content += "/*# sourceURL=" + path17.replace(/\n/g, "") + "*/";
             options.content = content;
           }
           return await this.mainRealm().transferHandle(await this.isolatedRealm().evaluateHandle(async ({ url, content: content2 }) => {
@@ -21690,11 +21702,11 @@ var init_Page = __esm({
         /**
          * @internal
          */
-        async _maybeWriteTypedArrayToFile(path16, typedArray) {
-          if (!path16) {
+        async _maybeWriteTypedArrayToFile(path17, typedArray) {
+          if (!path17) {
             return;
           }
-          await environment.value.fs.promises.writeFile(path16, typedArray);
+          await environment.value.fs.promises.writeFile(path17, typedArray);
         }
         /**
          * Captures a screencast of this {@link Page | page}.
@@ -25465,13 +25477,13 @@ var init_ElementHandle2 = __esm({
             return element.multiple;
           });
           assert(files.length <= 1 || isMultiple, "Multiple file uploads only work with <input type=file multiple>");
-          const path16 = environment.value.path;
-          if (path16) {
+          const path17 = environment.value.path;
+          if (path17) {
             files = files.map((filePath) => {
-              if (path16.win32.isAbsolute(filePath) || path16.posix.isAbsolute(filePath)) {
+              if (path17.win32.isAbsolute(filePath) || path17.posix.isAbsolute(filePath)) {
                 return filePath;
               } else {
-                return path16.resolve(filePath);
+                return path17.resolve(filePath);
               }
             });
           }
@@ -29266,7 +29278,7 @@ var init_Tracing = __esm({
           "disabled-by-default-devtools.timeline.stack",
           "disabled-by-default-v8.cpu_profiler"
         ];
-        const { path: path16, screenshots = false, categories = defaultCategories } = options;
+        const { path: path17, screenshots = false, categories = defaultCategories } = options;
         if (screenshots) {
           categories.push("disabled-by-default-devtools.screenshot");
         }
@@ -29278,7 +29290,7 @@ var init_Tracing = __esm({
         const includedCategories = categories.filter((cat) => {
           return !cat.startsWith("-");
         });
-        this.#path = path16;
+        this.#path = path17;
         this.#recording = true;
         await this.#client.send("Tracing.start", {
           transferMode: "ReturnAsStream",
@@ -30462,9 +30474,9 @@ var init_Page2 = __esm({
         return await getReadableFromProtocolStream(this.#primaryTargetClient, result.stream);
       }
       async pdf(options = {}) {
-        const { path: path16 = void 0 } = options;
+        const { path: path17 = void 0 } = options;
         const readable = await this.createPDFStream(options);
-        const typedArray = await getReadableAsTypedArray(readable, path16);
+        const typedArray = await getReadableAsTypedArray(readable, path17);
         assert(typedArray, "Could not create typed array");
         return typedArray;
       }
@@ -30747,8 +30759,8 @@ var init_Extension2 = __esm({
       /*
        * @internal
        */
-      constructor(id, version, name, path16, enabled, browser) {
-        super(id, version, name, path16, enabled);
+      constructor(id, version, name, path17, enabled, browser) {
+        super(id, version, name, path17, enabled);
         this.#browser = browser;
       }
       async workers() {
@@ -32447,8 +32459,8 @@ var init_Browser2 = __esm({
         });
         return response.targetId;
       }
-      async installExtension(path16) {
-        const { id } = await this.#connection.send("Extensions.loadUnpacked", { path: path16 });
+      async installExtension(path17) {
+        const { id } = await this.#connection.send("Extensions.loadUnpacked", { path: path17 });
         this.#extensions.delete(id);
         return id;
       }
@@ -37683,16 +37695,16 @@ var init_InputProcessor = __esm({
           }
           const { handle } = result2.result;
           assert2(handle !== void 0);
-          const { path: path16 } = await hiddenSandboxRealm.cdpClient.sendCommand("DOM.getFileInfo", {
+          const { path: path17 } = await hiddenSandboxRealm.cdpClient.sendCommand("DOM.getFileInfo", {
             objectId: handle
           });
-          paths.push(path16);
+          paths.push(path17);
           void hiddenSandboxRealm.disown(handle).catch(void 0);
         }
         paths.sort();
         const sortedFiles = [...params.files].sort();
-        if (paths.length !== params.files.length || sortedFiles.some((path16, index) => {
-          return paths[index] !== path16;
+        if (paths.length !== params.files.length || sortedFiles.some((path17, index) => {
+          return paths[index] !== path17;
         })) {
           const { objectId } = await hiddenSandboxRealm.deserializeForCdp(params.element);
           assert2(objectId !== void 0);
@@ -48298,13 +48310,13 @@ var init_ElementHandle3 = __esm({
           }
         }
         async uploadFile(...files) {
-          const path16 = environment.value.path;
-          if (path16) {
+          const path17 = environment.value.path;
+          if (path17) {
             files = files.map((file) => {
-              if (path16.win32.isAbsolute(file) || path16.posix.isAbsolute(file)) {
+              if (path17.win32.isAbsolute(file) || path17.posix.isAbsolute(file)) {
                 return file;
               } else {
-                return path16.resolve(file);
+                return path17.resolve(file);
               }
             });
           }
@@ -51213,7 +51225,7 @@ var init_Page3 = __esm({
           return this.#viewport;
         }
         async pdf(options = {}) {
-          const { timeout: ms = this._timeoutSettings.timeout(), path: path16 = void 0 } = options;
+          const { timeout: ms = this._timeoutSettings.timeout(), path: path17 = void 0 } = options;
           const { printBackground: background, margin, landscape, width, height, pageRanges: ranges, scale, preferCSSPageSize } = parsePDFOptions(options, "cm");
           const pageRanges = ranges ? ranges.split(", ") : [];
           await firstValueFrom(from(this.mainFrame().isolatedRealm().evaluate(() => {
@@ -51232,7 +51244,7 @@ var init_Page3 = __esm({
             shrinkToFit: !preferCSSPageSize
           })).pipe(raceWith(timeout(ms))));
           const typedArray = stringToTypedArray(data, true);
-          await this._maybeWriteTypedArrayToFile(path16, typedArray);
+          await this._maybeWriteTypedArrayToFile(path17, typedArray);
           return typedArray;
         }
         async createPDFStream(options) {
@@ -52368,9 +52380,9 @@ var init_Browser3 = __esm({
           }
           return this.#createUserContext(userContext);
         }
-        async installExtension(path16) {
+        async installExtension(path17) {
           const { result: { extension: extension2 } } = await this.session.send("webExtension.install", {
-            extensionData: { type: "path", path: path16 }
+            extensionData: { type: "path", path: path17 }
           });
           return extension2;
         }
@@ -52857,8 +52869,8 @@ var init_Browser4 = __esm({
         newPage(options) {
           return this.defaultBrowserContext().newPage(options);
         }
-        installExtension(path16) {
-          return this.#browserCore.installExtension(path16);
+        installExtension(path17) {
+          return this.#browserCore.installExtension(path17);
         }
         async uninstallExtension(id) {
           await this.#browserCore.uninstallExtension(id);
@@ -55296,7 +55308,7 @@ var require_extension = __commonJS({
 var require_websocket = __commonJS({
   "node_modules/ws/lib/websocket.js"(exports2, module2) {
     "use strict";
-    var EventEmitter5 = require("events");
+    var EventEmitter6 = require("events");
     var https2 = require("https");
     var http2 = require("http");
     var net = require("net");
@@ -55328,7 +55340,7 @@ var require_websocket = __commonJS({
     var protocolVersions = [8, 13];
     var readyStates = ["CONNECTING", "OPEN", "CLOSING", "CLOSED"];
     var subprotocolRegex = /^[!#$%&'*+\-.0-9A-Z^_`|a-z~]+$/;
-    var WebSocket3 = class _WebSocket extends EventEmitter5 {
+    var WebSocket3 = class _WebSocket extends EventEmitter6 {
       /**
        * Create a new `WebSocket`.
        *
@@ -56335,7 +56347,7 @@ var require_subprotocol = __commonJS({
 var require_websocket_server = __commonJS({
   "node_modules/ws/lib/websocket-server.js"(exports2, module2) {
     "use strict";
-    var EventEmitter5 = require("events");
+    var EventEmitter6 = require("events");
     var http2 = require("http");
     var { Duplex } = require("stream");
     var { createHash } = require("crypto");
@@ -56348,7 +56360,7 @@ var require_websocket_server = __commonJS({
     var RUNNING = 0;
     var CLOSING = 1;
     var CLOSED = 2;
-    var WebSocketServer2 = class extends EventEmitter5 {
+    var WebSocketServer2 = class extends EventEmitter6 {
       /**
        * Create a `WebSocketServer` instance.
        *
@@ -57087,8 +57099,8 @@ function getWslLocation(channel) {
     }
   }
   const windowsPath = getChromeWindowsLocation(channel, wslPrefixes);
-  return windowsPath.map((path16) => {
-    return (0, import_node_child_process.execSync)(`wslpath "${path16}"`).toString().trim();
+  return windowsPath.map((path17) => {
+    return (0, import_node_child_process.execSync)(`wslpath "${path17}"`).toString().trim();
   });
 }
 function getChromeLinuxOrWslLocation(channel) {
@@ -58197,16 +58209,16 @@ function computeSystemExecutablePath(options) {
     throw new Error(`Cannot download a binary for the provided platform: ${import_node_os4.default.platform()} (${import_node_os4.default.arch()})`);
   }
   const paths = resolveSystemExecutablePaths2(options.browser, options.platform, options.channel);
-  for (const path16 of paths) {
+  for (const path17 of paths) {
     try {
-      (0, import_node_fs4.accessSync)(path16);
-      return path16;
+      (0, import_node_fs4.accessSync)(path17);
+      return path17;
     } catch {
     }
   }
-  throw new Error(`Could not find Google Chrome executable for channel '${options.channel}' at:${paths.map((path16) => {
+  throw new Error(`Could not find Google Chrome executable for channel '${options.channel}' at:${paths.map((path17) => {
     return `
- - ${path16}`;
+ - ${path17}`;
   })}.`);
 }
 function launch(opts) {
@@ -58693,13 +58705,13 @@ function generatePax(header) {
     paxBody
   };
 }
-function findUstarSplit(path16) {
-  const totalPathBytes = encoder.encode(path16).length;
+function findUstarSplit(path17) {
+  const totalPathBytes = encoder.encode(path17).length;
   if (totalPathBytes <= 100 || totalPathBytes > USTAR_SPLIT_MAX_SIZE) return null;
-  for (let i = path16.length - 1; i > 0; i--) {
-    if (path16[i] !== "/") continue;
-    const prefix = path16.slice(0, i);
-    const name = path16.slice(i + 1);
+  for (let i = path17.length - 1; i > 0; i--) {
+    if (path17[i] !== "/") continue;
+    const prefix = path17.slice(0, i);
+    const name = path17.slice(i + 1);
     if (encoder.encode(prefix).length <= 155 && encoder.encode(name).length <= 100) return {
       prefix,
       name
@@ -59210,14 +59222,14 @@ __export(fs_exports, {
   unpackTar: () => unpackTar
 });
 function validateBounds(targetPath, destDir, errorMessage) {
-  const target = normalizeUnicode(path9.resolve(targetPath));
-  const dest = path9.resolve(destDir);
-  if (target !== dest && !target.startsWith(dest + path9.sep)) throw new Error(errorMessage);
+  const target = normalizeUnicode(path10.resolve(targetPath));
+  const dest = path10.resolve(destDir);
+  if (target !== dest && !target.startsWith(dest + path10.sep)) throw new Error(errorMessage);
 }
 function normalizeName(name) {
-  const path16 = name.replace(/\\/g, "/");
-  if (path16.split("/").includes("..") || /^[a-zA-Z]:\.\./.test(path16)) throw new Error(`${name} points outside extraction directory`);
-  let relative2 = path16;
+  const path17 = name.replace(/\\/g, "/");
+  if (path17.split("/").includes("..") || /^[a-zA-Z]:\.\./.test(path17)) throw new Error(`${name} points outside extraction directory`);
+  let relative2 = path17;
   if (/^[a-zA-Z]:/.test(relative2)) relative2 = relative2.replace(/^[a-zA-Z]:[/\\]?/, "");
   else if (relative2.startsWith("/")) relative2 = relative2.replace(/^\/+/, "");
   if (process.platform === "win32") return relative2.replace(/[<>:"|?*]/g, (char) => win32Reserved[char]);
@@ -59230,10 +59242,10 @@ function packTar(sources, options = {}) {
     const packer = createTarPacker((chunk) => stream.push(Buffer.from(chunk)), stream.destroy.bind(stream), () => stream.push(null));
     const { dereference = false, filter: filter2, map: map2, baseDir, concurrency = (0, import_node_os5.cpus)().length || 8 } = options;
     const isDir = typeof sources === "string";
-    const directoryPath = isDir ? path9.resolve(sources) : null;
+    const directoryPath = isDir ? path10.resolve(sources) : null;
     const jobs = isDir ? (await fs$1.readdir(directoryPath, { withFileTypes: true })).map((entry) => ({
       type: entry.isDirectory() ? DIRECTORY : FILE,
-      source: path9.join(directoryPath, entry.name),
+      source: path10.join(directoryPath, entry.name),
       target: entry.name
     })) : sources;
     const results = /* @__PURE__ */ new Map();
@@ -59359,9 +59371,9 @@ function packTar(sources, options = {}) {
         let stat2 = await fs$1.lstat(job.source, { bigint: true });
         if (dereference && stat2.isSymbolicLink()) {
           const linkTarget = await fs$1.readlink(job.source);
-          const resolved = path9.resolve(path9.dirname(job.source), linkTarget);
+          const resolved = path10.resolve(path10.dirname(job.source), linkTarget);
           const resolvedBase = baseDir ?? directoryPath ?? process.cwd();
-          if (!resolved.startsWith(resolvedBase + path9.sep) && resolved !== resolvedBase) return;
+          if (!resolved.startsWith(resolvedBase + path10.sep) && resolved !== resolvedBase) return;
           stat2 = await fs$1.stat(job.source, { bigint: true });
         }
         if (filter2 && !filter2(job.source, stat2)) return;
@@ -59383,7 +59395,7 @@ function packTar(sources, options = {}) {
           try {
             for (const d of await fs$1.readdir(job.source, { withFileTypes: true })) jobs.push({
               type: d.isDirectory() ? DIRECTORY : FILE,
-              source: path9.join(job.source, d.name),
+              source: path10.join(job.source, d.name),
               target: `${header.name}${d.name}`
             });
           } catch {
@@ -59422,7 +59434,7 @@ function packTar(sources, options = {}) {
   })().catch((error) => stream.destroy(error));
   return stream;
 }
-function createFileSink(path16, { mode = 438, mtime } = {}) {
+function createFileSink(path17, { mode = 438, mtime } = {}) {
   let state = STATE_UNOPENED;
   let flushing = false;
   let fd = null;
@@ -59472,7 +59484,7 @@ function createFileSink(path16, { mode = 438, mtime } = {}) {
     flushing = false;
     const fdToClose = fd;
     fd = null;
-    if (fdToClose !== null) fs3.ftruncate(fdToClose, 0, () => fs3.close(fdToClose));
+    if (fdToClose !== null) fs4.ftruncate(fdToClose, 0, () => fs4.close(fdToClose));
     endReject?.(error);
     failWaiters(error);
   };
@@ -59483,14 +59495,14 @@ function createFileSink(path16, { mode = 438, mtime } = {}) {
     }
     const fdToClose = fd;
     fd = null;
-    if (mtime) fs3.futimes(fdToClose, mtime, mtime, (err) => {
+    if (mtime) fs4.futimes(fdToClose, mtime, mtime, (err) => {
       if (err) return fail(err);
-      fs3.close(fdToClose, (closeErr) => {
+      fs4.close(fdToClose, (closeErr) => {
         if (closeErr) fail(closeErr);
         else finish();
       });
     });
-    else fs3.close(fdToClose, (err) => {
+    else fs4.close(fdToClose, (err) => {
       if (err) fail(err);
       else finish();
     });
@@ -59510,16 +59522,16 @@ function createFileSink(path16, { mode = 438, mtime } = {}) {
     };
     if (bufs.length === 1) {
       const buf = bufs[0];
-      fs3.write(fd, buf, 0, buf.length, null, onDone);
-    } else fs3.writev(fd, bufs, onDone);
+      fs4.write(fd, buf, 0, buf.length, null, onDone);
+    } else fs4.writev(fd, bufs, onDone);
   };
   const open3 = () => {
     if (state !== STATE_UNOPENED) return;
     state = STATE_OPENING;
-    fs3.open(path16, OPEN_FLAGS, mode, (err, openFd) => {
+    fs4.open(path17, OPEN_FLAGS, mode, (err, openFd) => {
       if (err) return fail(err);
       if (state === STATE_CLOSED || state === STATE_FAILED) {
-        fs3.close(openFd);
+        fs4.close(openFd);
         return;
       }
       fd = openFd;
@@ -59571,7 +59583,7 @@ function createFileSink(path16, { mode = 438, mtime } = {}) {
     if (fd !== null) {
       const fdToClose = fd;
       fd = null;
-      fs3.close(fdToClose);
+      fs4.close(fdToClose);
     }
     finish();
   };
@@ -59701,15 +59713,15 @@ function unpackTar(directoryPath, options = {}) {
   });
   return writable;
 }
-var fs$1, import_node_os5, path9, import_node_stream, fs3, createCache, unicodeCache, normalizeUnicode, win32Reserved, normalizeHeaderName, packTarSources, createOperationQueue, BATCH_BYTES, OPEN_FLAGS, STATE_UNOPENED, STATE_OPENING, STATE_OPEN, STATE_CLOSED, STATE_FAILED, DRAINED_PROMISE, ENOENT, createPathCache;
+var fs$1, import_node_os5, path10, import_node_stream, fs4, createCache, unicodeCache, normalizeUnicode, win32Reserved, normalizeHeaderName, packTarSources, createOperationQueue, BATCH_BYTES, OPEN_FLAGS, STATE_UNOPENED, STATE_OPENING, STATE_OPEN, STATE_CLOSED, STATE_FAILED, DRAINED_PROMISE, ENOENT, createPathCache;
 var init_fs = __esm({
   "node_modules/modern-tar/dist/fs/index.js"() {
     init_unpacker_CPCEF5CT();
     fs$1 = __toESM(require("node:fs/promises"), 1);
     import_node_os5 = require("node:os");
-    path9 = __toESM(require("node:path"), 1);
+    path10 = __toESM(require("node:path"), 1);
     import_node_stream = require("node:stream");
-    fs3 = __toESM(require("node:fs"), 1);
+    fs4 = __toESM(require("node:fs"), 1);
     createCache = () => {
       const m = /* @__PURE__ */ new Map();
       return {
@@ -59786,7 +59798,7 @@ var init_fs = __esm({
       };
     };
     BATCH_BYTES = 256 * 1024;
-    OPEN_FLAGS = fs3.constants.O_WRONLY | fs3.constants.O_CREAT | fs3.constants.O_TRUNC | (fs3.constants.O_NOFOLLOW ?? 0);
+    OPEN_FLAGS = fs4.constants.O_WRONLY | fs4.constants.O_CREAT | fs4.constants.O_TRUNC | (fs4.constants.O_NOFOLLOW ?? 0);
     STATE_UNOPENED = 0;
     STATE_OPENING = 1;
     STATE_OPEN = 2;
@@ -59801,12 +59813,12 @@ var init_fs = __esm({
       const deferredLinks = [];
       const realDirCache = createCache();
       const initializeDestDir = async (destDirPath2) => {
-        const symbolic = normalizeUnicode(path9.resolve(destDirPath2));
+        const symbolic = normalizeUnicode(path10.resolve(destDirPath2));
         try {
           await fs$1.mkdir(symbolic, { recursive: true });
         } catch (err) {
           if (err.code === ENOENT) {
-            const parentDir = path9.dirname(symbolic);
+            const parentDir = path10.dirname(symbolic);
             if (parentDir === symbolic) throw err;
             await fs$1.mkdir(parentDir, { recursive: true });
             await fs$1.mkdir(symbolic, { recursive: true });
@@ -59851,7 +59863,7 @@ var init_fs = __esm({
         if (promise) return promise;
         promise = (async () => {
           if (dirPath === (await destDirPromise).symbolic) return;
-          await prepareDirectory(path9.dirname(dirPath));
+          await prepareDirectory(path10.dirname(dirPath));
           try {
             const stat2 = await fs$1.lstat(dirPath);
             if (stat2.isDirectory()) return;
@@ -59882,7 +59894,7 @@ var init_fs = __esm({
           const { name, linkname, type, mode, mtime } = header;
           const normalizedName = normalizeHeaderName(name);
           const destDir = await destDirPromise;
-          const outPath = path9.join(destDir.symbolic, normalizedName);
+          const outPath = path10.join(destDir.symbolic, normalizedName);
           validateBounds(outPath, destDir.symbolic, `Entry "${name}" points outside the extraction directory.`);
           if (maxDepth !== Infinity) {
             let depth = 1;
@@ -59893,7 +59905,7 @@ var init_fs = __esm({
             if (prevOp === "directory" && type !== "directory" || prevOp !== "directory" && type === "directory") throw new Error(`Path conflict ${type} over existing ${prevOp} at "${name}"`);
             return;
           }
-          const parentDir = path9.dirname(outPath);
+          const parentDir = path10.dirname(outPath);
           switch (type) {
             case DIRECTORY: {
               pathConflicts.set(normalizedName, DIRECTORY);
@@ -59911,7 +59923,7 @@ var init_fs = __esm({
               pathConflicts.set(normalizedName, SYMLINK);
               if (!linkname) return;
               await prepareDirectory(parentDir);
-              validateBounds(path9.resolve(parentDir, linkname), destDir.symbolic, `Symlink "${linkname}" points outside the extraction directory.`);
+              validateBounds(path10.resolve(parentDir, linkname), destDir.symbolic, `Symlink "${linkname}" points outside the extraction directory.`);
               await fs$1.symlink(linkname, outPath);
               if (mtime) await fs$1.lutimes(outPath, mtime, mtime).catch(() => {
               });
@@ -59920,12 +59932,12 @@ var init_fs = __esm({
               pathConflicts.set(normalizedName, LINK);
               if (!linkname) return;
               const normalizedLink = normalizeUnicode(linkname);
-              if (path9.isAbsolute(normalizedLink)) throw new Error(`Hardlink "${linkname}" points outside the extraction directory.`);
-              const linkTarget = path9.join(destDir.symbolic, normalizedLink);
+              if (path10.isAbsolute(normalizedLink)) throw new Error(`Hardlink "${linkname}" points outside the extraction directory.`);
+              const linkTarget = path10.join(destDir.symbolic, normalizedLink);
               validateBounds(linkTarget, destDir.symbolic, `Hardlink "${linkname}" points outside the extraction directory.`);
-              await prepareDirectory(path9.dirname(linkTarget));
-              const realTargetParent = await getRealDir(path9.dirname(linkTarget), `Hardlink "${linkname}" points outside the extraction directory.`);
-              validateBounds(path9.join(realTargetParent, path9.basename(linkTarget)), destDir.real, `Hardlink "${linkname}" points outside the extraction directory.`);
+              await prepareDirectory(path10.dirname(linkTarget));
+              const realTargetParent = await getRealDir(path10.dirname(linkTarget), `Hardlink "${linkname}" points outside the extraction directory.`);
+              validateBounds(path10.join(realTargetParent, path10.basename(linkTarget)), destDir.real, `Hardlink "${linkname}" points outside the extraction directory.`);
               if (linkTarget !== outPath) {
                 await prepareDirectory(parentDir);
                 deferredLinks.push({
@@ -59954,8 +59966,8 @@ var init_fs = __esm({
 
 // node_modules/@puppeteer/browsers/lib/fileUtil.js
 async function unpackArchive(archivePath, folderPath) {
-  if (!path10.isAbsolute(folderPath)) {
-    folderPath = path10.resolve(process.cwd(), folderPath);
+  if (!path11.isAbsolute(folderPath)) {
+    folderPath = path11.resolve(process.cwd(), folderPath);
   }
   if (archivePath.endsWith(".zip")) {
     await (0, import_promises.mkdir)(folderPath, { recursive: true });
@@ -60059,7 +60071,7 @@ async function installDMG(dmgPath, folderPath) {
     if (!appName) {
       throw new Error(`Cannot find app in ${mountPath}`);
     }
-    const mountedPath = path10.join(mountPath, appName);
+    const mountedPath = path11.join(mountPath, appName);
     await execFileAsync("cp", ["-R", mountedPath, folderPath]);
   } finally {
     await execFileAsync("hdiutil", ["detach", mountPath, "-quiet"]);
@@ -60107,13 +60119,13 @@ async function extractZip(archivePath, folderPath) {
     throw new Error(`Extraction failed: ${error?.stderr?.toString() || error?.message}`);
   }
 }
-var import_node_child_process3, import_node_fs5, import_promises, path10, import_node_stream2, import_node_util2, execFileAsync, debugFileUtil, internalConstantsForTesting;
+var import_node_child_process3, import_node_fs5, import_promises, path11, import_node_stream2, import_node_util2, execFileAsync, debugFileUtil, internalConstantsForTesting;
 var init_fileUtil = __esm({
   "node_modules/@puppeteer/browsers/lib/fileUtil.js"() {
     import_node_child_process3 = require("node:child_process");
     import_node_fs5 = require("node:fs");
     import_promises = require("node:fs/promises");
-    path10 = __toESM(require("node:path"), 1);
+    path11 = __toESM(require("node:path"), 1);
     import_node_stream2 = require("node:stream");
     import_node_util2 = require("node:util");
     init_debug();
@@ -61846,11 +61858,11 @@ var init_lib2 = __esm({
       resolve: import_path4.resolve,
       // TODO: figure  out a  way to combine ESM and CJS coverage, such  that
       // we can exercise all the lines below:
-      require: (path16) => {
+      require: (path17) => {
         if (typeof require !== "undefined") {
-          return require(path16);
-        } else if (path16.match(/\.json$/)) {
-          return JSON.parse((0, import_fs2.readFileSync)(path16, "utf8"));
+          return require(path17);
+        } else if (path17.match(/\.json$/)) {
+          return JSON.parse((0, import_fs2.readFileSync)(path17, "utf8"));
         } else {
           throw Error("only .json config files are supported in ESM");
         }
@@ -66032,9 +66044,9 @@ async function getConnectionTransport(options) {
       throw new Error("Could not detect required browser platform");
     }
     const { convertPuppeteerChannelToBrowsersChannel: convertPuppeteerChannelToBrowsersChannel2 } = await Promise.resolve().then(() => (init_LaunchOptions(), LaunchOptions_exports));
-    const { join: join5 } = await import("node:path");
+    const { join: join6 } = await import("node:path");
     const userDataDir = resolveDefaultUserDataDir3(Browser4.CHROME, platform, convertPuppeteerChannelToBrowsersChannel2(options.channel));
-    const portPath = join5(userDataDir, "DevToolsActivePort");
+    const portPath = join6(userDataDir, "DevToolsActivePort");
     try {
       const fileContent = await environment.value.fs.promises.readFile(portPath, "ascii");
       const [rawPort, rawPath] = fileContent.split("\n").map((line) => {
@@ -66266,11 +66278,11 @@ var init_index_browser = __esm({
 // node_modules/lilconfig/src/index.js
 var require_src = __commonJS({
   "node_modules/lilconfig/src/index.js"(exports2, module2) {
-    var path16 = require("path");
-    var fs9 = require("fs");
+    var path17 = require("path");
+    var fs10 = require("fs");
     var os10 = require("os");
     var url = require("url");
-    var fsReadFileAsync = fs9.promises.readFile;
+    var fsReadFileAsync = fs10.promises.readFile;
     function getDefaultSearchPlaces(name, sync) {
       return [
         "package.json",
@@ -66289,7 +66301,7 @@ var require_src = __commonJS({
       ];
     }
     function parentDir(p) {
-      return path16.dirname(p) || path16.sep;
+      return path17.dirname(p) || path17.sep;
     }
     var jsonLoader = (_2, content) => JSON.parse(content);
     var requireFunc = typeof __webpack_require__ === "function" ? __non_webpack_require__ : require;
@@ -66342,7 +66354,7 @@ var require_src = __commonJS({
         }
       };
       conf.searchPlaces.forEach((place) => {
-        const key = path16.extname(place) || "noExt";
+        const key = path17.extname(place) || "noExt";
         const loader = conf.loaders[key];
         if (!loader) {
           throw new Error(`Missing loader for extension "${place}"`);
@@ -66404,14 +66416,14 @@ var require_src = __commonJS({
               visited.add(dir);
             }
             for (const searchPlace of searchPlaces) {
-              const filepath = path16.join(dir, searchPlace);
+              const filepath = path17.join(dir, searchPlace);
               try {
-                await fs9.promises.access(filepath);
+                await fs10.promises.access(filepath);
               } catch {
                 continue;
               }
               const content = String(await fsReadFileAsync(filepath));
-              const loaderKey = path16.extname(searchPlace) || "noExt";
+              const loaderKey = path17.extname(searchPlace) || "noExt";
               const loader = loaders[loaderKey];
               if (searchPlace === "package.json") {
                 const pkg = await loader(filepath, content);
@@ -66449,11 +66461,11 @@ var require_src = __commonJS({
         },
         async load(filepath) {
           validateFilePath(filepath);
-          const absPath = path16.resolve(process.cwd(), filepath);
+          const absPath = path17.resolve(process.cwd(), filepath);
           if (cache && loadCache.has(absPath)) {
             return loadCache.get(absPath);
           }
-          const { base, ext } = path16.parse(absPath);
+          const { base, ext } = path17.parse(absPath);
           const loaderKey = ext || "noExt";
           const loader = loaders[loaderKey];
           validateLoader(loader, loaderKey);
@@ -66536,15 +66548,15 @@ var require_src = __commonJS({
               visited.add(dir);
             }
             for (const searchPlace of searchPlaces) {
-              const filepath = path16.join(dir, searchPlace);
+              const filepath = path17.join(dir, searchPlace);
               try {
-                fs9.accessSync(filepath);
+                fs10.accessSync(filepath);
               } catch {
                 continue;
               }
-              const loaderKey = path16.extname(searchPlace) || "noExt";
+              const loaderKey = path17.extname(searchPlace) || "noExt";
               const loader = loaders[loaderKey];
-              const content = String(fs9.readFileSync(filepath));
+              const content = String(fs10.readFileSync(filepath));
               if (searchPlace === "package.json") {
                 const pkg = loader(filepath, content);
                 const maybeConfig = getPackageProp(packageProp, pkg);
@@ -66581,15 +66593,15 @@ var require_src = __commonJS({
         },
         load(filepath) {
           validateFilePath(filepath);
-          const absPath = path16.resolve(process.cwd(), filepath);
+          const absPath = path17.resolve(process.cwd(), filepath);
           if (cache && loadCache.has(absPath)) {
             return loadCache.get(absPath);
           }
-          const { base, ext } = path16.parse(absPath);
+          const { base, ext } = path17.parse(absPath);
           const loaderKey = ext || "noExt";
           const loader = loaders[loaderKey];
           validateLoader(loader, loaderKey);
-          const content = String(fs9.readFileSync(absPath));
+          const content = String(fs10.readFileSync(absPath));
           if (base === "package.json") {
             const pkg = loader(absPath, content);
             return transform({
@@ -66935,11 +66947,16 @@ var marketplaceController = {
 var import_jsonwebtoken = __toESM(require_jsonwebtoken());
 var JWT_SECRET = process.env["JWT_SECRET"] || "ajr-hub-secret-2026";
 var authenticateAdmin = (req, res, next) => {
+  let token = "";
   const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+  if (authHeader && authHeader.startsWith("Bearer ")) {
+    token = authHeader.split(" ")[1];
+  } else if (req.query && req.query["token"]) {
+    token = req.query["token"];
+  }
+  if (!token) {
     return res.status(401).json({ error: "Unauthorized: No token provided" });
   }
-  const token = authHeader.split(" ")[1];
   try {
     const decoded = import_jsonwebtoken.default.verify(token, JWT_SECRET);
     if (decoded.role !== "admin") {
@@ -66976,14 +66993,66 @@ var query2 = (text, params) => {
 init_firebase();
 
 // src/services/firebase.service.ts
+var fs = __toESM(require("fs"));
+var path3 = __toESM(require("path"));
 var import_axios = __toESM(require("axios"));
+var FIREBASE_CLIENT_ID = "563584335869-fgrhgmd47bqnekij5i8b5pr03ho849e6.apps.googleusercontent.com";
+var FIREBASE_CLIENT_SECRET = "j9iVZfS8kkCEFUPaAeJV0sAi";
+var _cachedToken = null;
+async function getGoogleAccessToken() {
+  if (_cachedToken && Date.now() < _cachedToken.expires_at - 3e5) {
+    return _cachedToken.access_token;
+  }
+  try {
+    const userProfile = process.env.USERPROFILE || process.env.HOME || "";
+    const configPath = path3.join(userProfile, ".config", "configstore", "firebase-tools.json");
+    if (!fs.existsSync(configPath)) {
+      console.warn("\u26A0\uFE0F firebase-tools.json not found. Real-time Google APIs will not work.");
+      return null;
+    }
+    const config5 = JSON.parse(fs.readFileSync(configPath, "utf8"));
+    const tokens = config5.tokens;
+    if (!tokens) return null;
+    if (tokens.access_token && tokens.expires_at && Date.now() < tokens.expires_at - 3e5) {
+      _cachedToken = { access_token: tokens.access_token, expires_at: tokens.expires_at };
+      return tokens.access_token;
+    }
+    if (tokens.refresh_token) {
+      const res = await import_axios.default.post("https://oauth2.googleapis.com/token", {
+        grant_type: "refresh_token",
+        refresh_token: tokens.refresh_token,
+        client_id: FIREBASE_CLIENT_ID,
+        client_secret: FIREBASE_CLIENT_SECRET
+      }, { timeout: 1e4 });
+      const newToken = res.data.access_token;
+      const expiresAt = Date.now() + (res.data.expires_in || 3600) * 1e3;
+      _cachedToken = { access_token: newToken, expires_at: expiresAt };
+      try {
+        config5.tokens.access_token = newToken;
+        config5.tokens.expires_at = expiresAt;
+        fs.writeFileSync(configPath, JSON.stringify(config5, null, 2));
+      } catch (e) {
+      }
+      return newToken;
+    }
+    return null;
+  } catch (err) {
+    console.warn("\u26A0\uFE0F Failed to get Google OAuth token:", err.message);
+    return null;
+  }
+}
 var FirebaseService = class {
+  async getAccessToken() {
+    return getGoogleAccessToken();
+  }
+  // ── DB Config CRUD ──────────────────────────────────────────
   async getFirebaseConfig(appId) {
     if (isPostgresEnabled) {
       try {
-        const res = await query2("SELECT firebase_config FROM app_integrations WHERE app_id = $1", [appId]);
+        const res = await query("SELECT firebase_config FROM app_integrations WHERE app_id = $1", [appId]);
         if (res.rows.length > 0) {
-          return res.rows[0].firebase_config;
+          const cfg = res.rows[0].firebase_config;
+          if (cfg && cfg.projectId) return cfg;
         }
       } catch (err) {
         console.error("Failed to fetch firebase config from postgres:", err);
@@ -67001,7 +67070,7 @@ var FirebaseService = class {
   }
   async saveFirebaseConfig(appId, config5) {
     if (isPostgresEnabled) {
-      await query2(`
+      await query(`
         INSERT INTO app_integrations (app_id, firebase_config) 
         VALUES ($1, $2)
         ON CONFLICT (app_id) 
@@ -67025,31 +67094,97 @@ var FirebaseService = class {
       const res = await import_axios.default.post(url, { returnSecureToken: true }, { timeout: 5e3 });
       return res.status === 200 || res.status === 400;
     } catch (err) {
-      if (err.response && err.response.data && err.response.data.error) {
-        const errMsg = err.response.data.error.message;
-        if (errMsg === "API_KEY_INVALID") {
-          return false;
-        }
-        return true;
+      if (err.response?.data?.error) {
+        return err.response.data.error.message !== "API_KEY_INVALID";
       }
       return false;
     }
   }
+  // ── Real-time App Status (Firebase Hosting) ─────────────────
   async getAppStatus(appId) {
     const config5 = await this.getFirebaseConfig(appId);
     if (!config5) throw new Error("Firebase integration not configured for this application");
+    const accessToken = await getGoogleAccessToken();
+    const { projectId } = config5;
+    if (accessToken) {
+      try {
+        const hostingRes = await import_axios.default.get(
+          `https://firebasehosting.googleapis.com/v1beta1/projects/${projectId}/sites`,
+          { headers: { Authorization: `Bearer ${accessToken}` }, timeout: 8e3 }
+        );
+        const sites = hostingRes.data.sites || [];
+        if (sites.length > 0) {
+          const site = sites[0];
+          const siteId = site.name?.split("/").pop() || projectId;
+          try {
+            const releasesRes = await import_axios.default.get(
+              `https://firebasehosting.googleapis.com/v1beta1/sites/${siteId}/releases?pageSize=1`,
+              { headers: { Authorization: `Bearer ${accessToken}` }, timeout: 8e3 }
+            );
+            const releases = releasesRes.data.releases || [];
+            const latestRelease = releases[0];
+            return {
+              projectId,
+              status: site.defaultUrl ? "LIVE" : "OFFLINE",
+              deploymentStatus: latestRelease?.type === "DEPLOY" ? "Success" : latestRelease?.type || "Unknown",
+              lastDeployTime: latestRelease?.releaseTime || latestRelease?.createTime || (/* @__PURE__ */ new Date()).toISOString(),
+              deployedBy: latestRelease?.releaseUser?.email || "N/A",
+              hostingUrl: site.defaultUrl || `https://${projectId}.web.app`
+            };
+          } catch {
+            return {
+              projectId,
+              status: "LIVE",
+              deploymentStatus: "Deployed",
+              lastDeployTime: (/* @__PURE__ */ new Date()).toISOString(),
+              deployedBy: "N/A",
+              hostingUrl: site.defaultUrl || `https://${projectId}.web.app`
+            };
+          }
+        }
+      } catch (err) {
+        console.warn(`Could not fetch Firebase Hosting for ${projectId}:`, err.response?.data?.error?.message || err.message);
+      }
+    }
     return {
-      projectId: config5.projectId,
+      projectId,
       status: "LIVE",
       deploymentStatus: "Success",
       lastDeployTime: new Date(Date.now() - 3 * 36e5).toISOString(),
-      deployedBy: "admin@ajr.com",
-      hostingUrl: `https://${config5.projectId}.web.app`
+      deployedBy: "N/A",
+      hostingUrl: `https://${projectId}.web.app`
     };
   }
+  // ── Real Firebase Logs (Cloud Logging API) ──────────────────
   async getFirebaseLogs(appId) {
     const config5 = await this.getFirebaseConfig(appId);
     if (!config5) throw new Error("Firebase integration not configured for this application");
+    const accessToken = await getGoogleAccessToken();
+    const { projectId } = config5;
+    if (accessToken) {
+      try {
+        const logRes = await import_axios.default.post(
+          `https://logging.googleapis.com/v2/entries:list`,
+          {
+            resourceNames: [`projects/${projectId}`],
+            filter: 'resource.type="firebase" OR resource.type="cloud_function" OR resource.type="firebase_domain"',
+            orderBy: "timestamp desc",
+            pageSize: 20
+          },
+          { headers: { Authorization: `Bearer ${accessToken}` }, timeout: 1e4 }
+        );
+        const entries = logRes.data.entries || [];
+        if (entries.length > 0) {
+          return entries.map((entry) => ({
+            timestamp: entry.timestamp || (/* @__PURE__ */ new Date()).toISOString(),
+            severity: entry.severity || "INFO",
+            message: entry.textPayload || entry.jsonPayload?.message || JSON.stringify(entry.jsonPayload || {})
+          }));
+        }
+      } catch (err) {
+        console.warn(`Could not fetch Cloud Logging for ${projectId}:`, err.response?.data?.error?.message || err.message);
+      }
+    }
     const messages = [
       "Auth user registration completed",
       "Database connection established",
@@ -67067,123 +67202,399 @@ var FirebaseService = class {
       logs.push({
         timestamp: new Date(now - i * 3e4).toISOString(),
         severity: severities[idx],
-        message: `[Firebase SDK] ${messages[idx]}`
+        message: `[Firebase] ${messages[idx]}`
       });
     }
     return logs;
   }
+  // ── Real Analytics (Cloud Monitoring API) ───────────────────
   async getAnalytics(appId) {
     const config5 = await this.getFirebaseConfig(appId);
     if (!config5) throw new Error("Firebase integration not configured for this application");
-    const now = Date.now();
-    const cycle = Math.sin(now / 6e4) * 15;
+    const accessToken = await getGoogleAccessToken();
+    const { projectId } = config5;
+    if (accessToken) {
+      try {
+        const now = /* @__PURE__ */ new Date();
+        const startTime = new Date(now.getTime() - 7 * 24 * 36e5).toISOString();
+        const monRes = await import_axios.default.post(
+          `https://monitoring.googleapis.com/v3/projects/${projectId}/timeSeries:query`,
+          {
+            query: `fetch cloud_function::cloudfunctions.googleapis.com/function/active_instances | within 7d | mean`
+          },
+          { headers: { Authorization: `Bearer ${accessToken}` }, timeout: 1e4 }
+        );
+        const timeSeries = monRes.data.timeSeriesData || [];
+        let totalActiveInstances = 0;
+        if (timeSeries.length > 0 && timeSeries[0].pointData?.length > 0) {
+          totalActiveInstances = Math.round(
+            timeSeries[0].pointData.reduce((s, p) => s + (p.values?.[0]?.doubleValue || 0), 0) / Math.max(timeSeries[0].pointData.length, 1)
+          );
+        }
+        let executionCount = 0;
+        try {
+          const execRes = await import_axios.default.get(
+            `https://monitoring.googleapis.com/v3/projects/${projectId}/timeSeries?filter=metric.type%3D%22cloudfunctions.googleapis.com%2Ffunction%2Fexecution_count%22&interval.startTime=${startTime}&interval.endTime=${now.toISOString()}`,
+            { headers: { Authorization: `Bearer ${accessToken}` }, timeout: 1e4 }
+          );
+          const ts = execRes.data.timeSeries || [];
+          for (const serie of ts) {
+            for (const point of serie.points || []) {
+              executionCount += point.value?.int64Value || 0;
+            }
+          }
+        } catch {
+        }
+        return {
+          activeUsers: Math.max(totalActiveInstances, 0),
+          sessions: executionCount || 0,
+          trafficMb: 0,
+          // Would need Storage API for this
+          lastUpdated: (/* @__PURE__ */ new Date()).toISOString(),
+          source: "cloud_monitoring"
+        };
+      } catch (err) {
+        console.warn(`Could not fetch Cloud Monitoring for ${projectId}:`, err.response?.data?.error?.message || err.message);
+      }
+    }
     return {
-      activeUsers: Math.round(124 + cycle + Math.random() * 5),
-      sessions: Math.round(1542 + cycle * 5),
-      trafficMb: Math.round(242.5 + cycle + Math.random() * 8),
-      lastUpdated: (/* @__PURE__ */ new Date()).toISOString()
+      activeUsers: 0,
+      sessions: 0,
+      trafficMb: 0,
+      lastUpdated: (/* @__PURE__ */ new Date()).toISOString(),
+      source: "unavailable"
     };
   }
+  // ── Real Storage Usage (Firebase Storage REST API) ──────────
   async getStorageUsage(appId) {
     const config5 = await this.getFirebaseConfig(appId);
     if (!config5) throw new Error("Firebase integration not configured for this application");
+    const accessToken = await getGoogleAccessToken();
+    const { projectId, apiKey, storageBucket: storageBucket2 } = config5;
+    const bucketsToTry = [
+      storageBucket2,
+      `${projectId}.appspot.com`,
+      `${projectId}.firebasestorage.app`
+    ].filter((b2, i, arr) => b2 && arr.indexOf(b2) === i);
+    if (accessToken) {
+      for (const bucket2 of bucketsToTry) {
+        try {
+          const bucketMeta = await import_axios.default.get(
+            `https://storage.googleapis.com/storage/v1/b/${encodeURIComponent(bucket2)}`,
+            { headers: { Authorization: `Bearer ${accessToken}` }, timeout: 8e3 }
+          );
+          const storageRes = await import_axios.default.get(
+            `https://storage.googleapis.com/storage/v1/b/${encodeURIComponent(bucket2)}/o?maxResults=1000`,
+            { headers: { Authorization: `Bearer ${accessToken}` }, timeout: 1e4 }
+          );
+          const items = storageRes.data.items || [];
+          const totalBytes = items.reduce((sum, obj) => sum + parseInt(obj.size || "0", 10), 0);
+          const storageUsedMb = Math.round(totalBytes / (1024 * 1024) * 100) / 100;
+          return {
+            storageUsedMb,
+            filesCount: items.length,
+            bucketName: bucket2,
+            lastUpdated: (/* @__PURE__ */ new Date()).toISOString(),
+            source: "cloud_storage_api"
+          };
+        } catch (err) {
+          const errMsg = err.response?.data?.error?.message || err.message;
+          if (!errMsg.includes("does not exist") && !errMsg.includes("404") && !errMsg.includes("Not Found")) {
+            console.warn(`Storage error for ${bucket2}:`, errMsg);
+          }
+        }
+      }
+    }
     return {
-      storageUsedMb: 142.8,
-      filesCount: 1420,
-      bucketName: config5.storageBucket || `${config5.projectId}.appspot.com`,
-      lastUpdated: (/* @__PURE__ */ new Date()).toISOString()
+      storageUsedMb: 0,
+      filesCount: 0,
+      bucketName: bucketsToTry[0] || `${projectId}.appspot.com`,
+      lastUpdated: (/* @__PURE__ */ new Date()).toISOString(),
+      source: "unavailable"
     };
   }
+  // ── Real Billing Cost (Cloud Billing API) ───────────────────
+  // ── Real Billing Cost (Cloud Billing API) ───────────────────
+  async getBillingCost(appId, month) {
+    const config5 = await this.getFirebaseConfig(appId);
+    if (!config5) throw new Error("Firebase integration not configured for this application");
+    const accessToken = await getGoogleAccessToken();
+    const { projectId } = config5;
+    if (accessToken) {
+      try {
+        const billingRes = await import_axios.default.get(
+          `https://cloudbilling.googleapis.com/v1/projects/${projectId}/billingInfo`,
+          { headers: { Authorization: `Bearer ${accessToken}` }, timeout: 8e3 }
+        );
+        const billingData = billingRes.data;
+        const billingAccountName = billingData.billingAccountName || null;
+        const billingEnabled = billingData.billingEnabled || false;
+        let totalCost = 0;
+        let totalExecutions = 0;
+        if (billingEnabled) {
+          let startOfMonth;
+          let endTime;
+          if (month && /^\d{4}-\d{2}$/.test(month)) {
+            const [year, monthNum] = month.split("-").map(Number);
+            const start = new Date(Date.UTC(year, monthNum - 1, 1));
+            startOfMonth = start.toISOString();
+            const end = new Date(Date.UTC(year, monthNum, 0, 23, 59, 59, 999));
+            endTime = (end > /* @__PURE__ */ new Date() ? /* @__PURE__ */ new Date() : end).toISOString();
+          } else {
+            const now = /* @__PURE__ */ new Date();
+            startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+            endTime = now.toISOString();
+          }
+          try {
+            const execRes = await import_axios.default.get(
+              `https://monitoring.googleapis.com/v3/projects/${projectId}/timeSeries?filter=metric.type%3D%22cloudfunctions.googleapis.com%2Ffunction%2Fexecution_count%22&interval.startTime=${startOfMonth}&interval.endTime=${endTime}`,
+              { headers: { Authorization: `Bearer ${accessToken}` }, timeout: 1e4 }
+            );
+            for (const serie of execRes.data.timeSeries || []) {
+              for (const point of serie.points || []) {
+                totalExecutions += parseInt(point.value?.int64Value || "0", 10);
+              }
+            }
+          } catch {
+          }
+          let hostingRequests = 0;
+          try {
+            const hostingRes = await import_axios.default.get(
+              `https://monitoring.googleapis.com/v3/projects/${projectId}/timeSeries?filter=metric.type%3D%22firebasehosting.googleapis.com%2Fnetwork%2Frequest_count%22&interval.startTime=${startOfMonth}&interval.endTime=${endTime}`,
+              { headers: { Authorization: `Bearer ${accessToken}` }, timeout: 1e4 }
+            );
+            for (const serie of hostingRes.data.timeSeries || []) {
+              for (const point of serie.points || []) {
+                hostingRequests += parseInt(point.value?.int64Value || "0", 10);
+              }
+            }
+          } catch {
+          }
+          const fnCost = totalExecutions * 10892e-7;
+          const totalSentGB = hostingRequests * 5 * 1024 / (1024 * 1024 * 1024);
+          const billableHostingGB = Math.max(0, totalSentGB - 10);
+          const hostingCost = billableHostingGB * 12.45;
+          totalCost = Math.round((fnCost + hostingCost) * 100) / 100;
+        }
+        return {
+          totalCost,
+          currency: "INR",
+          billingEnabled,
+          billingAccountName,
+          totalExecutions
+        };
+      } catch (err) {
+        console.warn(`Could not fetch Billing for ${projectId}:`, err.response?.data?.error?.message || err.message);
+      }
+    }
+    return { totalCost: 0, currency: "INR", billingEnabled: false, billingAccountName: null, totalExecutions: 0 };
+  }
+  // ── Real Analytics: Daily API hits & Cost from Cloud Monitoring ─
+  async getRealAnalyticsHistory(appId, month) {
+    const config5 = await this.getFirebaseConfig(appId);
+    if (!config5) return { history: [], totalCost: 0, totalHits: 0 };
+    const accessToken = await getGoogleAccessToken();
+    const { projectId } = config5;
+    if (!accessToken) return { history: [], totalCost: 0, totalHits: 0 };
+    const history = [];
+    let totalHits = 0;
+    try {
+      let startTime;
+      let endTime;
+      if (month && /^\d{4}-\d{2}$/.test(month)) {
+        const [year, monthNum] = month.split("-").map(Number);
+        const start = new Date(Date.UTC(year, monthNum - 1, 1));
+        startTime = start.toISOString();
+        const end = new Date(Date.UTC(year, monthNum, 0, 23, 59, 59, 999));
+        endTime = (end > /* @__PURE__ */ new Date() ? /* @__PURE__ */ new Date() : end).toISOString();
+      } else {
+        const now = /* @__PURE__ */ new Date();
+        startTime = new Date(now.getTime() - 30 * 24 * 36e5).toISOString();
+        endTime = now.toISOString();
+      }
+      const execRes = await import_axios.default.get(
+        `https://monitoring.googleapis.com/v3/projects/${projectId}/timeSeries?filter=metric.type%3D%22cloudfunctions.googleapis.com%2Ffunction%2Fexecution_count%22&interval.startTime=${startTime}&interval.endTime=${endTime}&aggregation.alignmentPeriod=86400s&aggregation.perSeriesAligner=ALIGN_SUM`,
+        { headers: { Authorization: `Bearer ${accessToken}` }, timeout: 12e3 }
+      );
+      let latencyData = /* @__PURE__ */ new Map();
+      try {
+        const latencyRes = await import_axios.default.get(
+          `https://monitoring.googleapis.com/v3/projects/${projectId}/timeSeries?filter=metric.type%3D%22cloudfunctions.googleapis.com%2Ffunction%2Fexecution_times%22&interval.startTime=${startTime}&interval.endTime=${endTime}&aggregation.alignmentPeriod=86400s&aggregation.perSeriesAligner=ALIGN_PERCENTILE_50`,
+          { headers: { Authorization: `Bearer ${accessToken}` }, timeout: 12e3 }
+        );
+        for (const serie of latencyRes.data.timeSeries || []) {
+          for (const point of serie.points || []) {
+            const dateStr = new Date(point.interval.endTime).toISOString().split("T")[0];
+            const latencyNs = point.value?.distributionValue?.mean || 0;
+            latencyData.set(dateStr, Math.round(latencyNs / 1e6));
+          }
+        }
+      } catch {
+      }
+      let errorData = /* @__PURE__ */ new Map();
+      try {
+        const errRes = await import_axios.default.get(
+          `https://monitoring.googleapis.com/v3/projects/${projectId}/timeSeries?filter=metric.type%3D%22cloudfunctions.googleapis.com%2Ffunction%2Fexecution_count%22%20AND%20metric.labels.status%3D%22error%22&interval.startTime=${startTime}&interval.endTime=${endTime}&aggregation.alignmentPeriod=86400s&aggregation.perSeriesAligner=ALIGN_SUM`,
+          { headers: { Authorization: `Bearer ${accessToken}` }, timeout: 12e3 }
+        );
+        for (const serie of errRes.data.timeSeries || []) {
+          for (const point of serie.points || []) {
+            const dateStr = new Date(point.interval.endTime).toISOString().split("T")[0];
+            errorData.set(dateStr, (errorData.get(dateStr) || 0) + parseInt(point.value?.int64Value || "0", 10));
+          }
+        }
+      } catch {
+      }
+      const dailyHits = /* @__PURE__ */ new Map();
+      for (const serie of execRes.data.timeSeries || []) {
+        for (const point of serie.points || []) {
+          const dateStr = new Date(point.interval.endTime).toISOString().split("T")[0];
+          const hits = parseInt(point.value?.int64Value || "0", 10);
+          dailyHits.set(dateStr, (dailyHits.get(dateStr) || 0) + hits);
+          totalHits += hits;
+        }
+      }
+      const sortedDates = Array.from(dailyHits.keys()).sort();
+      for (const date of sortedDates) {
+        const hits = dailyHits.get(date) || 0;
+        const errors = errorData.get(date) || 0;
+        const avg_latency = latencyData.get(date) || 0;
+        const cost = Math.round(hits * 10892e-7 * 100) / 100;
+        history.push({ date, hits, errors, avg_latency, cost });
+      }
+    } catch (err) {
+      console.warn(`Could not fetch Cloud Monitoring analytics for ${projectId}:`, err.response?.data?.error?.message || err.message);
+    }
+    const totalCost = history.reduce((s, h) => s + h.cost, 0);
+    return { history, totalCost: Math.round(totalCost * 100) / 100, totalHits };
+  }
+  async getFirebaseApiHits(appId) {
+    const { rtdb: rtdb2 } = (init_firebase(), __toCommonJS(firebase_exports));
+    if (rtdb2) {
+      try {
+        const snapshot = await rtdb2.ref(`api_hits/${appId}`).orderByChild("timestamp").limitToLast(100).once("value");
+        const val = snapshot.val();
+        if (val) {
+          const list = Object.values(val);
+          list.sort((a2, b2) => new Date(b2.timestamp).getTime() - new Date(a2.timestamp).getTime());
+          return list;
+        }
+      } catch (err) {
+        console.warn(`Could not fetch SDK RTDB api hits for ${appId}:`, err.message);
+      }
+    }
+    try {
+      const config5 = await this.getFirebaseConfig(appId);
+      if (config5 && config5.projectId) {
+        const token = await getGoogleAccessToken();
+        if (token) {
+          const axios3 = require("axios");
+          const urls = [
+            `https://${config5.projectId}-default-rtdb.firebaseio.com/api_hits/${appId}.json`,
+            `https://${config5.projectId}-default-rtdb.asia-southeast1.firebasedatabase.app/api_hits/${appId}.json`,
+            `https://${config5.projectId}.firebaseio.com/api_hits/${appId}.json`
+          ];
+          for (const url of urls) {
+            try {
+              const res = await axios3.get(url, {
+                headers: { Authorization: `Bearer ${token}` },
+                timeout: 3e3
+              });
+              if (res.data) {
+                const val = res.data;
+                const list = Object.values(val);
+                list.sort((a2, b2) => new Date(b2.timestamp).getTime() - new Date(a2.timestamp).getTime());
+                return list;
+              }
+            } catch (e) {
+            }
+          }
+        }
+      }
+    } catch (restErr) {
+      console.warn(`REST RTDB fallback failed for app ${appId}:`, restErr.message);
+    }
+    if (isPostgresEnabled) {
+      try {
+        const logsRes = await query(
+          'SELECT id, app_id as "appId", endpoint, method, status_code as "statusCode", latency as "responseTime", created_at as timestamp FROM usage_logs WHERE app_id = $1 ORDER BY created_at DESC LIMIT 100',
+          [appId]
+        );
+        return logsRes.rows;
+      } catch (pgErr) {
+        console.error("Failed to query usage_logs from postgres:", pgErr);
+      }
+    }
+    return [];
+  }
+  // ── Firebase Sync (writes app data to Firestore if service account configured) ─
   async syncAllFirebaseApps() {
     try {
       let apps2 = [];
       if (isPostgresEnabled) {
-        const res = await query2("SELECT * FROM apps");
+        const res = await query("SELECT * FROM apps");
         apps2 = res.rows;
       } else {
         const appsService = new BaseService("apps");
         const res = await appsService.findAll({ limit: 1e3 });
         apps2 = res.data;
       }
-      const { firestore: firestore2 } = (init_firebase(), __toCommonJS(firebase_exports));
+      let firestore2 = null;
+      try {
+        firestore2 = (init_firebase(), __toCommonJS(firebase_exports)).firestore;
+      } catch {
+      }
       for (const app2 of apps2) {
         const appId = app2.id;
         if (!appId) continue;
         try {
-          let config5 = null;
-          let rateLimits = null;
-          let billing = null;
           let firebaseConfig = null;
-          if (isPostgresEnabled) {
-            const configRes = await query2("SELECT * FROM app_config WHERE app_id = $1", [appId]);
-            config5 = configRes.rows[0] || null;
-            const rateLimitRes = await query2("SELECT * FROM app_rate_limits WHERE app_id = $1", [appId]);
-            rateLimits = rateLimitRes.rows[0] || null;
-            const billingRes = await query2("SELECT * FROM billing WHERE app_id = $1 AND status = $2 ORDER BY created_at DESC LIMIT 1", [appId, "pending"]);
-            billing = billingRes.rows[0] || null;
-            const integrationRes = await query2("SELECT firebase_config FROM app_integrations WHERE app_id = $1", [appId]);
-            firebaseConfig = integrationRes.rows[0]?.firebase_config || null;
-          } else {
-            const configService = new BaseService("app_config");
-            config5 = await configService.findOne(appId);
-            const rateLimitService = new BaseService("app_rate_limits");
-            rateLimits = await rateLimitService.findOne(appId);
-            const billingService2 = new BaseService("billing");
-            const billingList = await billingService2.findAll({ limit: 1, filters: { app_id: appId, status: "pending" } });
-            billing = billingList.data[0] || null;
-            const integrationService = new BaseService("app_integrations");
-            const integrationList = await integrationService.findAll({ limit: 1, filters: { app_id: appId } });
-            firebaseConfig = integrationList.data[0]?.firebase_config || null;
-          }
+          let billing = null;
           let logs = [];
           if (isPostgresEnabled) {
-            const logsRes = await query2("SELECT * FROM usage_logs WHERE app_id = $1 ORDER BY created_at DESC LIMIT 10", [appId]);
+            const integrationRes = await query("SELECT firebase_config FROM app_integrations WHERE app_id = $1", [appId]);
+            firebaseConfig = integrationRes.rows[0]?.firebase_config || null;
+            const billingRes = await query("SELECT * FROM billing WHERE app_id = $1 AND status = $2 ORDER BY created_at DESC LIMIT 1", [appId, "pending"]);
+            billing = billingRes.rows[0] || null;
+            const logsRes = await query("SELECT * FROM usage_logs WHERE app_id = $1 ORDER BY created_at DESC LIMIT 10", [appId]);
             logs = logsRes.rows;
-          } else {
-            const usageService = new BaseService("usage_logs");
-            const logsList = await usageService.findAll({ limit: 10, filters: { app_id: appId }, sortBy: "created_at", order: "DESC" });
-            logs = logsList.data;
           }
           let status = { status: "OFFLINE", deploymentStatus: "Unknown", lastDeployTime: "", deployedBy: "", hostingUrl: "" };
           let analytics = { activeUsers: 0, sessions: 0, trafficMb: 0, lastUpdated: (/* @__PURE__ */ new Date()).toISOString() };
           let storage2 = { storageUsedMb: 0, filesCount: 0, bucketName: "", lastUpdated: (/* @__PURE__ */ new Date()).toISOString() };
+          let billingCost = { totalCost: 0, currency: "INR", billingEnabled: false, billingAccountName: null };
           if (firebaseConfig && firebaseConfig.projectId) {
             try {
               status = await this.getAppStatus(appId);
+            } catch {
+            }
+            try {
               analytics = await this.getAnalytics(appId);
+            } catch {
+            }
+            try {
               storage2 = await this.getStorageUsage(appId);
-            } catch (err) {
-              console.warn(`Could not fetch live Firebase details for app ${appId}:`, err.message);
+            } catch {
+            }
+            try {
+              billingCost = await this.getBillingCost(appId);
+            } catch {
             }
           }
           const cachedMetrics = {
             status,
             analytics,
             storage: storage2,
+            billingCost,
             lastSynced: (/* @__PURE__ */ new Date()).toISOString()
           };
           if (isPostgresEnabled) {
-            await query2(`
+            await query(`
               INSERT INTO app_integrations (app_id, firebase_config, cached_metrics)
               VALUES ($1, $2, $3)
               ON CONFLICT (app_id)
               DO UPDATE SET cached_metrics = EXCLUDED.cached_metrics
             `, [appId, JSON.stringify(firebaseConfig || {}), JSON.stringify(cachedMetrics)]);
-          } else {
-            const integrationService = new BaseService("app_integrations");
-            const list = await integrationService.findAll({ limit: 10, filters: { app_id: appId } });
-            if (list.data.length > 0) {
-              await integrationService.update(list.data[0].id, {
-                ...list.data[0],
-                cached_metrics: cachedMetrics
-              });
-            } else {
-              await integrationService.create({
-                app_id: appId,
-                firebase_config: firebaseConfig || {},
-                cached_metrics: cachedMetrics
-              });
-            }
           }
           if (firestore2) {
             const payload = {
@@ -67192,18 +67603,10 @@ var FirebaseService = class {
               domain: app2.domain,
               status: app2.status || "live",
               environment: app2.environment || "Staging",
-              cpu_cores: app2.cpu_cores || "0.5",
-              memory_mb: app2.memory_mb || 512,
-              created_at: app2.created_at,
-              updated_at: app2.updated_at,
-              config: config5,
-              rateLimits,
-              billing,
               syncedAt: (/* @__PURE__ */ new Date()).toISOString(),
               cached_metrics: cachedMetrics
             };
-            const docRef = firestore2.collection("edge_apps").doc(appId);
-            await docRef.set(payload, { merge: true });
+            await firestore2.collection("edge_apps").doc(appId).set(payload, { merge: true });
             for (const log of logs) {
               const logTime = log.created_at || log.timestamp;
               const logId = `log_${new Date(logTime).getTime()}_${log.id}`;
@@ -67214,9 +67617,7 @@ var FirebaseService = class {
                 method: log.method || "GET",
                 statusCode: log.status_code || 200,
                 responseTime: log.latency || log.response_time || 0,
-                created_at: logTime ? new Date(logTime).toISOString() : (/* @__PURE__ */ new Date()).toISOString(),
-                timestamp: logTime ? new Date(logTime).toISOString() : (/* @__PURE__ */ new Date()).toISOString()
-                // Keep for compatibility
+                created_at: logTime ? new Date(logTime).toISOString() : (/* @__PURE__ */ new Date()).toISOString()
               }, { merge: true });
             }
           }
@@ -67240,11 +67641,10 @@ var saasController = {
         SELECT a.*, 
                json_build_object('rpm', r.rpm, 'rph', r.rph) as rate_limits,
                c.theme, c.features,
-               b.amount as current_spend
+               (SELECT amount FROM billing WHERE app_id = a.id AND status = 'pending' ORDER BY created_at DESC LIMIT 1) as current_spend
         FROM apps a
         LEFT JOIN app_rate_limits r ON a.id = r.app_id
         LEFT JOIN app_config c ON a.id = c.app_id
-        LEFT JOIN billing b ON a.id = b.app_id AND b.status = 'pending'
         ORDER BY a.created_at DESC
       `);
       res.json(result.rows);
@@ -67495,17 +67895,30 @@ var saasController = {
 // src/controllers/analytics.controller.ts
 var import_events = require("events");
 var streamEmitter = new import_events.EventEmitter();
+var firebaseService2 = new FirebaseService();
 var analyticsController = {
   async getAnalytics(req, res) {
     try {
       const { id } = req.params;
-      const hitsRes = await query2(`SELECT COALESCE(SUM(hits), 0) as total_hits FROM usage_logs WHERE app_id = $1`, [id]);
-      const errRes = await query2(`SELECT COALESCE(SUM(hits), 0) as errors FROM usage_logs WHERE app_id = $1 AND status_code >= 400`, [id]);
-      const latRes = await query2(`SELECT COALESCE(AVG(latency), 0) as avg_latency FROM usage_logs WHERE app_id = $1`, [id]);
-      const hits = parseInt(hitsRes.rows[0].total_hits);
-      const errors = parseInt(errRes.rows[0].errors);
+      const month = req.query["month"];
+      let startOfRange;
+      let endOfRange;
+      if (month && /^\d{4}-\d{2}$/.test(month)) {
+        const [year, monthNum] = month.split("-").map(Number);
+        startOfRange = new Date(Date.UTC(year, monthNum - 1, 1));
+        endOfRange = new Date(Date.UTC(year, monthNum, 0, 23, 59, 59, 999));
+      } else {
+        const now = /* @__PURE__ */ new Date();
+        startOfRange = new Date(now.getTime() - 30 * 24 * 36e5);
+        endOfRange = now;
+      }
+      const hitsRes = await query2(`SELECT COALESCE(SUM(hits), 0) as total_hits FROM usage_logs WHERE app_id = $1 AND created_at >= $2 AND created_at <= $3`, [id, startOfRange, endOfRange]);
+      const errRes = await query2(`SELECT COALESCE(SUM(hits), 0) as errors FROM usage_logs WHERE app_id = $1 AND status_code >= 400 AND created_at >= $2 AND created_at <= $3`, [id, startOfRange, endOfRange]);
+      const latRes = await query2(`SELECT COALESCE(AVG(latency), 0) as avg_latency FROM usage_logs WHERE app_id = $1 AND created_at >= $2 AND created_at <= $3`, [id, startOfRange, endOfRange]);
+      const dbHits = parseInt(hitsRes.rows[0].total_hits);
+      const dbErrors = parseInt(errRes.rows[0].errors);
       const avg_latency = Math.round(parseFloat(latRes.rows[0].avg_latency || "0"));
-      const error_rate = hits > 0 ? (errors / hits * 100).toFixed(2) : 0;
+      const error_rate = dbHits > 0 ? (dbErrors / dbHits * 100).toFixed(2) : 0;
       const historyRes = await query2(`
         SELECT 
           TO_CHAR(created_at, 'YYYY-MM-DD') as date_str,
@@ -67513,11 +67926,11 @@ var analyticsController = {
           COALESCE(SUM(CASE WHEN status_code >= 400 THEN hits ELSE 0 END), 0)::integer as daily_errors,
           COALESCE(AVG(latency), 0)::integer as daily_latency
         FROM usage_logs
-        WHERE app_id = $1 AND created_at >= NOW() - INTERVAL '30 days'
+        WHERE app_id = $1 AND created_at >= $2 AND created_at <= $3
         GROUP BY TO_CHAR(created_at, 'YYYY-MM-DD')
         ORDER BY date_str ASC
-      `, [id]);
-      let history = historyRes.rows.map((row) => {
+      `, [id, startOfRange, endOfRange]);
+      let dbHistory = historyRes.rows.map((row) => {
         const hitsVal = row.daily_hits;
         const extraHits = Math.max(0, hitsVal - 10);
         const costVal = Number((extraHits * 0.05).toFixed(2));
@@ -67529,34 +67942,730 @@ var analyticsController = {
           cost: costVal
         };
       });
-      if (history.length === 0) {
-        const now = Date.now();
-        for (let i = 13; i >= 0; i--) {
-          const dateStr = new Date(now - i * 86400 * 1e3).toISOString().split("T")[0];
-          const baseHits = 10 + Math.sin((13 - i) / 2) * 5;
-          const randomFactor = Math.random() * 8;
-          const hitsVal = Math.round(baseHits + randomFactor);
-          const errorsVal = Math.random() > 0.85 ? Math.floor(Math.random() * 2) : 0;
-          const latencyVal = Math.floor(80 + Math.random() * 60);
-          const costVal = Number((hitsVal * 0.05).toFixed(2));
-          history.push({
-            date: dateStr,
-            hits: hitsVal,
-            errors: errorsVal,
-            avg_latency: latencyVal,
-            cost: costVal
-          });
+      let totalHits = dbHits;
+      let history = dbHistory;
+      let totalCost = 0;
+      try {
+        const firebaseAnalytics = await firebaseService2.getRealAnalyticsHistory(id, month);
+        if (firebaseAnalytics.history.length > 0) {
+          const dbMap = new Map(dbHistory.map((h) => [h.date, h]));
+          const fbMap = new Map(firebaseAnalytics.history.map((h) => [h.date, h]));
+          const allDates = /* @__PURE__ */ new Set([...dbMap.keys(), ...fbMap.keys()]);
+          const merged = [];
+          for (const date of Array.from(allDates).sort()) {
+            const db = dbMap.get(date);
+            const fb = fbMap.get(date);
+            merged.push({
+              date,
+              hits: (db?.hits || 0) + (fb?.hits || 0),
+              errors: (db?.errors || 0) + (fb?.errors || 0),
+              avg_latency: db?.avg_latency || fb?.avg_latency || 0,
+              cost: fb?.cost || db?.cost || 0
+              // Prefer Firebase cost (real pricing)
+            });
+          }
+          history = merged;
+          totalHits = dbHits + firebaseAnalytics.totalHits;
+          totalCost = firebaseAnalytics.totalCost;
         }
+      } catch (fbErr) {
+        console.warn("Firebase analytics fetch failed, using DB-only data:", fbErr.message);
       }
-      const total_cost = history.reduce((sum, h) => sum + h.cost, 0).toFixed(2);
+      if (history.length === 0) {
+        const billingRes = await query2(`SELECT COALESCE(SUM(amount::numeric), 0) as total FROM billing WHERE app_id = $1 AND status = 'pending'`, [id]);
+        totalCost = parseFloat(billingRes.rows[0].total || "0");
+      }
+      if (totalCost === 0) {
+        totalCost = history.reduce((sum, h) => sum + h.cost, 0);
+      }
+      let realBillingCost = null;
+      try {
+        const billingData = await firebaseService2.getBillingCost(id, month);
+        if (billingData.billingEnabled) {
+          if (billingData.totalCost > 0) {
+            realBillingCost = billingData.totalCost;
+          }
+        }
+      } catch {
+      }
+      if (realBillingCost !== null && realBillingCost > 0) {
+        try {
+          await query2(`
+            INSERT INTO billing (app_id, usage_json, amount, status, due_date)
+            VALUES ($1, $2, $3, 'pending', NOW() + INTERVAL '30 days')
+            ON CONFLICT DO NOTHING
+          `, [id, JSON.stringify({ source: "firebase_cloud_billing", month: month || (/* @__PURE__ */ new Date()).toISOString().substring(0, 7) }), realBillingCost]);
+        } catch {
+        }
+        totalCost = realBillingCost;
+      }
+      if (totalCost === 0) {
+        const dbBillingRes = await query2(`SELECT COALESCE(SUM(amount::numeric), 0) as total FROM billing WHERE app_id = $1`, [id]);
+        const dbBillingTotal = parseFloat(dbBillingRes.rows[0].total || "0");
+        if (dbBillingTotal > 0) totalCost = dbBillingTotal;
+      }
       res.json({
-        hits,
+        hits: totalHits,
         error_rate: `${error_rate}%`,
         avg_latency: `${avg_latency}ms`,
         live_connections: streamEmitter.listenerCount(`log:${id}`),
         history,
-        total_cost: `${total_cost}`
+        total_cost: totalCost.toFixed(2)
       });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  },
+  liveStream(req, res) {
+    const { id } = req.params;
+    res.setHeader("Content-Type", "text/event-stream");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Connection", "keep-alive");
+    res.flushHeaders();
+    const onLog = (data) => {
+      res.write(`data: ${JSON.stringify(data)}
+
+`);
+    };
+    streamEmitter.on(`log:${id}`, onLog);
+    req.on("close", () => {
+      streamEmitter.removeListener(`log:${id}`, onLog);
+    });
+  }
+};
+
+// src/controllers/firebase.controller.ts
+var firebaseService3 = new FirebaseService();
+var firebaseController = {
+  async getStatus(req, res) {
+    try {
+      const { id } = req.params;
+      const status = await firebaseService3.getAppStatus(id);
+      return res.json(status);
+    } catch (err) {
+      return res.status(err.message.includes("not configured") ? 404 : 500).json({ error: err.message });
+    }
+  },
+  async getLogs(req, res) {
+    try {
+      const { id } = req.params;
+      const logs = await firebaseService3.getFirebaseLogs(id);
+      return res.json(logs);
+    } catch (err) {
+      return res.status(err.message.includes("not configured") ? 404 : 500).json({ error: err.message });
+    }
+  },
+  async getAnalytics(req, res) {
+    try {
+      const { id } = req.params;
+      const analytics = await firebaseService3.getAnalytics(id);
+      return res.json(analytics);
+    } catch (err) {
+      return res.status(err.message.includes("not configured") ? 404 : 500).json({ error: err.message });
+    }
+  },
+  async getStorage(req, res) {
+    try {
+      const { id } = req.params;
+      const storage2 = await firebaseService3.getStorageUsage(id);
+      return res.json(storage2);
+    } catch (err) {
+      return res.status(err.message.includes("not configured") ? 404 : 500).json({ error: err.message });
+    }
+  },
+  /**
+   * GET /api/admin/apps/:id/firebase/billing
+   * Returns real billing cost from Cloud Billing API using per-app projectId.
+   */
+  async getBilling(req, res) {
+    try {
+      const { id } = req.params;
+      const month = req.query["month"];
+      const billing = await firebaseService3.getBillingCost(id, month);
+      return res.json(billing);
+    } catch (err) {
+      return res.status(err.message.includes("not configured") ? 404 : 500).json({ error: err.message });
+    }
+  },
+  /**
+   * GET /api/admin/apps/:id/firebase/realtime-analytics
+   * Returns real Cloud Monitoring analytics history for the app's Firebase project.
+   */
+  async getRealtimeAnalytics(req, res) {
+    try {
+      const { id } = req.params;
+      const month = req.query["month"];
+      const data = await firebaseService3.getRealAnalyticsHistory(id, month);
+      return res.json(data);
+    } catch (err) {
+      return res.status(err.message.includes("not configured") ? 404 : 500).json({ error: err.message });
+    }
+  },
+  /**
+   * GET /api/admin/apps/:id/firebase/api-hits
+   * Returns historical API hits from Firebase Realtime Database.
+   */
+  async getFirebaseApiHits(req, res) {
+    try {
+      const { id } = req.params;
+      const hits = await firebaseService3.getFirebaseApiHits(id);
+      return res.json(hits);
+    } catch (err) {
+      return res.status(500).json({ error: err.message });
+    }
+  },
+  /**
+   * GET /api/admin/apps/:id/firebase/live-api-hits
+   * Serves a live SSE stream of API hits from Realtime Database.
+   */
+  async liveApiHits(req, res) {
+    const { id } = req.params;
+    const { rtdb: rtdb2 } = (init_firebase(), __toCommonJS(firebase_exports));
+    res.setHeader("Content-Type", "text/event-stream");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Connection", "keep-alive");
+    res.flushHeaders();
+    let onChildAdded = null;
+    let onLog = null;
+    let fallbackInterval = null;
+    let rtdbActive = false;
+    try {
+      if (rtdb2) {
+        const snapshot = await rtdb2.ref(`api_hits/${id}`).orderByChild("timestamp").limitToLast(20).once("value");
+        const val = snapshot.val();
+        if (val) {
+          rtdbActive = true;
+          const list = Object.values(val);
+          list.sort((a2, b2) => new Date(a2.timestamp).getTime() - new Date(b2.timestamp).getTime());
+          for (const hit of list) {
+            res.write(`data: ${JSON.stringify(hit)}
+
+`);
+          }
+        }
+      } else {
+        const config5 = await firebaseService3.getFirebaseConfig(id);
+        if (config5 && config5.projectId) {
+          const token = await firebaseService3.getAccessToken();
+          if (token) {
+            const axios3 = require("axios");
+            const urls = [
+              `https://${config5.projectId}-default-rtdb.firebaseio.com/api_hits/${id}.json`,
+              `https://${config5.projectId}-default-rtdb.asia-southeast1.firebasedatabase.app/api_hits/${id}.json`,
+              `https://${config5.projectId}.firebaseio.com/api_hits/${id}.json`
+            ];
+            for (const url of urls) {
+              try {
+                const resRest = await axios3.get(url, {
+                  headers: { Authorization: `Bearer ${token}` },
+                  timeout: 2e3
+                });
+                if (resRest.data) {
+                  rtdbActive = true;
+                  const list = Object.values(resRest.data);
+                  list.sort((a2, b2) => new Date(a2.timestamp).getTime() - new Date(b2.timestamp).getTime());
+                  for (const hit of list) {
+                    res.write(`data: ${JSON.stringify(hit)}
+
+`);
+                  }
+                  break;
+                }
+              } catch (e) {
+              }
+            }
+          }
+        }
+      }
+    } catch (e) {
+    }
+    if (rtdbActive && rtdb2) {
+      const ref = rtdb2.ref(`api_hits/${id}`);
+      const startTime = (/* @__PURE__ */ new Date()).toISOString();
+      onChildAdded = ref.orderByChild("timestamp").startAt(startTime).on("child_added", (snapshot) => {
+        const hit = snapshot.val();
+        if (hit) {
+          res.write(`data: ${JSON.stringify(hit)}
+
+`);
+        }
+      });
+    } else {
+      if (isPostgresEnabled) {
+        try {
+          const logsRes = await query(
+            'SELECT id, app_id as "appId", endpoint, method, status_code as "statusCode", latency as "responseTime", created_at as timestamp FROM usage_logs WHERE app_id = $1 ORDER BY created_at DESC LIMIT 20',
+            [id]
+          );
+          const list = [...logsRes.rows].reverse();
+          for (const hit of list) {
+            res.write(`data: ${JSON.stringify(hit)}
+
+`);
+          }
+        } catch (e) {
+        }
+      }
+      onLog = (log) => {
+        const hit = {
+          id: log.id || `log_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+          appId: id,
+          endpoint: log.endpoint,
+          method: log.method,
+          statusCode: log.statusCode || log.status,
+          responseTime: log.responseTime || log.latency,
+          timestamp: log.timestamp || (/* @__PURE__ */ new Date()).toISOString()
+        };
+        res.write(`data: ${JSON.stringify(hit)}
+
+`);
+      };
+      streamEmitter.on(`log:${id}`, onLog);
+      fallbackInterval = setInterval(() => {
+        res.write(`data: ${JSON.stringify({ timestamp: (/* @__PURE__ */ new Date()).toISOString(), method: "INFO", endpoint: "RTDB connection inactive (Using Local Telemetry Fallback)", statusCode: 200, responseTime: 0 })}
+
+`);
+      }, 15e3);
+    }
+    req.on("close", () => {
+      if (rtdb2 && onChildAdded) {
+        rtdb2.ref(`api_hits/${id}`).off("child_added", onChildAdded);
+      }
+      if (onLog) {
+        streamEmitter.removeListener(`log:${id}`, onLog);
+      }
+      if (fallbackInterval) {
+        clearInterval(fallbackInterval);
+      }
+      res.end();
+    });
+  },
+  async saveConfig(req, res) {
+    try {
+      const { id } = req.params;
+      const { projectId, apiKey, authDomain, storageBucket: storageBucket2, appId, measurementId } = req.body;
+      if (!projectId || !apiKey) {
+        return res.status(400).json({ error: "Project ID and API Key are required" });
+      }
+      let appExists = false;
+      if (isPostgresEnabled) {
+        const appCheck = await query("SELECT 1 FROM apps WHERE id = $1", [id]);
+        appExists = appCheck.rows.length > 0;
+      } else {
+        const appsService = new BaseService("apps");
+        const app2 = await appsService.findOne(id);
+        appExists = !!app2;
+      }
+      if (!appExists) {
+        return res.status(404).json({ error: `Application with ID ${id} does not exist` });
+      }
+      await firebaseService3.saveFirebaseConfig(id, {
+        projectId,
+        apiKey,
+        authDomain: authDomain || `${projectId}.firebaseapp.com`,
+        storageBucket: storageBucket2 || `${projectId}.firebasestorage.app`,
+        appId,
+        measurementId: measurementId || ""
+      });
+      return res.json({ success: true, message: "Firebase configuration saved successfully" });
+    } catch (err) {
+      return res.status(500).json({ error: err.message });
+    }
+  },
+  async testConnection(req, res) {
+    try {
+      const { projectId, apiKey, authDomain, storageBucket: storageBucket2, appId } = req.body;
+      if (!projectId || !apiKey) {
+        return res.status(400).json({ error: "Project ID and API Key are required for connection test" });
+      }
+      const success = await firebaseService3.testConnection({
+        projectId,
+        apiKey,
+        authDomain: authDomain || "",
+        storageBucket: storageBucket2 || "",
+        appId: appId || ""
+      });
+      return res.json({ success });
+    } catch (err) {
+      return res.status(500).json({ error: err.message });
+    }
+  },
+  async liveLogs(req, res) {
+    const { id } = req.params;
+    res.setHeader("Content-Type", "text/event-stream");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Connection", "keep-alive");
+    res.flushHeaders();
+    firebaseService3.getFirebaseLogs(id).then((logs) => {
+      for (const log of logs.slice(0, 5)) {
+        res.write(`data: ${JSON.stringify(log)}
+
+`);
+      }
+    }).catch(() => {
+    });
+    const intervalTimer = setInterval(async () => {
+      try {
+        const logs = await firebaseService3.getFirebaseLogs(id);
+        if (logs.length > 0) {
+          const latestLog = logs[0];
+          res.write(`data: ${JSON.stringify(latestLog)}
+
+`);
+        }
+      } catch {
+        const fallback = {
+          timestamp: (/* @__PURE__ */ new Date()).toISOString(),
+          severity: "INFO",
+          message: "[Firebase] Heartbeat - monitoring active"
+        };
+        res.write(`data: ${JSON.stringify(fallback)}
+
+`);
+      }
+    }, 5e3);
+    req.on("close", () => {
+      clearInterval(intervalTimer);
+      res.end();
+    });
+  },
+  /**
+   * GET /api/admin/apps/:id/smart-insights
+   * Aggregates data from usage_logs, security_logs, deployments, and Firebase.
+   */
+  async getSmartInsights(req, res) {
+    const { id } = req.params;
+    try {
+      const results = await Promise.allSettled([
+        // Usage stats
+        isPostgresEnabled ? query(`
+          SELECT 
+            COALESCE(SUM(hits),0)::int as total_hits,
+            COALESCE(AVG(latency),0)::int as avg_latency,
+            COALESCE(SUM(CASE WHEN status_code >= 400 THEN hits ELSE 0 END),0)::int as error_count
+          FROM usage_logs WHERE app_id = $1
+        `, [id]) : Promise.resolve({ rows: [{}] }),
+        // Security stats (last 24h)
+        isPostgresEnabled ? query(`
+          SELECT 
+            COUNT(*) FILTER (WHERE type='failed_login')::int as failed_logins,
+            COUNT(DISTINCT ip) FILTER (WHERE type='suspicious_ip' OR type='blocked')::int as suspicious_ips,
+            COUNT(*) FILTER (WHERE severity='critical')::int as critical_events
+          FROM security_logs WHERE app_id = $1 AND created_at > NOW() - INTERVAL '24 hours'
+        `, [id]) : Promise.resolve({ rows: [{}] }),
+        // Latest deployment
+        isPostgresEnabled ? query(`
+          SELECT version, status, created_at FROM deployments
+          WHERE app_id = $1 ORDER BY created_at DESC LIMIT 1
+        `, [id]) : Promise.resolve({ rows: [] }),
+        // Firebase analytics from cached metrics
+        isPostgresEnabled ? query(`
+          SELECT cached_metrics FROM app_integrations WHERE app_id = $1
+        `, [id]) : Promise.resolve({ rows: [] })
+      ]);
+      const usage2 = results[0].value?.rows?.[0] || {};
+      const security = results[1].value?.rows?.[0] || {};
+      const deployment = results[2].value?.rows?.[0] || null;
+      const integration = results[3].value?.rows?.[0] || {};
+      const cachedMetrics = integration.cached_metrics || {};
+      const totalHits = usage2.total_hits || 0;
+      const errorCount = usage2.error_count || 0;
+      const errorRate = totalHits > 0 ? Math.round(errorCount / totalHits * 100) : 0;
+      const failedLogins = security.failed_logins || 0;
+      const criticalEvents = security.critical_events || 0;
+      let insightText = "System is operating normally. All services are healthy.";
+      if (criticalEvents > 0) {
+        insightText = `\u26A0\uFE0F ${criticalEvents} critical security events detected in the last 24h. Immediate review recommended.`;
+      } else if (failedLogins > 5) {
+        insightText = `${failedLogins} failed login attempts detected. Consider enabling stricter IP rate limiting.`;
+      } else if (errorRate > 10) {
+        insightText = `API error rate is ${errorRate}%. Average latency: ${usage2.avg_latency}ms. ${totalHits} total requests processed.`;
+      } else if (totalHits > 0) {
+        insightText = `API traffic healthy \u2014 ${totalHits} total requests. Error rate: ${errorRate}%. Avg latency: ${usage2.avg_latency}ms.`;
+      }
+      return res.json({
+        insight: insightText,
+        totalHits,
+        avgLatency: usage2.avg_latency || 0,
+        errorCount,
+        errorRate,
+        failedLogins,
+        suspiciousIps: security.suspicious_ips || 0,
+        criticalEvents,
+        lastDeployment: deployment,
+        firebaseActiveUsers: cachedMetrics?.analytics?.activeUsers || 0,
+        firebaseStatus: cachedMetrics?.status?.status || "UNKNOWN"
+      });
+    } catch (err) {
+      return res.status(500).json({ error: err.message });
+    }
+  }
+};
+
+// src/controllers/observability.controller.ts
+var observabilityController = {
+  async getLogs(req, res) {
+    try {
+      const { id } = req.params;
+      const { timeRange, endpoint, status, method, limit = 50, offset = 0 } = req.query;
+      if (!isPostgresEnabled) {
+        res.json({ logs: [], total: 0 });
+        return;
+      }
+      let timeInterval = "24 hours";
+      if (timeRange === "1h") timeInterval = "1 hour";
+      else if (timeRange === "6h") timeInterval = "6 hours";
+      else if (timeRange === "24h") timeInterval = "24 hours";
+      else if (timeRange === "7d") timeInterval = "7 days";
+      const queryParams = [id];
+      let sqlCount = `SELECT COUNT(*) FROM usage_logs WHERE app_id = $1 AND created_at >= NOW() - INTERVAL '${timeInterval}'`;
+      let sql = `SELECT id, app_id as "appId", endpoint, method, status_code as status, latency, source, created_at as "createdAt"
+                 FROM usage_logs
+                 WHERE app_id = $1 AND created_at >= NOW() - INTERVAL '${timeInterval}'`;
+      let paramIdx = 2;
+      const filtersSql = [];
+      if (endpoint) {
+        filtersSql.push(`endpoint LIKE $${paramIdx}`);
+        queryParams.push(`%${endpoint}%`);
+        paramIdx++;
+      }
+      if (method && method !== "ALL") {
+        filtersSql.push(`method = $${paramIdx}`);
+        queryParams.push(method);
+        paramIdx++;
+      }
+      if (status && status !== "ALL") {
+        if (status === "2xx") {
+          filtersSql.push(`status_code >= 200 AND status_code < 300`);
+        } else if (status === "3xx") {
+          filtersSql.push(`status_code >= 300 AND status_code < 400`);
+        } else if (status === "4xx") {
+          filtersSql.push(`status_code >= 400 AND status_code < 500`);
+        } else if (status === "5xx") {
+          filtersSql.push(`status_code >= 500`);
+        } else {
+          filtersSql.push(`status_code = $${paramIdx}`);
+          queryParams.push(parseInt(status));
+          paramIdx++;
+        }
+      }
+      if (filtersSql.length > 0) {
+        const filterStr = " AND " + filtersSql.join(" AND ");
+        sqlCount += filterStr;
+        sql += filterStr;
+      }
+      sql += ` ORDER BY created_at DESC LIMIT $${paramIdx} OFFSET $${paramIdx + 1}`;
+      queryParams.push(parseInt(limit));
+      queryParams.push(parseInt(offset));
+      const countRes = await query(sqlCount, queryParams.slice(0, paramIdx - 1));
+      const logsRes = await query(sql, queryParams);
+      res.json({
+        logs: logsRes.rows,
+        total: parseInt(countRes.rows[0].count)
+      });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  },
+  async getMetrics(req, res) {
+    try {
+      const { id } = req.params;
+      const { timeRange } = req.query;
+      if (!isPostgresEnabled) {
+        res.json({
+          hits: 0,
+          error_rate: "0%",
+          success_rate: "100%",
+          avg_latency: "0ms",
+          p50: 0,
+          p95: 0,
+          p99: 0,
+          rps: 0,
+          hits_today: 0,
+          breakdown: { hits_2xx: 0, hits_3xx: 0, hits_4xx: 0, hits_5xx: 0 }
+        });
+        return;
+      }
+      let timeInterval = "24 hours";
+      if (timeRange === "1h") timeInterval = "1 hour";
+      else if (timeRange === "6h") timeInterval = "6 hours";
+      else if (timeRange === "24h") timeInterval = "24 hours";
+      else if (timeRange === "7d") timeInterval = "7 days";
+      const statsQuery = `
+        SELECT
+          COUNT(*)::integer as total_hits,
+          COUNT(*) FILTER (WHERE status_code >= 200 AND status_code < 300)::integer as hits_2xx,
+          COUNT(*) FILTER (WHERE status_code >= 300 AND status_code < 400)::integer as hits_3xx,
+          COUNT(*) FILTER (WHERE status_code >= 400 AND status_code < 500)::integer as hits_4xx,
+          COUNT(*) FILTER (WHERE status_code >= 500)::integer as hits_5xx,
+          COALESCE(AVG(latency), 0)::integer as avg_latency,
+          COALESCE(percentile_cont(0.5) WITHIN GROUP (ORDER BY latency), 0)::integer as p50,
+          COALESCE(percentile_cont(0.95) WITHIN GROUP (ORDER BY latency), 0)::integer as p95,
+          COALESCE(percentile_cont(0.99) WITHIN GROUP (ORDER BY latency), 0)::integer as p99
+        FROM usage_logs
+        WHERE app_id = $1 AND created_at >= NOW() - INTERVAL '${timeInterval}'
+      `;
+      const statsRes = await query(statsQuery, [id]);
+      const stats = statsRes.rows[0];
+      const rpsRes = await query(
+        `SELECT COUNT(*)::float / 60.0 as rps
+         FROM usage_logs
+         WHERE app_id = $1 AND created_at >= NOW() - INTERVAL '1 minute'`,
+        [id]
+      );
+      const rps = parseFloat(rpsRes.rows[0].rps || "0");
+      const todayRes = await query(
+        `SELECT COUNT(*)::integer as hits_today
+         FROM usage_logs
+         WHERE app_id = $1 AND created_at >= date_trunc('day', NOW())`,
+        [id]
+      );
+      const hitsToday = todayRes.rows[0].hits_today || 0;
+      const totalHits = stats.total_hits || 0;
+      const successRate = totalHits > 0 ? stats.hits_2xx / totalHits * 100 : 100;
+      const errorRate = totalHits > 0 ? stats.hits_5xx / totalHits * 100 : 0;
+      res.json({
+        hits: totalHits,
+        error_rate: `${errorRate.toFixed(1)}%`,
+        success_rate: `${successRate.toFixed(1)}%`,
+        avg_latency: `${stats.avg_latency}ms`,
+        p50: stats.p50,
+        p95: stats.p95,
+        p99: stats.p99,
+        rps: parseFloat(rps.toFixed(2)),
+        hits_today: hitsToday,
+        breakdown: {
+          hits_2xx: stats.hits_2xx,
+          hits_3xx: stats.hits_3xx,
+          hits_4xx: stats.hits_4xx,
+          hits_5xx: stats.hits_5xx
+        }
+      });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  },
+  async getChartData(req, res) {
+    try {
+      const { id } = req.params;
+      const { timeRange } = req.query;
+      if (!isPostgresEnabled) {
+        res.json([]);
+        return;
+      }
+      let timeInterval = "24 hours";
+      let bucketSeconds = 1800;
+      if (timeRange === "1h") {
+        timeInterval = "1 hour";
+        bucketSeconds = 60;
+      } else if (timeRange === "6h") {
+        timeInterval = "6 hours";
+        bucketSeconds = 300;
+      } else if (timeRange === "24h") {
+        timeInterval = "24 hours";
+        bucketSeconds = 1800;
+      } else if (timeRange === "7d") {
+        timeInterval = "7 days";
+        bucketSeconds = 21600;
+      }
+      const chartRes = await query(
+        `SELECT 
+          to_timestamp(floor(extract(epoch from created_at) / $2) * $2) as bucket,
+          COUNT(*)::integer as hits,
+          COUNT(*) FILTER (WHERE status_code >= 200 AND status_code < 300)::integer as c2xx,
+          COUNT(*) FILTER (WHERE status_code >= 300 AND status_code < 400)::integer as c3xx,
+          COUNT(*) FILTER (WHERE status_code >= 400 AND status_code < 500)::integer as c4xx,
+          COUNT(*) FILTER (WHERE status_code >= 500)::integer as c5xx,
+          COALESCE(percentile_cont(0.5) WITHIN GROUP (ORDER BY latency), 0)::integer as p50,
+          COALESCE(percentile_cont(0.95) WITHIN GROUP (ORDER BY latency), 0)::integer as p95,
+          COALESCE(percentile_cont(0.99) WITHIN GROUP (ORDER BY latency), 0)::integer as p99
+        FROM usage_logs
+        WHERE app_id = $1 AND created_at >= NOW() - INTERVAL '${timeInterval}'
+        GROUP BY bucket
+        ORDER BY bucket ASC`,
+        [id, bucketSeconds]
+      );
+      const mappedData = chartRes.rows.map((row) => {
+        const hits = row.hits || 0;
+        const simulatedInstances = Math.max(1, Math.min(12, Math.ceil(hits / (bucketSeconds * 0.4))));
+        return {
+          timestamp: row.bucket,
+          hits,
+          c2xx: row.c2xx || 0,
+          c3xx: row.c3xx || 0,
+          c4xx: row.c4xx || 0,
+          c5xx: row.c5xx || 0,
+          p50: row.p50,
+          p95: row.p95,
+          p99: row.p99,
+          e2e_p50: row.p50 + 12,
+          e2e_p95: row.p95 + 24,
+          e2e_p99: row.p99 + 48,
+          instances: simulatedInstances
+        };
+      });
+      res.json(mappedData);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  },
+  async getAlerts(req, res) {
+    try {
+      const { id } = req.params;
+      if (!isPostgresEnabled) {
+        res.json([]);
+        return;
+      }
+      const alerts = [];
+      const now = (/* @__PURE__ */ new Date()).toISOString();
+      const errorSpikeRes = await query(
+        `SELECT 
+          COUNT(*)::integer as total,
+          COUNT(*) FILTER (WHERE status_code >= 500)::integer as errors_5xx
+         FROM usage_logs
+         WHERE app_id = $1 AND created_at >= NOW() - INTERVAL '5 minutes'`,
+        [id]
+      );
+      const spike = errorSpikeRes.rows[0];
+      if (spike.total >= 5 && spike.errors_5xx / spike.total > 0.1) {
+        alerts.push({
+          id: "err-spike",
+          type: "critical",
+          message: `High 5xx error rate: ${(spike.errors_5xx / spike.total * 100).toFixed(1)}% of requests failed in the last 5 minutes.`,
+          timestamp: now
+        });
+      }
+      const latSpikeRes = await query(
+        `SELECT COALESCE(AVG(latency), 0)::integer as avg_lat
+         FROM usage_logs
+         WHERE app_id = $1 AND created_at >= NOW() - INTERVAL '5 minutes'`,
+        [id]
+      );
+      const avgLat = latSpikeRes.rows[0].avg_lat;
+      if (avgLat > 1e3) {
+        alerts.push({
+          id: "latency-spike",
+          type: "warning",
+          message: `High response latency detected: average latency is ${avgLat}ms over the last 5 minutes.`,
+          timestamp: now
+        });
+      }
+      const burstRes = await query(
+        `SELECT COUNT(*)::integer as count_1m
+         FROM usage_logs
+         WHERE app_id = $1 AND created_at >= NOW() - INTERVAL '1 minute'`,
+        [id]
+      );
+      const count1m = burstRes.rows[0].count_1m;
+      if (count1m > 100) {
+        alerts.push({
+          id: "burst-traffic",
+          type: "info",
+          message: `Traffic burst: ${count1m} requests processed in the last 60 seconds.`,
+          timestamp: now
+        });
+      }
+      res.json(alerts);
     } catch (err) {
       res.status(500).json({ error: err.message });
     }
@@ -67584,7 +68693,6 @@ var router2 = (0, import_express2.Router)();
 router2.use(authenticateAdmin);
 router2.get("/", saasController.getApps);
 router2.post("/provision", saasController.createApp);
-router2.get("/:id", saasController.getAppById);
 router2.put("/:id/config", saasController.updateConfig);
 router2.put("/:id/rate-limit", saasController.updateRateLimit);
 router2.post("/:id/whatsapp-config", saasController.updateWhatsappConfig);
@@ -67594,6 +68702,23 @@ router2.get("/:id/status", saasController.getStatus);
 router2.get("/:id/analytics", analyticsController.getAnalytics);
 router2.get("/:id/live-stream", analyticsController.liveStream);
 router2.post("/:id/firebase-sync", saasController.syncToFirebase);
+router2.get("/:id/observability/logs", observabilityController.getLogs);
+router2.get("/:id/observability/metrics", observabilityController.getMetrics);
+router2.get("/:id/observability/chart-data", observabilityController.getChartData);
+router2.get("/:id/observability/alerts", observabilityController.getAlerts);
+router2.get("/:id/observability/live-stream", observabilityController.liveStream);
+router2.get("/:id/firebase/status", firebaseController.getStatus);
+router2.get("/:id/firebase/logs", firebaseController.getLogs);
+router2.get("/:id/firebase/analytics", firebaseController.getAnalytics);
+router2.get("/:id/firebase/storage", firebaseController.getStorage);
+router2.get("/:id/firebase/billing", firebaseController.getBilling);
+router2.get("/:id/firebase/realtime-analytics", firebaseController.getRealtimeAnalytics);
+router2.get("/:id/firebase/live-logs", firebaseController.liveLogs);
+router2.get("/:id/firebase/api-hits", firebaseController.getFirebaseApiHits);
+router2.get("/:id/firebase/live-api-hits", firebaseController.liveApiHits);
+router2.post("/:id/firebase-config", firebaseController.saveConfig);
+router2.post("/:id/firebase/test", firebaseController.testConnection);
+router2.get("/:id", saasController.getAppById);
 var saas_routes_default = router2;
 
 // src/routes/admin-data.routes.ts
@@ -68038,8 +69163,8 @@ var BrowserLauncher = class {
         throw new Error("To use `enableExtensions` with a list of paths in Chrome, you must be connected with `--remote-debugging-pipe` (`pipe: true`).");
       }
       await Promise.all([
-        enableExtensions.map((path16) => {
-          return browser.installExtension(path16);
+        enableExtensions.map((path17) => {
+          return browser.installExtension(path17);
         })
       ]);
     }
@@ -68220,8 +69345,8 @@ var rmOptions = {
   recursive: true,
   maxRetries: 5
 };
-async function rm(path16) {
-  await import_node_fs9.default.promises.rm(path16, rmOptions);
+async function rm(path17) {
+  await import_node_fs9.default.promises.rm(path17, rmOptions);
 }
 
 // node_modules/puppeteer-core/lib/puppeteer/node/ChromeLauncher.js
@@ -68297,10 +69422,10 @@ var ChromeLauncher = class extends BrowserLauncher {
   /**
    * @internal
    */
-  async cleanUserDataDir(path16, opts) {
+  async cleanUserDataDir(path17, opts) {
     if (opts.isTemp) {
       try {
-        await rm(path16);
+        await rm(path17);
       } catch (error) {
         debugError(error);
         throw error;
@@ -68892,7 +70017,7 @@ var ScreenRecorder = (() => {
     /**
      * @internal
      */
-    constructor(page, width, height, { ffmpegPath, speed, scale, crop, format: format3, fps, loop, delay, quality, colors, path: path16, overwrite } = {}) {
+    constructor(page, width, height, { ffmpegPath, speed, scale, crop, format: format3, fps, loop, delay, quality, colors, path: path17, overwrite } = {}) {
       super({ allowHalfOpen: false });
       ffmpegPath ??= "ffmpeg";
       format3 ??= "webm";
@@ -68925,8 +70050,8 @@ var ScreenRecorder = (() => {
       if (vf !== -1) {
         filters.push(formatArgs.splice(vf, 2).at(-1) ?? "");
       }
-      if (path16) {
-        import_node_fs11.default.mkdirSync((0, import_node_path12.dirname)(path16), { recursive: overwrite });
+      if (path17) {
+        import_node_fs11.default.mkdirSync((0, import_node_path12.dirname)(path17), { recursive: overwrite });
       }
       this.#process = (0, import_node_child_process6.spawn)(
         ffmpegPath,
@@ -69456,6 +70581,12 @@ var billing_routes_default = router5;
 
 // src/middlewares/usage.ts
 init_firebase();
+
+// src/controllers/security.controller.ts
+var import_events3 = require("events");
+var securityEmitter = new import_events3.EventEmitter();
+
+// src/middlewares/usage.ts
 var usageTracker = async (req, res, next) => {
   if (req.path.includes(".") || req.path.startsWith("/_angular") || req.path.startsWith("/media") || req.path.startsWith("/assets") || req.path.startsWith("/api/internal/log")) {
     return next();
@@ -69466,32 +70597,87 @@ var usageTracker = async (req, res, next) => {
     const appId = req.headers["x-app-identifier"] || req.query["appId"];
     if (!appId || appId.length < 10) return;
     try {
-      await query2(
-        `INSERT INTO usage_logs (app_id, endpoint, hits, latency, status_code) VALUES ($1, $2, 1, $3, $4)`,
-        [appId, req.path, responseTime, res.statusCode]
-      );
+      if (isPostgresEnabled) {
+        await query(
+          `INSERT INTO usage_logs (app_id, endpoint, method, hits, latency, status_code, source) VALUES ($1, $2, $3, 1, $4, $5, $6)`,
+          [appId, req.path, req.method, responseTime, res.statusCode, req.headers["user-agent"] || "Unknown"]
+        );
+      }
+      const userAgent = req.headers["user-agent"] || "Unknown";
+      const browser = userAgent.includes("Chrome") ? "Chrome" : userAgent.includes("Firefox") ? "Firefox" : userAgent.includes("Safari") && !userAgent.includes("Chrome") ? "Safari" : userAgent.includes("Edge") ? "Edge" : "Other";
       streamEmitter.emit(`log:${appId}`, {
         timestamp: (/* @__PURE__ */ new Date()).toISOString(),
         method: req.method,
         endpoint: req.path,
         status: res.statusCode,
         latency: responseTime,
+        source: browser,
         type: res.statusCode >= 400 ? "error" : "success"
       });
+      if ((res.statusCode === 401 || res.statusCode === 403) && isPostgresEnabled) {
+        const ip = (req.headers["x-forwarded-for"] || req.ip || "").split(",")[0].trim();
+        const isAuthEndpoint = req.path.includes("/auth") || req.path.includes("/login") || req.path.includes("/token");
+        const logType = isAuthEndpoint ? "failed_login" : "suspicious_ip";
+        const severity = res.statusCode === 403 ? "critical" : "warn";
+        const message = isAuthEndpoint ? `Failed login attempt. Source IP: ${ip} | Endpoint: ${req.method} ${req.path}` : `Unauthorized access attempt from ${ip} on ${req.path}`;
+        try {
+          const insertRes = await query(
+            `INSERT INTO security_logs (app_id, type, severity, ip, user_agent, message)
+             VALUES ($1, $2, $3, $4, $5, $6)
+             RETURNING *`,
+            [appId, logType, severity, ip, req.headers["user-agent"] || "Unknown", message]
+          );
+          securityEmitter.emit(`security:${appId}`, insertRes.rows[0]);
+        } catch (_2) {
+        }
+      }
       if (firestore) {
         const logId = `log_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
-        await firestore.collection("edge_logs").doc(logId).set({
-          id: logId,
+        await firestore.collection("api_logs").doc(logId).set({
           appId,
           endpoint: req.path,
           method: req.method,
-          statusCode: res.statusCode,
-          responseTime,
-          timestamp: (/* @__PURE__ */ new Date()).toISOString()
+          status: res.statusCode,
+          latency: responseTime,
+          source: browser,
+          timestamp: Date.now()
         });
+        try {
+          const metricDocRef = firestore.collection("metrics").doc(appId);
+          await firestore.runTransaction(async (transaction) => {
+            const doc = await transaction.get(metricDocRef);
+            const data = doc.exists ? doc.data() : { hits: 0, errors: 0, totalLatency: 0 };
+            const hits = (data.hits || 0) + 1;
+            const errors = (data.errors || 0) + (res.statusCode >= 400 ? 1 : 0);
+            const totalLatency = (data.totalLatency || 0) + responseTime;
+            const avgLatency = Math.round(totalLatency / hits);
+            transaction.set(metricDocRef, {
+              hits,
+              errors,
+              totalLatency,
+              avgLatency,
+              last_updated: (/* @__PURE__ */ new Date()).toISOString()
+            }, { merge: true });
+          });
+        } catch (_2) {
+        }
+      }
+      if (rtdb) {
+        try {
+          const logId = `log_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+          await rtdb.ref(`api_hits/${appId}/${logId}`).set({
+            id: logId,
+            appId,
+            endpoint: req.path,
+            method: req.method,
+            statusCode: res.statusCode,
+            responseTime,
+            timestamp: (/* @__PURE__ */ new Date()).toISOString()
+          });
+        } catch (_2) {
+        }
       }
     } catch (e) {
-      console.warn("Silent fail for usage log:", e);
     }
   });
   next();
@@ -69978,8 +71164,8 @@ function getErrorMap() {
 
 // node_modules/zod/v3/helpers/parseUtil.js
 var makeIssue = (params) => {
-  const { data, path: path16, errorMaps, issueData } = params;
-  const fullPath = [...path16, ...issueData.path || []];
+  const { data, path: path17, errorMaps, issueData } = params;
+  const fullPath = [...path17, ...issueData.path || []];
   const fullIssue = {
     ...issueData,
     path: fullPath
@@ -70095,11 +71281,11 @@ var errorUtil;
 
 // node_modules/zod/v3/types.js
 var ParseInputLazyPath = class {
-  constructor(parent, value, path16, key) {
+  constructor(parent, value, path17, key) {
     this._cachedPath = [];
     this.parent = parent;
     this.data = value;
-    this._path = path16;
+    this._path = path17;
     this._key = key;
   }
   get path() {

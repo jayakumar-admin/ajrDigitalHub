@@ -12,18 +12,32 @@ export const analyticsController = {
   async getAnalytics(req: Request, res: Response) {
     try {
       const { id } = req.params;
+      const month = req.query['month'] as string;
       
-      // ── PostgreSQL: aggregate from usage_logs ──────────────
-      const hitsRes = await query(`SELECT COALESCE(SUM(hits), 0) as total_hits FROM usage_logs WHERE app_id = $1`, [id]);
-      const errRes = await query(`SELECT COALESCE(SUM(hits), 0) as errors FROM usage_logs WHERE app_id = $1 AND status_code >= 400`, [id]);
-      const latRes = await query(`SELECT COALESCE(AVG(latency), 0) as avg_latency FROM usage_logs WHERE app_id = $1`, [id]);
+      let startOfRange: Date;
+      let endOfRange: Date;
+
+      if (month && /^\d{4}-\d{2}$/.test(month)) {
+        const [year, monthNum] = month.split('-').map(Number);
+        startOfRange = new Date(Date.UTC(year, monthNum - 1, 1));
+        endOfRange = new Date(Date.UTC(year, monthNum, 0, 23, 59, 59, 999));
+      } else {
+        const now = new Date();
+        startOfRange = new Date(now.getTime() - 30 * 24 * 3600000);
+        endOfRange = now;
+      }
+      
+      // ── PostgreSQL: aggregate from usage_logs within range ──
+      const hitsRes = await query(`SELECT COALESCE(SUM(hits), 0) as total_hits FROM usage_logs WHERE app_id = $1 AND created_at >= $2 AND created_at <= $3`, [id, startOfRange, endOfRange]);
+      const errRes = await query(`SELECT COALESCE(SUM(hits), 0) as errors FROM usage_logs WHERE app_id = $1 AND status_code >= 400 AND created_at >= $2 AND created_at <= $3`, [id, startOfRange, endOfRange]);
+      const latRes = await query(`SELECT COALESCE(AVG(latency), 0) as avg_latency FROM usage_logs WHERE app_id = $1 AND created_at >= $2 AND created_at <= $3`, [id, startOfRange, endOfRange]);
 
       const dbHits = parseInt(hitsRes.rows[0].total_hits);
       const dbErrors = parseInt(errRes.rows[0].errors);
       const avg_latency = Math.round(parseFloat(latRes.rows[0].avg_latency || '0'));
       const error_rate = dbHits > 0 ? ((dbErrors / dbHits) * 100).toFixed(2) : 0;
 
-      // Fetch daily hits, latency, errors for the last 30 days from DB
+      // Fetch daily hits, latency, errors for the specified range from DB
       const historyRes = await query(`
         SELECT 
           TO_CHAR(created_at, 'YYYY-MM-DD') as date_str,
@@ -31,10 +45,10 @@ export const analyticsController = {
           COALESCE(SUM(CASE WHEN status_code >= 400 THEN hits ELSE 0 END), 0)::integer as daily_errors,
           COALESCE(AVG(latency), 0)::integer as daily_latency
         FROM usage_logs
-        WHERE app_id = $1 AND created_at >= NOW() - INTERVAL '30 days'
+        WHERE app_id = $1 AND created_at >= $2 AND created_at <= $3
         GROUP BY TO_CHAR(created_at, 'YYYY-MM-DD')
         ORDER BY date_str ASC
-      `, [id]);
+      `, [id, startOfRange, endOfRange]);
 
       let dbHistory = historyRes.rows.map(row => {
         const hitsVal = row.daily_hits;
@@ -55,7 +69,7 @@ export const analyticsController = {
       let totalCost = 0;
 
       try {
-        const firebaseAnalytics = await firebaseService.getRealAnalyticsHistory(id);
+        const firebaseAnalytics = await firebaseService.getRealAnalyticsHistory(id, month);
 
         if (firebaseAnalytics.history.length > 0) {
           // Merge Firebase Cloud Monitoring data with DB data
@@ -99,7 +113,7 @@ export const analyticsController = {
       // ── Real Billing Cost ───────────────────────────────────
       let realBillingCost: number | null = null;
       try {
-        const billingData = await firebaseService.getBillingCost(id);
+        const billingData = await firebaseService.getBillingCost(id, month);
         if (billingData.billingEnabled) {
           // If Cloud Monitoring gave us a cost, use it; otherwise try DB billing table
           if (billingData.totalCost > 0) {
@@ -117,7 +131,7 @@ export const analyticsController = {
             INSERT INTO billing (app_id, usage_json, amount, status, due_date)
             VALUES ($1, $2, $3, 'pending', NOW() + INTERVAL '30 days')
             ON CONFLICT DO NOTHING
-          `, [id, JSON.stringify({ source: 'firebase_cloud_billing' }), realBillingCost]);
+          `, [id, JSON.stringify({ source: 'firebase_cloud_billing', month: month || new Date().toISOString().substring(0, 7) }), realBillingCost]);
         } catch { /* non-fatal */ }
 
         totalCost = realBillingCost;

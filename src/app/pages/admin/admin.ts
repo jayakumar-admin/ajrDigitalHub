@@ -31,15 +31,15 @@ import { AdminBillingComponent } from './billing/billing.component';
            </div>
            
            <!-- System Status Overview -->
-           <div class="flex items-center gap-6 bg-app-bg border border-app-border rounded-2xl px-5 py-3">
-              <div class="flex flex-col">
+           <div class="flex items-center justify-between w-full md:w-auto gap-6 bg-app-bg border border-app-border rounded-2xl px-5 py-3">
+              <div class="flex flex-col flex-1 items-center md:items-start">
                  <span class="text-[10px] items-center gap-1.5 uppercase font-bold text-app-muted tracking-wider flex">
                     <mat-icon class="!w-[12px] !h-[12px] !text-[12px]">dns</mat-icon> Global Apps
                  </span>
                  <span class="text-xl font-black text-app-text">{{ adminService.apps().length }} Active</span>
               </div>
               <div class="w-px h-8 bg-app-border"></div>
-              <div class="flex flex-col">
+              <div class="flex flex-col flex-1 items-center md:items-start">
                  <span class="text-[10px] items-center gap-1.5 uppercase font-bold text-app-muted tracking-wider flex">
                     <mat-icon class="!w-[12px] !h-[12px] !text-[12px]">data_usage</mat-icon> API Volume
                  </span>
@@ -85,36 +85,36 @@ import { AdminBillingComponent } from './billing/billing.component';
       <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 flex flex-col md:flex-row gap-8 relative">
         
         <!-- Left Sidebar Main Navigation for Admin -->
-        <aside class="w-full md:w-64 shrink-0">
-           <div class="bg-app-card border border-app-border rounded-2xl p-4 shadow-sm top-24 sticky">
-             <div class="text-[10px] uppercase font-bold text-app-muted tracking-wider mb-3 px-3">System Control</div>
-             <nav class="space-y-1">
-               <button (click)="activeSection.set('applications')" [class]="activeSection() === 'applications' ? 'bg-indigo-50/20 text-indigo-500 font-bold' : 'text-app-text hover:bg-app-bg hover:text-indigo-400'" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm transition-all text-left">
+        <aside class="w-full md:w-64 shrink-0 animate-in duration-300">
+           <div class="bg-app-card border border-app-border rounded-xl md:rounded-2xl p-3 md:p-4 shadow-sm top-16 md:top-24 sticky z-20">
+             <!-- Desktop Navigation Sidebar -->
+             <nav class="hidden md:flex md:flex-col md:space-y-1">
+               <button (click)="activeSection.set('applications')" [class]="activeSection() === 'applications' ? 'bg-indigo-50/20 text-indigo-500 font-bold border border-indigo-500/10' : 'text-app-text hover:bg-app-bg hover:text-indigo-400 border border-transparent'" class="w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl text-sm transition-all text-left">
                   <span class="flex items-center gap-2"><mat-icon class="!w-[18px] !h-[18px] !text-[18px]">apps</mat-icon> Applications</span>
                   @if(adminService.apps().length > 0) {
-                     <span class="bg-app-bg text-xs px-2 py-0.5 rounded shadow-sm border border-app-border">{{ adminService.apps().length }}</span>
+                     <span class="bg-app-bg text-[10px] md:text-xs px-2 py-0.5 rounded shadow-sm border border-app-border">{{ adminService.apps().length }}</span>
                   }
                </button>
-               <button (click)="activeSection.set('config')" [class]="activeSection() === 'config' ? 'bg-indigo-50/20 text-indigo-500 font-bold' : 'text-app-text hover:bg-app-bg hover:text-indigo-400'" class="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm transition-all text-left">
+               <button (click)="activeSection.set('config')" [class]="activeSection() === 'config' ? 'bg-indigo-50/20 text-indigo-500 font-bold border border-indigo-500/10' : 'text-app-text hover:bg-app-bg hover:text-indigo-400 border border-transparent'" class="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm transition-all text-left">
                   <mat-icon class="!w-[18px] !h-[18px] !text-[18px]">settings</mat-icon> Global Config
                </button>
-               <button (click)="activeSection.set('ratelimit')" [class]="activeSection() === 'ratelimit' ? 'bg-indigo-50/20 text-indigo-500 font-bold' : 'text-app-text hover:bg-app-bg hover:text-indigo-400'" class="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm transition-all text-left">
+               <button (click)="activeSection.set('ratelimit')" [class]="activeSection() === 'ratelimit' ? 'bg-indigo-50/20 text-indigo-500 font-bold border border-indigo-500/10' : 'text-app-text hover:bg-app-bg hover:text-indigo-400 border border-transparent'" class="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm transition-all text-left">
                   <mat-icon class="!w-[18px] !h-[18px] !text-[18px]">security</mat-icon> Engine & Limits
                </button>
-               <button (click)="activeSection.set('comms')" [class]="activeSection() === 'comms' ? 'bg-indigo-50/20 text-indigo-500 font-bold' : 'text-app-text hover:bg-app-bg hover:text-indigo-400'" class="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm transition-all text-left">
+               <button (click)="activeSection.set('comms')" [class]="activeSection() === 'comms' ? 'bg-indigo-50/20 text-indigo-500 font-bold border border-indigo-500/10' : 'text-app-text hover:bg-app-bg hover:text-indigo-400 border border-transparent'" class="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm transition-all text-left">
                   <mat-icon class="!w-[18px] !h-[18px] !text-[18px]">contact_phone</mat-icon> WhatsApp & Email Setup
                </button>
-               <button (click)="activeSection.set('billing')" [class]="activeSection() === 'billing' ? 'bg-indigo-50/20 text-indigo-500 font-bold' : 'text-app-text hover:bg-app-bg hover:text-indigo-400'" class="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm transition-all text-left">
+               <button (click)="activeSection.set('billing')" [class]="activeSection() === 'billing' ? 'bg-indigo-50/20 text-indigo-500 font-bold border border-indigo-500/10' : 'text-app-text hover:bg-app-bg hover:text-indigo-400 border border-transparent'" class="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm transition-all text-left">
                   <mat-icon class="!w-[18px] !h-[18px] !text-[18px]">receipt_long</mat-icon> Automated Billing
                </button>
-               <button (click)="activeSection.set('services')" [class]="activeSection() === 'services' ? 'bg-indigo-50/20 text-indigo-500 font-bold' : 'text-app-text hover:bg-app-bg hover:text-indigo-400'" class="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm transition-all text-left">
+               <button (click)="activeSection.set('services')" [class]="activeSection() === 'services' ? 'bg-indigo-50/20 text-indigo-500 font-bold border border-indigo-500/10' : 'text-app-text hover:bg-app-bg hover:text-indigo-400 border border-transparent'" class="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm transition-all text-left">
                   <mat-icon class="!w-[18px] !h-[18px] !text-[18px]">cloud_done</mat-icon> Service Status Monitor
                </button>
-               <button (click)="activeSection.set('analytics')" [class]="activeSection() === 'analytics' ? 'bg-indigo-50/20 text-indigo-500 font-bold' : 'text-app-text hover:bg-app-bg hover:text-indigo-400'" class="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm transition-all text-left">
+               <button (click)="activeSection.set('analytics')" [class]="activeSection() === 'analytics' ? 'bg-indigo-50/20 text-indigo-500 font-bold border border-indigo-500/10' : 'text-app-text hover:bg-app-bg hover:text-indigo-400 border border-transparent'" class="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm transition-all text-left">
                   <mat-icon class="!w-[18px] !h-[18px] !text-[18px]">insights</mat-icon> Telemetry & Stats
                </button>
                
-               <div class="h-px bg-app-border my-2"></div>
+               <div class="hidden md:block h-px bg-app-border my-2"></div>
                
                <button (click)="onSystemCoreClick()" class="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-bold text-cyan-600 hover:bg-cyan-500/10 transition-all text-left border border-dashed border-cyan-500/40 shadow-xs">
                   <mat-icon class="!w-[18px] !h-[18px] !text-[18px] text-cyan-500 animate-pulse">dns</mat-icon> System Core Monitor ⭐
@@ -122,15 +122,76 @@ import { AdminBillingComponent } from './billing/billing.component';
                <button (click)="router.navigate(['/admin/marketplace-config'])" class="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-bold text-amber-500 hover:bg-amber-500/10 transition-all text-left border border-dashed border-amber-500/40 mt-2 shadow-xs">
                   <mat-icon class="!w-[18px] !h-[18px] !text-[18px] text-amber-500">storefront</mat-icon> Marketplace Config ⭐
                </button>
-               <button (click)="activeSection.set('heroslider')" [class]="activeSection() === 'heroslider' ? 'bg-indigo-50/20 text-indigo-400 font-bold' : 'text-app-text hover:bg-app-bg hover:text-indigo-400'" class="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm transition-all text-left border border-dashed border-indigo-500/30 mt-2 cursor-pointer">
+               <button (click)="activeSection.set('heroslider')" [class]="activeSection() === 'heroslider' ? 'bg-indigo-50/20 text-indigo-400 font-bold border border-indigo-500/10' : 'text-app-text hover:bg-app-bg hover:text-indigo-400 border border-transparent'" class="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm transition-all text-left border border-dashed border-indigo-500/30 mt-2 cursor-pointer">
                   <mat-icon class="!w-[18px] !h-[18px] !text-[18px] text-indigo-400">slideshow</mat-icon> Website Hero Slider ⭐
                </button>
-               <button (click)="activeSection.set('growth')" [class]="activeSection() === 'growth' ? 'bg-indigo-50/20 text-emerald-400 font-bold' : 'text-app-text hover:bg-app-bg hover:text-emerald-400'" class="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm transition-all text-left border border-dashed border-emerald-500/30 mt-2 cursor-pointer">
+               <button (click)="activeSection.set('growth')" [class]="activeSection() === 'growth' ? 'bg-indigo-50/20 text-emerald-400 font-bold border border-indigo-500/10' : 'text-app-text hover:bg-app-bg hover:text-emerald-400 border border-transparent'" class="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm transition-all text-left border border-dashed border-emerald-500/30 mt-2 cursor-pointer">
                   <mat-icon class="!w-[18px] !h-[18px] !text-[18px] text-emerald-400">trending_up</mat-icon> Growth & A/B Test ⭐
                </button>
              </nav>
+
+             <!-- Mobile Navigation Trigger and Floating Menu -->
+             <div class="md:hidden relative w-full">
+                <!-- Mobile Active Selection Indicator -->
+                <div (click)="isMobileMenuOpen.set(!isMobileMenuOpen())" class="flex items-center justify-between w-full pl-4 pr-1.5 py-1.5 bg-app-bg border border-app-border rounded-xl cursor-pointer hover:bg-app-bg/85 transition-all select-none shadow-xs">
+                   <span class="flex items-center gap-2 font-bold text-xs text-indigo-400">
+                      <mat-icon class="!w-[16px] !h-[16px] !text-[16px]">{{ getActiveSectionIcon() }}</mat-icon>
+                      {{ getActiveSectionLabel() }}
+                   </span>
+                   <button class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-app-bg/50 text-app-muted hover:text-app-text transition-colors">
+                      <mat-icon class="!w-[18px] !h-[18px] !text-[18px]">{{ isMobileMenuOpen() ? 'close' : 'menu' }}</mat-icon>
+                   </button>
+                </div>
+
+                <!-- Floating Dropdown list -->
+                @if (isMobileMenuOpen()) {
+                   <div class="absolute left-0 right-0 mt-1.5 bg-app-card border border-app-border rounded-xl shadow-xl z-30 p-1.5 max-h-[60vh] overflow-y-auto custom-scrollbar animate-in fade-in slide-in-from-top-2 duration-150">
+                      <div class="flex flex-col gap-0.5">
+                         <button (click)="activeSection.set('applications'); isMobileMenuOpen.set(false)" [class]="activeSection() === 'applications' ? 'bg-indigo-50/20 text-indigo-500 font-bold border border-indigo-500/10' : 'text-app-text hover:bg-app-bg hover:text-indigo-400 border border-transparent'" class="w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg text-xs transition-all text-left">
+                            <span class="flex items-center gap-2"><mat-icon class="!w-[16px] !h-[16px] !text-[16px]">apps</mat-icon> Applications</span>
+                            @if(adminService.apps().length > 0) {
+                               <span class="bg-app-bg text-[10px] px-1.5 py-0.5 rounded border border-app-border">{{ adminService.apps().length }}</span>
+                            }
+                         </button>
+                         <button (click)="activeSection.set('config'); isMobileMenuOpen.set(false)" [class]="activeSection() === 'config' ? 'bg-indigo-50/20 text-indigo-500 font-bold border border-indigo-500/10' : 'text-app-text hover:bg-app-bg hover:text-indigo-400 border border-transparent'" class="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs transition-all text-left">
+                            <mat-icon class="!w-[16px] !h-[16px] !text-[16px]">settings</mat-icon> Global Config
+                         </button>
+                         <button (click)="activeSection.set('ratelimit'); isMobileMenuOpen.set(false)" [class]="activeSection() === 'ratelimit' ? 'bg-indigo-50/20 text-indigo-500 font-bold border border-indigo-500/10' : 'text-app-text hover:bg-app-bg hover:text-indigo-400 border border-transparent'" class="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs transition-all text-left">
+                            <mat-icon class="!w-[16px] !h-[16px] !text-[16px]">security</mat-icon> Engine & Limits
+                         </button>
+                         <button (click)="activeSection.set('comms'); isMobileMenuOpen.set(false)" [class]="activeSection() === 'comms' ? 'bg-indigo-50/20 text-indigo-500 font-bold border border-indigo-500/10' : 'text-app-text hover:bg-app-bg hover:text-indigo-400 border border-transparent'" class="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs transition-all text-left">
+                            <mat-icon class="!w-[16px] !h-[16px] !text-[16px]">contact_phone</mat-icon> WhatsApp Setup
+                         </button>
+                         <button (click)="activeSection.set('billing'); isMobileMenuOpen.set(false)" [class]="activeSection() === 'billing' ? 'bg-indigo-50/20 text-indigo-500 font-bold border border-indigo-500/10' : 'text-app-text hover:bg-app-bg hover:text-indigo-400 border border-transparent'" class="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs transition-all text-left">
+                            <mat-icon class="!w-[16px] !h-[16px] !text-[16px]">receipt_long</mat-icon> Automated Billing
+                         </button>
+                         <button (click)="activeSection.set('services'); isMobileMenuOpen.set(false)" [class]="activeSection() === 'services' ? 'bg-indigo-50/20 text-indigo-500 font-bold border border-indigo-500/10' : 'text-app-text hover:bg-app-bg hover:text-indigo-400 border border-transparent'" class="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs transition-all text-left">
+                            <mat-icon class="!w-[16px] !h-[16px] !text-[16px]">cloud_done</mat-icon> Service Status Monitor
+                         </button>
+                         <button (click)="activeSection.set('analytics'); isMobileMenuOpen.set(false)" [class]="activeSection() === 'analytics' ? 'bg-indigo-50/20 text-indigo-500 font-bold border border-indigo-500/10' : 'text-app-text hover:bg-app-bg hover:text-indigo-400 border border-transparent'" class="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs transition-all text-left">
+                            <mat-icon class="!w-[16px] !h-[16px] !text-[16px]">insights</mat-icon> Telemetry & Stats
+                         </button>
+                         
+                         <div class="h-px bg-app-border my-1"></div>
+                         
+                         <button (click)="onSystemCoreClick(); isMobileMenuOpen.set(false)" class="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-bold text-cyan-600 hover:bg-cyan-500/10 transition-all text-left border border-dashed border-cyan-500/40">
+                            <mat-icon class="!w-[16px] !h-[16px] !text-[16px] text-cyan-500">dns</mat-icon> System Core Monitor ⭐
+                         </button>
+                         <button (click)="router.navigate(['/admin/marketplace-config']); isMobileMenuOpen.set(false)" class="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-bold text-amber-500 hover:bg-amber-500/10 transition-all text-left border border-dashed border-amber-500/40">
+                            <mat-icon class="!w-[16px] !h-[16px] !text-[16px] text-amber-500">storefront</mat-icon> Marketplace Config ⭐
+                         </button>
+                         <button (click)="activeSection.set('heroslider'); isMobileMenuOpen.set(false)" [class]="activeSection() === 'heroslider' ? 'bg-indigo-50/20 text-indigo-400 font-bold border border-indigo-500/10' : 'text-app-text hover:bg-app-bg hover:text-indigo-400 border border-transparent'" class="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs transition-all text-left border border-dashed border-indigo-500/30 cursor-pointer">
+                            <mat-icon class="!w-[16px] !h-[16px] !text-[16px] text-indigo-400">slideshow</mat-icon> Hero Slider ⭐
+                         </button>
+                         <button (click)="activeSection.set('growth'); isMobileMenuOpen.set(false)" [class]="activeSection() === 'growth' ? 'bg-indigo-50/20 text-emerald-400 font-bold border border-emerald-500/10' : 'text-app-text hover:bg-app-bg hover:text-emerald-400 border border-transparent'" class="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs transition-all text-left border border-dashed border-emerald-500/30 cursor-pointer">
+                            <mat-icon class="!w-[16px] !h-[16px] !text-[16px] text-emerald-400">trending_up</mat-icon> Growth & A/B Test ⭐
+                         </button>
+                      </div>
+                   </div>
+                }
+             </div>
              
-             <div class="mt-6 pt-4 border-t border-app-border">
+             <div class="hidden md:block mt-6 pt-4 border-t border-app-border">
                 <div class="bg-indigo-600 border border-indigo-500/30 text-app-text rounded-xl p-4 shadow-lg shadow-indigo-600/20 flex flex-col gap-1">
                    <div class="flex items-center gap-2 font-bold text-sm">
                       <div class="w-2 h-2 rounded-full bg-emerald-400"></div>
@@ -713,6 +774,39 @@ export class AdminComponent implements OnInit {
   apiService = inject(ApiService);
   
   activeSection = signal<'applications' | 'config' | 'ratelimit' | 'analytics' | 'heroslider' | 'growth' | 'comms' | 'services' | 'billing'>('applications');
+  isMobileMenuOpen = signal(false);
+
+  getActiveSectionIcon(): string {
+    const section = this.activeSection();
+    switch (section) {
+      case 'applications': return 'apps';
+      case 'config': return 'settings';
+      case 'ratelimit': return 'security';
+      case 'comms': return 'contact_phone';
+      case 'billing': return 'receipt_long';
+      case 'services': return 'cloud_done';
+      case 'analytics': return 'insights';
+      case 'heroslider': return 'slideshow';
+      case 'growth': return 'trending_up';
+      default: return 'menu';
+    }
+  }
+
+  getActiveSectionLabel(): string {
+    const section = this.activeSection();
+    switch (section) {
+      case 'applications': return 'Applications';
+      case 'config': return 'Global Config';
+      case 'ratelimit': return 'Engine & Limits';
+      case 'comms': return 'WhatsApp & Email Setup';
+      case 'billing': return 'Automated Billing';
+      case 'services': return 'Service Status Monitor';
+      case 'analytics': return 'Telemetry & Stats';
+      case 'heroslider': return 'Website Hero Slider';
+      case 'growth': return 'Growth & A/B Test';
+      default: return 'Menu';
+    }
+  }
   
   // Growth control panel state
   growthConfig = signal<any>(null);

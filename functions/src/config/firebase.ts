@@ -1,6 +1,7 @@
 import { initializeApp, cert, getApp, getApps } from 'firebase-admin/app';
 import { getStorage } from 'firebase-admin/storage';
 import { getFirestore } from 'firebase-admin/firestore';
+import { getDatabase } from 'firebase-admin/database';
 import * as dotenv from 'dotenv';
 import path from 'path';
 
@@ -14,6 +15,7 @@ const storageBucket = process.env['FIREBASE_STORAGE_BUCKET'];
 let firebaseApp: any = null;
 let bucket: any = null;
 let firestore: any = null;
+let rtdb: any = null;
 
 function parseServiceAccount(jsonStr: string): any {
   const clean = jsonStr.trim();
@@ -47,9 +49,11 @@ if (serviceAccountJson && storageBucket) {
     // Check if app already initialized to avoid "Duplicate App" error
     const apps = getApps();
     if (apps.length === 0) {
+      const dbUrl = process.env['FIREBASE_DATABASE_URL'] || `https://${serviceAccount.project_id}-default-rtdb.firebaseio.com`;
       firebaseApp = initializeApp({
         credential: cert(serviceAccount),
-        storageBucket
+        storageBucket,
+        databaseURL: dbUrl
       });
     } else {
       firebaseApp = getApp();
@@ -57,6 +61,12 @@ if (serviceAccountJson && storageBucket) {
     
     bucket = getStorage().bucket();
     firestore = getFirestore();
+    try {
+      rtdb = getDatabase();
+      console.log('✅ Firebase Realtime Database initialized successfully');
+    } catch (dbErr: any) {
+      console.warn('⚠️ Firebase Realtime Database not initialized:', dbErr.message);
+    }
     console.log('✅ Firebase Admin initialized successfully');
   } catch (err) {
     console.error('❌ Failed to initialize Firebase Admin:', err);
@@ -64,9 +74,10 @@ if (serviceAccountJson && storageBucket) {
     firebaseApp = null;
     bucket = null;
     firestore = null;
+    rtdb = null;
   }
 } else {
   console.warn('⚠️ Firebase credentials missing. Uploads and Firestore sync will not work.');
 }
 
-export { firebaseApp, bucket, firestore };
+export { firebaseApp, bucket, firestore, rtdb };

@@ -1,6 +1,6 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
-import { getFirestore, doc, getDocFromServer } from 'firebase/firestore';
+import { getFirestore, doc, getDocFromServer, setLogLevel } from 'firebase/firestore';
 
 // Import the Firebase configuration
 import firebaseConfig from '../../firebase-applet-config.json';
@@ -8,6 +8,7 @@ import firebaseConfig from '../../firebase-applet-config.json';
 // Initialize Firebase SDK
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
+setLogLevel('error');
 export const auth = getAuth();
 
 // Validate connection to Firestore

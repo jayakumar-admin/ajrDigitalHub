@@ -40,7 +40,7 @@ router.post('/onboarding/complete', authenticate, authorizeAdmin, adminSystemCon
 
 // Application details & subpages
 router.get('/apps', authenticate, authorizeAdmin, adminSystemController.getApps);
-router.get('/usage/:appId', authenticate, authorizeAdmin, adminSystemController.getAppUsage);
+router.get('/usage/:appId([^\\.]+)', authenticate, authorizeAdmin, adminSystemController.getAppUsage);
 router.get('/apps/:id', authenticate, authorizeAdmin, adminSystemController.getAppDetail);
 router.put('/apps/:id', authenticate, authorizeAdmin, adminSystemController.updateApp);
 router.delete('/apps/:id', authenticate, authorizeAdmin, adminSystemController.deleteApp);

@@ -1,8 +1,8 @@
-import { Component, ChangeDetectionStrategy, inject, signal, OnInit, effect } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, signal, OnInit, effect, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink, Router } from '@angular/router';
 import { ProjectDetailService, ProjectData } from '../../../services/project-detail.service';
 import { AdminCloudService } from '../../../services/admin-cloud.service';
 import { AdminStoreService } from '../../../services/admin-store.service';
@@ -15,6 +15,8 @@ import { ProjectDatabaseComponent } from './database';
 import { ProjectServicesComponent } from './services';
 import { ProjectDeploymentsComponent } from './deployments';
 import { ProjectIntegrationsComponent } from './integrations';
+import { ProjectSecurityComponent } from './security-center';
+import { WhatsAppBillingComponent } from './whatsapp-billing';
 
 @Component({
   selector: 'app-project-detail',
@@ -32,7 +34,9 @@ import { ProjectIntegrationsComponent } from './integrations';
     ProjectDatabaseComponent,
     ProjectServicesComponent,
     ProjectDeploymentsComponent,
-    ProjectIntegrationsComponent
+    ProjectIntegrationsComponent,
+    ProjectSecurityComponent,
+    WhatsAppBillingComponent
   ],
    template: `
     <div class="min-h-screen bg-app-bg font-sans pb-20 fade-in text-app-text flex flex-col">
@@ -47,23 +51,54 @@ import { ProjectIntegrationsComponent } from './integrations';
               <div class="h-5 w-px bg-app-border"></div>
               @if (projectService.isLoading()) {
                  <div class="w-32 h-6 bg-app-bg animate-pulse rounded"></div>
-              } @else if (projectService.currentProject()) {
-                 <div class="flex flex-col">
-                    <!-- Breadcrumb: Admin → Applications → Project Name -->
-                    <nav class="flex items-center gap-1.5 text-[10px] font-medium text-app-muted tracking-wide mb-0.5">
-                       <a routerLink="/admin" class="hover:text-indigo-500 transition-colors duration-150">Admin</a>
-                       <span class="text-app-muted">/</span>
-                       <span class="text-app-muted">Applications</span>
-                       <span class="text-app-muted">/</span>
-                       <span class="text-indigo-500 font-semibold">{{ projectService.currentProject()!.name }}</span>
-                    </nav>
-                    <h1 class="text-sm md:text-base font-bold text-app-text tracking-tight flex items-center gap-2">
-                       {{ projectService.currentProject()!.name }}
-                       <span class="px-1.5 py-0.5 rounded text-[9px] bg-app-bg text-app-muted font-mono tracking-wider border border-app-border">
-                          {{ projectService.currentProject()!.environment }}
-                       </span>
-                    </h1>
-                 </div>
+              } @else {
+                 @if (projectService.currentProject(); as currentApp) {
+                    <div class="flex flex-col app-switcher-container relative">
+                       <!-- Breadcrumb: Admin → Applications → Project Name -->
+                       <nav class="flex items-center gap-1.5 text-[10px] font-medium text-app-muted tracking-wide mb-0.5">
+                          <a routerLink="/admin" class="hover:text-indigo-500 transition-colors duration-150">Admin</a>
+                          <span class="text-app-muted">/</span>
+                          <span class="text-app-muted">Applications</span>
+                          <span class="text-app-muted">/</span>
+                          <span class="text-indigo-500 font-semibold">{{ currentApp.name }}</span>
+                       </nav>
+                       
+                       <div class="relative">
+                          <button (click)="isAppSwitchOpen.set(!isAppSwitchOpen())" class="text-sm md:text-base font-bold text-app-text tracking-tight flex items-center gap-2 hover:bg-app-bg/60 px-2 py-1 -mx-2 rounded-lg transition-colors select-none cursor-pointer">
+                             <span>{{ currentApp.name }}</span>
+                             <span class="px-1.5 py-0.5 rounded text-[9px] bg-app-bg text-app-muted font-mono tracking-wider border border-app-border">
+                                {{ currentApp.environment }}
+                             </span>
+                             <mat-icon class="!w-4 !h-4 !text-[16px] text-app-muted transition-transform duration-200" [class.rotate-180]="isAppSwitchOpen()">
+                                expand_more
+                             </mat-icon>
+                          </button>
+                          
+                          <!-- Dropdown Overlay -->
+                          @if (isAppSwitchOpen()) {
+                             <div class="glass absolute left-0 mt-2 w-64 border border-app-border rounded-xl shadow-xl z-50 p-2 text-app-text transition-all duration-150 animate-in fade-in slide-in-from-top-2">
+                                <div class="text-[9px] uppercase font-bold text-app-muted tracking-wider mb-1.5 px-3">Switch Application</div>
+                                <div class="space-y-0.5 max-h-[300px] overflow-y-auto custom-scrollbar">
+                                   @for (app of store.apps(); track app.id) {
+                                      <button 
+                                        (click)="router.navigate(['/admin/apps', app.id]); isAppSwitchOpen.set(false)"
+                                        [class]="app.id === currentApp.id 
+                                          ? 'bg-indigo-500/10 text-indigo-500 font-bold border border-indigo-500/20 shadow-sm' 
+                                          : 'text-app-text hover:bg-app-bg hover:text-indigo-400 border border-transparent'" 
+                                        class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs transition-all text-left cursor-pointer">
+                                        <div class="flex items-center gap-2 truncate">
+                                           <span class="w-1.5 h-1.5 rounded-full" [ngClass]="app.status === 'live' ? 'bg-emerald-400' : app.status === 'deploying' ? 'bg-amber-400' : 'bg-rose-400'"></span>
+                                           <span class="truncate font-semibold">{{ app.name }}</span>
+                                        </div>
+                                        <span class="text-[9px] font-mono text-app-muted px-1.5 py-0.5 bg-app-bg/50 rounded border border-app-border shrink-0">{{ app.environment }}</span>
+                                      </button>
+                                   }
+                                </div>
+                             </div>
+                          }
+                       </div>
+                    </div>
+                 }
               }
            </div>
            
@@ -85,7 +120,7 @@ import { ProjectIntegrationsComponent } from './integrations';
       <main class="max-w-[1500px] mx-auto w-full flex-grow flex flex-col md:flex-row h-[calc(100vh-65px)] overflow-hidden">
         
         <!-- Left Sidebar Project Navigation -->
-        <aside class="w-full md:w-64 border-r border-app-border bg-app-card/40 shrink-0 overflow-y-auto custom-scrollbar">
+        <aside class="hidden md:block w-64 border-r border-app-border bg-app-card/40 shrink-0 overflow-y-auto custom-scrollbar">
            <nav class="p-4 space-y-6">
               @for (group of navGroups; track group.group) {
                  <div>
@@ -108,6 +143,44 @@ import { ProjectIntegrationsComponent } from './integrations';
            </nav>
         </aside>
 
+         <!-- Mobile Navigation Bar -->
+         <div class="md:hidden w-full px-4 py-2.5 shrink-0 bg-app-card border-b border-app-border z-30 animate-in duration-300 relative">
+            <!-- Mobile Active Selection Indicator -->
+            <div (click)="isMobileMenuOpen.set(!isMobileMenuOpen())" class="flex items-center justify-between w-full pl-4 pr-1.5 py-1.5 bg-app-bg border border-app-border rounded-xl cursor-pointer hover:bg-app-bg/85 transition-all select-none shadow-xs">
+               <span class="flex items-center gap-2 font-bold text-xs text-indigo-400">
+                  <mat-icon class="!w-[16px] !h-[16px] !text-[16px]">{{ getActiveSectionIcon() }}</mat-icon>
+                  {{ getActiveSectionLabel() }}
+               </span>
+               <button class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-app-bg/50 text-app-muted hover:text-app-text transition-colors">
+                  <mat-icon class="!w-[18px] !h-[18px] !text-[18px]">{{ isMobileMenuOpen() ? 'close' : 'menu' }}</mat-icon>
+               </button>
+            </div>
+
+            <!-- Floating Dropdown Options -->
+            @if (isMobileMenuOpen()) {
+               <div class="absolute left-4 right-4 mt-1 bg-app-card border border-app-border rounded-xl shadow-xl z-50 p-2.5 max-h-[60vh] overflow-y-auto custom-scrollbar animate-in fade-in slide-in-from-top-2 duration-150">
+                  @for (group of navGroups; track group.group) {
+                     <div class="mt-3 first:mt-0">
+                        <div class="text-[9px] uppercase font-bold text-app-muted tracking-wider mb-1.5 px-3">{{ group.group }}</div>
+                        <div class="space-y-0.5">
+                           @for (tab of group.items; track tab.id) {
+                              <button 
+                                (click)="activeSection.set(tab.id); isMobileMenuOpen.set(false)"
+                                [class]="activeSection() === tab.id 
+                                  ? 'bg-indigo-50/20 text-indigo-500 font-bold border border-indigo-500/20 shadow-sm' 
+                                  : 'text-app-muted hover:bg-app-bg hover:text-app-text border border-transparent'" 
+                                class="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs transition-all text-left">
+                                <mat-icon class="!w-[16px] !h-[16px] !text-[16px]">{{ tab.icon }}</mat-icon>
+                                {{ tab.label }}
+                              </button>
+                           }
+                        </div>
+                     </div>
+                  }
+               </div>
+            }
+         </div>
+
         <!-- Right Content Area -->
         <div class="flex-grow p-6 lg:p-10 overflow-y-auto scroll-smooth bg-app-bg custom-scrollbar relative">
            @if (projectService.isLoading()) {
@@ -120,7 +193,7 @@ import { ProjectIntegrationsComponent } from './integrations';
                   @case ('overview') {
                      <app-project-overview [project]="project"></app-project-overview>
                   }
-                 @case ('overview') {
+                 @case ('overview_legacy') {
                     <div class="animate-in fade-in slide-in-from-bottom-2 duration-300 max-w-5xl">
                        <h2 class="text-2xl font-bold text-app-text mb-6">Smart Insights & Overview</h2>
                        
@@ -474,66 +547,12 @@ import { ProjectIntegrationsComponent } from './integrations';
                  }
 
                  @case ('security') {
-                    <div class="animate-in fade-in slide-in-from-bottom-2 duration-300 max-w-5xl">
-                       <div class="flex items-center justify-between mb-6">
-                          <h2 class="text-2xl font-bold text-app-text">Security Center</h2>
-                          <button class="bg-app-card text-app-text px-4 py-2 hover:bg-app-bg rounded-lg text-sm font-bold shadow-md transition flex items-center gap-2 border border-app-border">
-                             <mat-icon class="!w-4 !h-4 !text-[16px]">radar</mat-icon> Run Security Scan
-                          </button>
-                       </div>
+                     <app-project-security [project]="project"></app-project-security>
+                  }
 
-                       <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                          <div class="bg-gradient-to-br from-rose-500/10 to-transparent border border-rose-500/20 rounded-xl p-6 shadow-sm">
-                             <div class="text-[10px] font-bold text-rose-500 uppercase tracking-widest mb-2 flex items-center justify-between">
-                                <span>Failed Logins (24h)</span>
-                                <mat-icon class="!w-4 !h-4 !text-[16px]">warning</mat-icon>
-                             </div>
-                             <div class="text-4xl font-black text-app-text">12</div>
-                          </div>
-                          <div class="bg-gradient-to-br from-amber-500/10 to-transparent border border-amber-500/20 rounded-xl p-6 shadow-sm">
-                             <div class="text-[10px] font-bold text-amber-500 uppercase tracking-widest mb-2 flex items-center justify-between">
-                                <span>Suspicious IPs</span>
-                                <mat-icon class="!w-4 !h-4 !text-[16px]">policy</mat-icon>
-                             </div>
-                             <div class="text-4xl font-black text-app-text">3</div>
-                          </div>
-                          <div class="bg-gradient-to-br from-emerald-500/10 to-transparent border border-emerald-500/20 rounded-xl p-6 shadow-sm flex flex-col justify-between">
-                             <div class="text-[10px] font-bold text-emerald-500 uppercase tracking-widest mb-2">WAF Status</div>
-                             <div class="text-2xl font-black text-emerald-400 uppercase">Active</div>
-                          </div>
-                       </div>
-
-                       <div class="bg-app-card border border-app-border rounded-xl p-0 shadow-sm overflow-hidden">
-                          <div class="px-6 py-4 border-b border-app-border bg-app-card flex justify-between items-center">
-                             <h3 class="text-sm font-bold text-app-text">Threat Intelligence Logs</h3>
-                          </div>
-                          <div class="p-6 space-y-3 font-mono text-xs">
-                             <div class="p-4 bg-app-bg border border-rose-500/20 border-l-2 border-l-rose-500 rounded-lg text-app-text flex justify-between items-start shadow-inner">
-                                <div>
-                                   <span class="text-rose-500 font-bold bg-rose-50/10 px-1.5 py-0.5 rounded mr-2 border border-rose-500/20">[BLOCKED]</span> 
-                                   <span class="text-sm">Multiple failed login attempts detected.</span>
-                                   <div class="text-app-muted mt-2 flex items-center gap-4">
-                                      <span>Source IP: <strong class="text-app-text">45.33.22.11</strong></span>
-                                      <span>Protocol: OAuth /auth/token</span>
-                                   </div>
-                                </div>
-                                <button class="bg-app-card px-3 py-1.5 rounded border border-app-border text-app-text font-sans font-bold hover:bg-app-bg transition shadow">Ban IP</button>
-                             </div>
-                             <div class="p-4 bg-app-bg border border-amber-500/20 border-l-2 border-l-amber-500 rounded-lg text-app-text flex justify-between items-start shadow-inner">
-                                <div>
-                                   <span class="text-amber-500 font-bold bg-amber-50/10 px-1.5 py-0.5 rounded mr-2 border border-amber-500/20">[WARN]</span> 
-                                   <span class="text-sm">Unrecognized region access (VN).</span>
-                                   <div class="text-app-muted mt-2 flex items-center gap-4">
-                                      <span>Source IP: <strong class="text-app-text">113.161.44.2</strong></span>
-                                      <span>User: admin&#64;ajr.dev</span>
-                                   </div>
-                                </div>
-                                <button class="bg-app-card px-3 py-1.5 rounded border border-app-border text-app-text font-sans font-bold hover:bg-app-bg transition shadow">Revoke Session</button>
-                             </div>
-                          </div>
-                       </div>
-                    </div>
-                 }
+                  @case ('whatsapp_billing') {
+                     <app-whatsapp-billing [project]="project"></app-whatsapp-billing>
+                  }
 
                  @case ('analytics') {
                      <app-project-api-monitor [project]="project"></app-project-api-monitor>
@@ -983,6 +1002,36 @@ export class ProjectDetailComponent implements OnInit {
   cloudService = inject(AdminCloudService); 
   store = inject(AdminStoreService);
   route = inject(ActivatedRoute);
+  router = inject(Router);
+
+  isMobileMenuOpen = signal(false);
+  isAppSwitchOpen = signal(false);
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    const target = event.target as HTMLElement;
+    if (this.isAppSwitchOpen() && !target.closest('.app-switcher-container')) {
+      this.isAppSwitchOpen.set(false);
+    }
+  }
+
+  getActiveSectionIcon(): string {
+    const section = this.activeSection();
+    for (const group of this.navGroups) {
+      const item = group.items.find(i => i.id === section);
+      if (item) return item.icon;
+    }
+    return 'menu';
+  }
+
+  getActiveSectionLabel(): string {
+    const section = this.activeSection();
+    for (const group of this.navGroups) {
+      const item = group.items.find(i => i.id === section);
+      if (item) return item.label;
+    }
+    return 'Menu';
+  }
 
   navGroups = [
     {
@@ -1007,6 +1056,7 @@ export class ProjectDetailComponent implements OnInit {
       group: 'Monitoring & Ops',
       items: [
         { id: 'analytics', label: 'Analytics & Stream', icon: 'stream' },
+        { id: 'whatsapp_billing', label: 'WhatsApp Billing', icon: 'chat' },
         { id: 'database', label: 'Database & Backups', icon: 'storage' },
         { id: 'deployments', label: 'Deployments', icon: 'rocket_launch' },
         { id: 'workflows', label: 'Alerts & Workflows', icon: 'account_tree' },
@@ -1049,7 +1099,7 @@ export class ProjectDetailComponent implements OnInit {
   ngOnInit() {
     this.route.paramMap.subscribe(params => {
       const id = params.get('id');
-      if (id) {
+      if (id && !id.includes('.')) {
         this.projectService.loadProject(id);
       }
     });

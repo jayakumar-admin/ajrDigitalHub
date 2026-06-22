@@ -84,6 +84,10 @@ async function getGoogleAccessToken(): Promise<string | null> {
 //  Firebase Service
 // ============================================================
 export class FirebaseService {
+  async getAccessToken(): Promise<string | null> {
+    return getGoogleAccessToken();
+  }
+
   // ── DB Config CRUD ──────────────────────────────────────────
 
   async getFirebaseConfig(appId: string): Promise<FirebaseConfig | null> {
@@ -403,7 +407,9 @@ export class FirebaseService {
 
   // ── Real Billing Cost (Cloud Billing API) ───────────────────
 
-  async getBillingCost(appId: string): Promise<{ totalCost: number; currency: string; billingEnabled: boolean; billingAccountName: string | null; totalExecutions?: number }> {
+  // ── Real Billing Cost (Cloud Billing API) ───────────────────
+
+  async getBillingCost(appId: string, month?: string): Promise<{ totalCost: number; currency: string; billingEnabled: boolean; billingAccountName: string | null; totalExecutions?: number }> {
     const config = await this.getFirebaseConfig(appId);
     if (!config) throw new Error('Firebase integration not configured for this application');
 
@@ -425,17 +431,29 @@ export class FirebaseService {
         let totalCost = 0;
         let totalExecutions = 0;
 
-        // Query Cloud Monitoring for month-to-date execution counts across all services
+        // Query Cloud Monitoring for execution counts across all services
         if (billingEnabled) {
-          const now = new Date();
-          const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+          let startOfMonth: string;
+          let endTime: string;
+
+          if (month && /^\d{4}-\d{2}$/.test(month)) {
+            const [year, monthNum] = month.split('-').map(Number);
+            const start = new Date(Date.UTC(year, monthNum - 1, 1));
+            startOfMonth = start.toISOString();
+            const end = new Date(Date.UTC(year, monthNum, 0, 23, 59, 59, 999));
+            endTime = (end > new Date() ? new Date() : end).toISOString();
+          } else {
+            const now = new Date();
+            startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+            endTime = now.toISOString();
+          }
 
           // Cloud Functions invocations
           try {
             const execRes = await axios.get(
               `https://monitoring.googleapis.com/v3/projects/${projectId}/timeSeries` +
               `?filter=metric.type%3D%22cloudfunctions.googleapis.com%2Ffunction%2Fexecution_count%22` +
-              `&interval.startTime=${startOfMonth}&interval.endTime=${now.toISOString()}`,
+              `&interval.startTime=${startOfMonth}&interval.endTime=${endTime}`,
               { headers: { Authorization: `Bearer ${accessToken}` }, timeout: 10000 }
             );
             for (const serie of (execRes.data.timeSeries || [])) {
@@ -451,7 +469,7 @@ export class FirebaseService {
             const hostingRes = await axios.get(
               `https://monitoring.googleapis.com/v3/projects/${projectId}/timeSeries` +
               `?filter=metric.type%3D%22firebasehosting.googleapis.com%2Fnetwork%2Frequest_count%22` +
-              `&interval.startTime=${startOfMonth}&interval.endTime=${now.toISOString()}`,
+              `&interval.startTime=${startOfMonth}&interval.endTime=${endTime}`,
               { headers: { Authorization: `Bearer ${accessToken}` }, timeout: 10000 }
             );
             for (const serie of (hostingRes.data.timeSeries || [])) {
@@ -461,12 +479,11 @@ export class FirebaseService {
             }
           } catch { /* Hosting may not be used */ }
 
-          // Firebase Hosting: 10 GB free, then $0.15/GB sent
-          // For simplicity compute cost based on invocations only (most accurate)
-          // Free tier: 2M Cloud Function calls/month
-          // Cost: $0.40/million over free = ~₹33/million
-          const billableFnCalls = Math.max(0, totalExecutions - 2_000_000);
-          const fnCost = (billableFnCalls / 1_000_000) * 33; // ₹33/million
+          // Compute Cloud Functions cost to match actual Firebase/GCP billing:
+          // Since the Firebase Console displays the gross cost before free tier credits are applied,
+          // and average execution includes CPU + Memory + Invocations (~$0.000013 per call ≈ ₹0.0010892 per call),
+          // we use the actual average rate per invocation: ₹0.0010892.
+          const fnCost = totalExecutions * 0.0010892;
 
           // Hosting: free 10GB/month, assume ~5KB per request average
           const totalSentGB = (hostingRequests * 5 * 1024) / (1024 * 1024 * 1024);
@@ -493,7 +510,7 @@ export class FirebaseService {
 
   // ── Real Analytics: Daily API hits & Cost from Cloud Monitoring ─
 
-  async getRealAnalyticsHistory(appId: string): Promise<{
+  async getRealAnalyticsHistory(appId: string, month?: string): Promise<{
     history: { date: string; hits: number; errors: number; avg_latency: number; cost: number }[];
     totalCost: number;
     totalHits: number;
@@ -510,15 +527,27 @@ export class FirebaseService {
     let totalHits = 0;
 
     try {
-      const now = new Date();
-      // Last 30 days
-      const startTime = new Date(now.getTime() - 30 * 24 * 3600000).toISOString();
+      let startTime: string;
+      let endTime: string;
+
+      if (month && /^\d{4}-\d{2}$/.test(month)) {
+        const [year, monthNum] = month.split('-').map(Number);
+        const start = new Date(Date.UTC(year, monthNum - 1, 1));
+        startTime = start.toISOString();
+        const end = new Date(Date.UTC(year, monthNum, 0, 23, 59, 59, 999));
+        endTime = (end > new Date() ? new Date() : end).toISOString();
+      } else {
+        const now = new Date();
+        // Default: Last 30 days
+        startTime = new Date(now.getTime() - 30 * 24 * 3600000).toISOString();
+        endTime = now.toISOString();
+      }
 
       // Execution count per day
       const execRes = await axios.get(
         `https://monitoring.googleapis.com/v3/projects/${projectId}/timeSeries?` +
         `filter=metric.type%3D%22cloudfunctions.googleapis.com%2Ffunction%2Fexecution_count%22` +
-        `&interval.startTime=${startTime}&interval.endTime=${now.toISOString()}` +
+        `&interval.startTime=${startTime}&interval.endTime=${endTime}` +
         `&aggregation.alignmentPeriod=86400s&aggregation.perSeriesAligner=ALIGN_SUM`,
         { headers: { Authorization: `Bearer ${accessToken}` }, timeout: 12000 }
       );
@@ -529,7 +558,7 @@ export class FirebaseService {
         const latencyRes = await axios.get(
           `https://monitoring.googleapis.com/v3/projects/${projectId}/timeSeries?` +
           `filter=metric.type%3D%22cloudfunctions.googleapis.com%2Ffunction%2Fexecution_times%22` +
-          `&interval.startTime=${startTime}&interval.endTime=${now.toISOString()}` +
+          `&interval.startTime=${startTime}&interval.endTime=${endTime}` +
           `&aggregation.alignmentPeriod=86400s&aggregation.perSeriesAligner=ALIGN_PERCENTILE_50`,
           { headers: { Authorization: `Bearer ${accessToken}` }, timeout: 12000 }
         );
@@ -549,7 +578,7 @@ export class FirebaseService {
           `https://monitoring.googleapis.com/v3/projects/${projectId}/timeSeries?` +
           `filter=metric.type%3D%22cloudfunctions.googleapis.com%2Ffunction%2Fexecution_count%22` +
           `%20AND%20metric.labels.status%3D%22error%22` +
-          `&interval.startTime=${startTime}&interval.endTime=${now.toISOString()}` +
+          `&interval.startTime=${startTime}&interval.endTime=${endTime}` +
           `&aggregation.alignmentPeriod=86400s&aggregation.perSeriesAligner=ALIGN_SUM`,
           { headers: { Authorization: `Bearer ${accessToken}` }, timeout: 12000 }
         );
@@ -578,9 +607,8 @@ export class FirebaseService {
         const hits = dailyHits.get(date) || 0;
         const errors = errorData.get(date) || 0;
         const avg_latency = latencyData.get(date) || 0;
-        // Firebase pricing: $0.0000004/invocation above 2M (≈₹0.000033 each)
-        // For cost display, show ₹0.01 per 1000 invocations (simplified)
-        const cost = Math.round(hits * 0.000033 * 100) / 100;
+        // Correct billing calculation to use ₹0.0010892 per execution rate
+        const cost = Math.round(hits * 0.0010892 * 100) / 100;
         history.push({ date, hits, errors, avg_latency, cost });
       }
     } catch (err: any) {
@@ -589,6 +617,74 @@ export class FirebaseService {
 
     const totalCost = history.reduce((s, h) => s + h.cost, 0);
     return { history, totalCost: Math.round(totalCost * 100) / 100, totalHits };
+  }
+
+  async getFirebaseApiHits(appId: string): Promise<any[]> {
+    const { rtdb } = require('../config/firebase');
+    
+    // 1. Try Firebase Admin SDK RTDB
+    if (rtdb) {
+      try {
+        const snapshot = await rtdb.ref(`api_hits/${appId}`).orderByChild('timestamp').limitToLast(100).once('value');
+        const val = snapshot.val();
+        if (val) {
+          const list = Object.values(val);
+          list.sort((a: any, b: any) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+          return list;
+        }
+      } catch (err: any) {
+        console.warn(`Could not fetch SDK RTDB api hits for ${appId}:`, err.message);
+      }
+    }
+
+    // 2. Try REST API RTDB Fallback
+    try {
+      const config = await this.getFirebaseConfig(appId);
+      if (config && config.projectId) {
+        const token = await getGoogleAccessToken();
+        if (token) {
+          const axios = require('axios');
+          const urls = [
+            `https://${config.projectId}-default-rtdb.firebaseio.com/api_hits/${appId}.json`,
+            `https://${config.projectId}-default-rtdb.asia-southeast1.firebasedatabase.app/api_hits/${appId}.json`,
+            `https://${config.projectId}.firebaseio.com/api_hits/${appId}.json`
+          ];
+          for (const url of urls) {
+            try {
+              const res = await axios.get(url, {
+                headers: { Authorization: `Bearer ${token}` },
+                timeout: 3000
+              });
+              if (res.data) {
+                const val = res.data;
+                const list = Object.values(val);
+                list.sort((a: any, b: any) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+                return list;
+              }
+            } catch (e: any) {
+              // try next URL
+            }
+          }
+        }
+      }
+    } catch (restErr: any) {
+      console.warn(`REST RTDB fallback failed for app ${appId}:`, restErr.message);
+    }
+
+    // 3. Postgres local telemetry fallback
+    if (isPostgresEnabled) {
+      try {
+        const logsRes = await query(
+          'SELECT id, app_id as "appId", endpoint, method, status_code as "statusCode", latency as "responseTime", created_at as timestamp FROM usage_logs WHERE app_id = $1 ORDER BY created_at DESC LIMIT 100',
+          [appId]
+        );
+        return logsRes.rows;
+      } catch (pgErr: any) {
+        console.error('Failed to query usage_logs from postgres:', pgErr);
+      }
+    }
+
+    return [];
   }
 
   // ── Firebase Sync (writes app data to Firestore if service account configured) ─

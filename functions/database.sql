@@ -99,9 +99,11 @@ CREATE TABLE IF NOT EXISTS usage_logs (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     app_id UUID REFERENCES apps(id) ON DELETE CASCADE,
     endpoint TEXT NOT NULL,
+    method TEXT DEFAULT 'GET',
     hits INTEGER DEFAULT 1,
     latency INTEGER DEFAULT 0,
     status_code INTEGER DEFAULT 200,
+    source TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -156,6 +158,10 @@ ALTER TABLE apps ADD COLUMN IF NOT EXISTS current_spend NUMERIC(12,4) DEFAULT 0;
 
 -- Index for fast lookup by app_id
 CREATE INDEX IF NOT EXISTS idx_usage_logs_app_created ON usage_logs(app_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_usage_logs_status ON usage_logs(app_id, status_code, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_usage_logs_method ON usage_logs(app_id, method, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_usage_logs_endpoint ON usage_logs(app_id, endpoint, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_usage_logs_latency ON usage_logs(app_id, latency, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_analytics_logs_app_created ON analytics_logs(app_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_billing_app_status ON billing(app_id, status);
 

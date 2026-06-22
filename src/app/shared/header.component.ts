@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, inject, computed } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
@@ -119,50 +119,70 @@ import { ThemeService, AppTheme } from '../services/theme.service';
               <span>LOCKPOINT LOGIN</span>
             </button>
           }
+
+          <!-- Mobile Hamburger Trigger Button (Three lines) -->
+          <button (click)="isMobileMenuOpen.set(!isMobileMenuOpen())" class="md:hidden text-app-muted hover:text-app-text bg-app-card/50 hover:bg-app-card p-2 rounded-xl transition-all border border-app-border flex items-center justify-center cursor-pointer animate-in duration-200" aria-label="Toggle Navigation">
+            <mat-icon class="!text-[20px] !w-[20px] !h-[20px]">{{ isMobileMenuOpen() ? 'close' : 'menu' }}</mat-icon>
+          </button>
         </div>
 
       </div>
 
-      <!-- Mobile Sub-Navigation Bar -->
-      <div class="md:hidden flex items-center justify-around h-11 border-t border-app-border bg-app-card/40 px-2 overflow-x-auto gap-2">
-        <a 
-          routerLink="/home" 
-          routerLinkActive="text-primary font-bold"
-          class="text-[10px] uppercase tracking-wider text-app-muted font-semibold py-1 px-2 transition-all whitespace-nowrap"
-        >
-          Home
-        </a>
-        <a 
-          routerLink="/marketplace" 
-          routerLinkActive="text-primary font-bold"
-          class="text-[10px] uppercase tracking-wider text-app-muted font-semibold py-1 px-2 transition-all whitespace-nowrap"
-        >
-          Matrix
-        </a>
-        <a 
-          routerLink="/services" 
-          routerLinkActive="text-primary font-bold"
-          class="text-[10px] uppercase tracking-wider text-app-muted font-semibold py-1 px-2 transition-all whitespace-nowrap"
-        >
-          Services
-        </a>
-        <a 
-          routerLink="/invoice-builder" 
-          routerLinkActive="text-primary font-bold"
-          class="text-[10px] uppercase tracking-wider text-app-muted font-semibold py-1 px-2 transition-all whitespace-nowrap"
-        >
-          Invoices
-        </a>
-        @if (isAuthenticated()) {
-          <a 
-            routerLink="/dashboard" 
-            routerLinkActive="text-primary font-bold"
-            class="text-[10px] uppercase tracking-wider text-app-muted font-semibold py-1 px-2 transition-all whitespace-nowrap"
-          >
-            Dashboard
-          </a>
-        }
-      </div>
+      <!-- Mobile Floating Menu Dropdown Overlay -->
+      @if (isMobileMenuOpen()) {
+        <div class="md:hidden absolute left-4 right-4 mt-1 bg-app-card border border-app-border rounded-xl shadow-xl z-50 p-2 animate-in fade-in slide-in-from-top-2 duration-150">
+          <div class="flex flex-col gap-1">
+            <a 
+              routerLink="/home" 
+              routerLinkActive="bg-indigo-500/10 text-indigo-500 font-bold border border-indigo-500/20 shadow-sm"
+              [routerLinkActiveOptions]="{exact: true}"
+              (click)="isMobileMenuOpen.set(false)"
+              class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-xs font-semibold text-app-text hover:text-indigo-400 transition-all text-left"
+            >
+              <mat-icon class="!w-[16px] !h-[16px] !text-[16px]">home</mat-icon>
+              Home
+            </a>
+            <a 
+              routerLink="/marketplace" 
+              routerLinkActive="bg-indigo-500/10 text-indigo-500 font-bold border border-indigo-500/20 shadow-sm"
+              (click)="isMobileMenuOpen.set(false)"
+              class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-xs font-semibold text-app-text hover:text-indigo-400 transition-all text-left"
+            >
+              <mat-icon class="!w-[16px] !h-[16px] !text-[16px]">grid_view</mat-icon>
+              Asset Matrix
+            </a>
+            <a 
+              routerLink="/services" 
+              routerLinkActive="bg-indigo-500/10 text-indigo-500 font-bold border border-indigo-500/20 shadow-sm"
+              (click)="isMobileMenuOpen.set(false)"
+              class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-xs font-semibold text-app-text hover:text-indigo-400 transition-all text-left"
+            >
+              <mat-icon class="!w-[16px] !h-[16px] !text-[16px]">cloud_done</mat-icon>
+              Core Services
+            </a>
+            <a 
+              routerLink="/invoice-builder" 
+              routerLinkActive="bg-indigo-500/10 text-indigo-500 font-bold border border-indigo-500/20 shadow-sm"
+              (click)="isMobileMenuOpen.set(false)"
+              class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-xs font-semibold text-app-text hover:text-indigo-400 transition-all text-left"
+            >
+              <mat-icon class="!w-[16px] !h-[16px] !text-[16px]">receipt_long</mat-icon>
+              Invoice Builder
+            </a>
+            @if (isAuthenticated()) {
+              <a 
+                routerLink="/dashboard" 
+                routerLinkActive="bg-indigo-500/10 text-indigo-500 font-bold border border-indigo-500/20 shadow-sm"
+                (click)="isMobileMenuOpen.set(false)"
+                class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-xs font-semibold text-app-text hover:text-indigo-400 transition-all text-left"
+              >
+                <mat-icon class="!w-[16px] !h-[16px] !text-[16px]">dashboard</mat-icon>
+                Dashboard
+              </a>
+            }
+          </div>
+        </div>
+      }
     </header>
   `
 })
@@ -173,6 +193,7 @@ export class HeaderComponent {
 
   isAuthenticated = computed(() => this.authService.isAuthenticated());
   userEmail = computed(() => this.authService.currentUser()?.email || 'Active Node');
+  isMobileMenuOpen = signal(false);
 
   onLogout() {
     this.authService.logout();

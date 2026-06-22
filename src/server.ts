@@ -6,6 +6,7 @@ import bcrypt from 'bcryptjs';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
+import { createNodeRequestHandler } from '@angular/ssr/node';
 
 // Constants
 const PORT = 3000;
@@ -18,6 +19,12 @@ if (typeof __dirname !== 'undefined') {
 } else if (typeof import.meta !== 'undefined' && import.meta.url) {
   currentDir = path.dirname(fileURLToPath(import.meta.url));
 }
+
+// Fallback to process.cwd() if running under transient build/dev caches like .angular or vite-root
+if (currentDir.includes('.angular') || currentDir.includes('vite-root')) {
+  currentDir = process.cwd();
+}
+
 const DATA_FILE = path.join(currentDir, 'schema_datastores.json');
 
 // Datastore schemas in-memory fallback + file persistence
@@ -187,6 +194,10 @@ function loadDatastore() {
 
 function saveDatastore() {
   try {
+    const dir = path.dirname(DATA_FILE);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
     fs.writeFileSync(DATA_FILE, JSON.stringify(db, null, 2), 'utf-8');
   } catch (err) {
     console.error('Failed to lock/persist datastore on disk:', err);
@@ -825,5 +836,5 @@ if (isCommonJSMain || isESMMain) {
   });
 }
 
-export const reqHandler = app;
+export const reqHandler = createNodeRequestHandler(app);
 export default app;

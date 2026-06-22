@@ -5,6 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { ProjectData } from '../../../services/project-detail.service';
 import { ApiService } from '../../../services/api.service';
 import { environment } from '../../../../environments/environment';
+import { ObservabilityComponent } from './observability';
 
 // Current month name helper
 const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -15,21 +16,69 @@ const currentMonthLabel = `${monthNames[now.getMonth()]} ${now.getFullYear()}`;
   selector: 'app-project-api-monitor',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, MatIconModule, FormsModule],
+  imports: [CommonModule, MatIconModule, FormsModule, ObservabilityComponent],
   template: `
     <div class="animate-in fade-in slide-in-from-bottom-2 duration-300 space-y-6">
       <h2 class="text-2xl font-bold text-app-text tracking-tight flex items-center gap-2">
          <mat-icon class="text-indigo-500">sensors</mat-icon> Analytics & Live Connection Stream
       </h2>
 
-      <!-- Sub Tab Switcher -->
-      <div class="flex flex-wrap gap-2 border-b border-app-border pb-px">
+      <!-- Desktop Sub Tab Switcher -->
+      <div class="hidden md:flex flex-wrap gap-2 border-b border-app-border pb-px">
         <button (click)="activeTab.set('combined')" [class]="activeTab() === 'combined' ? 'border-indigo-500 text-indigo-400 font-bold border-b-2' : 'text-app-muted hover:text-app-text border-b-2 border-transparent'" class="px-4 py-2 text-sm transition-all pb-3 cursor-pointer">Combined Stream</button>
         <button (click)="activeTab.set('api')" [class]="activeTab() === 'api' ? 'border-indigo-500 text-indigo-400 font-bold border-b-2' : 'text-app-muted hover:text-app-text border-b-2 border-transparent'" class="px-4 py-2 text-sm transition-all pb-3 cursor-pointer">Standard API Monitor</button>
         <button (click)="activeTab.set('usage')" [class]="activeTab() === 'usage' ? 'border-indigo-500 text-indigo-400 font-bold border-b-2' : 'text-app-muted hover:text-app-text border-b-2 border-transparent'" class="px-4 py-2 text-sm transition-all pb-3 flex items-center gap-1 cursor-pointer"><mat-icon class="!w-4 !h-4 !text-[16px] text-indigo-500">bar_chart</mat-icon> Usage & Billing</button>
         <button (click)="activeTab.set('firebase_overview')" [class]="activeTab() === 'firebase_overview' ? 'border-orange-500 text-orange-400 font-bold border-b-2' : 'text-app-muted hover:text-app-text border-b-2 border-transparent'" class="px-4 py-2 text-sm transition-all pb-3 flex items-center gap-1 cursor-pointer"><mat-icon class="!w-4 !h-4 !text-[16px] text-orange-500">sync</mat-icon> Firebase Overview</button>
         <button (click)="activeTab.set('firebase_logs')" [class]="activeTab() === 'firebase_logs' ? 'border-orange-500 text-orange-400 font-bold border-b-2' : 'text-app-muted hover:text-app-text border-b-2 border-transparent'" class="px-4 py-2 text-sm transition-all pb-3 flex items-center gap-1 cursor-pointer"><mat-icon class="!w-4 !h-4 !text-[16px] text-orange-500">receipt_long</mat-icon> Firebase Logs</button>
         <button (click)="activeTab.set('storage')" [class]="activeTab() === 'storage' ? 'border-orange-500 text-orange-400 font-bold border-b-2' : 'text-app-muted hover:text-app-text border-b-2 border-transparent'" class="px-4 py-2 text-sm transition-all pb-3 flex items-center gap-1 cursor-pointer"><mat-icon class="!w-4 !h-4 !text-[16px] text-orange-500">cloud_queue</mat-icon> Storage Panel</button>
+        <button (click)="activeTab.set('firebase_api_hits')" [class]="activeTab() === 'firebase_api_hits' ? 'border-orange-500 text-orange-400 font-bold border-b-2' : 'text-app-muted hover:text-app-text border-b-2 border-transparent'" class="px-4 py-2 text-sm transition-all pb-3 flex items-center gap-1 cursor-pointer"><mat-icon class="!w-4 !h-4 !text-[16px] text-orange-500">bolt</mat-icon> Firebase API Hits (RTDB)</button>
+        <button (click)="activeTab.set('observability')" [class]="activeTab() === 'observability' ? 'border-indigo-500 text-indigo-400 font-bold border-b-2' : 'text-app-muted hover:text-app-text border-b-2 border-transparent'" class="px-4 py-2 text-sm transition-all pb-3 flex items-center gap-1 cursor-pointer"><mat-icon class="!w-4 !h-4 !text-[16px] text-indigo-500">cloud</mat-icon> ☁️ GCP Observability</button>
+      </div>
+
+      <!-- Mobile Sub Tab Selector -->
+      <div class="md:hidden relative w-full mb-4 z-30 animate-in duration-200">
+         <!-- Mobile Active Tab Indicator -->
+         <div (click)="isMobileTabMenuOpen.set(!isMobileTabMenuOpen())" class="flex items-center justify-between w-full pl-4 pr-1.5 py-1.5 bg-app-card border border-app-border rounded-xl cursor-pointer hover:bg-app-card/85 transition-all select-none shadow-xs">
+            <span class="flex items-center gap-2 font-bold text-xs text-indigo-400">
+               <mat-icon class="!w-[16px] !h-[16px] !text-[16px]">{{ getTabIcon(activeTab()) }}</mat-icon>
+               {{ getTabLabel(activeTab()) }}
+            </span>
+            <button class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-app-bg/50 text-app-muted hover:text-app-text transition-colors">
+               <mat-icon class="!w-[18px] !h-[18px] !text-[18px]">{{ isMobileTabMenuOpen() ? 'close' : 'menu' }}</mat-icon>
+            </button>
+         </div>
+
+         <!-- Floating Tab Dropdown Options -->
+         @if (isMobileTabMenuOpen()) {
+            <div class="absolute left-0 right-0 mt-1 bg-app-card border border-app-border rounded-xl shadow-xl z-50 p-1.5 max-h-[60vh] overflow-y-auto custom-scrollbar animate-in fade-in slide-in-from-top-2 duration-150">
+               <div class="flex flex-col gap-0.5">
+                  <button (click)="activeTab.set('combined'); isMobileTabMenuOpen.set(false)" [class]="activeTab() === 'combined' ? 'bg-indigo-50/20 text-indigo-500 font-bold border border-indigo-500/10' : 'text-app-text hover:bg-app-bg border border-transparent'" class="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs transition-all text-left">
+                     <mat-icon class="!w-[16px] !h-[16px] !text-[16px]">shuffle</mat-icon> Combined Stream
+                  </button>
+                  <button (click)="activeTab.set('api'); isMobileTabMenuOpen.set(false)" [class]="activeTab() === 'api' ? 'bg-indigo-50/20 text-indigo-500 font-bold border border-indigo-500/10' : 'text-app-text hover:bg-app-bg border border-transparent'" class="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs transition-all text-left">
+                     <mat-icon class="!w-[16px] !h-[16px] !text-[16px]">sensors</mat-icon> Standard API Monitor
+                  </button>
+                  <button (click)="activeTab.set('usage'); isMobileTabMenuOpen.set(false)" [class]="activeTab() === 'usage' ? 'bg-indigo-50/20 text-indigo-500 font-bold border border-indigo-500/10' : 'text-app-text hover:bg-app-bg border border-transparent'" class="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs transition-all text-left">
+                     <mat-icon class="!w-[16px] !h-[16px] !text-[16px]">bar_chart</mat-icon> Usage & Billing
+                  </button>
+                  <button (click)="activeTab.set('firebase_overview'); isMobileTabMenuOpen.set(false)" [class]="activeTab() === 'firebase_overview' ? 'bg-orange-50/20 text-orange-400 font-bold border border-orange-500/10' : 'text-app-text hover:bg-app-bg border border-transparent'" class="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs transition-all text-left">
+                     <mat-icon class="!w-[16px] !h-[16px] !text-[16px]">sync</mat-icon> Firebase Overview
+                  </button>
+                  <button (click)="activeTab.set('firebase_logs'); isMobileTabMenuOpen.set(false)" [class]="activeTab() === 'firebase_logs' ? 'bg-orange-50/20 text-orange-400 font-bold border border-orange-500/10' : 'text-app-text hover:bg-app-bg border border-transparent'" class="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs transition-all text-left">
+                     <mat-icon class="!w-[16px] !h-[16px] !text-[16px]">receipt_long</mat-icon> Firebase Logs
+                  </button>
+                  <button (click)="activeTab.set('storage'); isMobileTabMenuOpen.set(false)" [class]="activeTab() === 'storage' ? 'bg-orange-50/20 text-orange-400 font-bold border border-orange-500/10' : 'text-app-text hover:bg-app-bg border border-transparent'" class="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs transition-all text-left">
+                     <mat-icon class="!w-[16px] !h-[16px] !text-[16px]">cloud_queue</mat-icon> Storage Panel
+                  </button>
+                  <button (click)="activeTab.set('firebase_api_hits'); isMobileTabMenuOpen.set(false)" [class]="activeTab() === 'firebase_api_hits' ? 'bg-orange-50/20 text-orange-400 font-bold border border-orange-500/10' : 'text-app-text hover:bg-app-bg border border-transparent'" class="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs transition-all text-left">
+                     <mat-icon class="!w-[16px] !h-[16px] !text-[16px]">bolt</mat-icon> Firebase API Hits (RTDB)
+                  </button>
+                  <button (click)="activeTab.set('observability'); isMobileTabMenuOpen.set(false)" [class]="activeTab() === 'observability' ? 'bg-indigo-50/20 text-indigo-500 font-bold border border-indigo-500/10' : 'text-app-text hover:bg-app-bg border border-transparent'" class="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs transition-all text-left">
+                     <mat-icon class="!w-[16px] !h-[16px] !text-[16px]">cloud</mat-icon> GCP Observability
+                  </button>
+               </div>
+            </div>
+         }
       </div>
 
       <!-- Warning if Firebase not configured for Firebase tabs -->
@@ -50,26 +99,28 @@ const currentMonthLabel = `${monthNames[now.getMonth()]} ${now.getFullYear()}`;
       @switch (activeTab()) {
          <!-- 1. Combined Stream Tab -->
          @case ('combined') {
-            <div class="grid grid-cols-1 lg:grid-cols-5 gap-6 h-[600px] animate-in fade-in duration-200">
+            <div class="grid grid-cols-1 lg:grid-cols-5 gap-6 h-auto lg:h-[600px] animate-in fade-in duration-200">
                <!-- Left Analytics Panel (API overview) -->
-               <div class="col-span-2 bg-app-bg border border-app-border rounded-xl flex flex-col overflow-hidden shadow-sm p-5 space-y-4">
-                  <h3 class="text-xs font-bold text-app-text uppercase tracking-widest border-b border-app-border pb-3">Gateway Telemetry</h3>
-                  <div class="bg-app-card border border-app-border rounded-lg p-4 flex flex-col gap-1">
-                     <span class="text-xs font-bold uppercase tracking-widest text-app-muted">API Load</span>
-                     <span class="text-xl font-bold font-mono text-indigo-400">{{ analyticsData()?.hits || 0 | number }} Hits</span>
-                  </div>
-                  <div class="bg-app-card border border-app-border rounded-lg p-4 flex flex-col gap-1" *ngIf="project().firebase_config">
-                     <span class="text-xs font-bold uppercase tracking-wider text-app-muted">Firebase Active Users</span>
-                     <span class="text-xl font-bold font-mono text-orange-400">{{ firebaseAnalytics()?.activeUsers || 0 }} Users</span>
-                  </div>
-                  <div class="bg-app-card border border-app-border rounded-lg p-4 flex flex-col gap-1" *ngIf="project().firebase_config">
-                     <span class="text-xs font-bold uppercase tracking-wider text-app-muted">Firebase Storage Space</span>
-                     <span class="text-xl font-bold font-mono text-cyan-400">{{ firebaseStorage()?.storageUsedMb || 0 }} MB</span>
+               <div class="col-span-2 bg-app-bg border border-app-border rounded-xl flex flex-col overflow-hidden shadow-sm p-4 md:p-5 space-y-3 md:space-y-4">
+                  <h3 class="text-xs font-bold text-app-text uppercase tracking-widest border-b border-app-border pb-2 md:pb-3">Gateway Telemetry</h3>
+                  <div class="grid grid-cols-3 lg:grid-cols-1 gap-2 md:gap-4">
+                     <div class="bg-app-card border border-app-border rounded-lg p-2.5 md:p-4 flex flex-col gap-1 min-w-0">
+                        <span class="text-[9px] md:text-xs font-bold uppercase tracking-widest text-app-muted truncate">API Load</span>
+                        <span class="text-xs sm:text-sm md:text-xl font-bold font-mono text-indigo-400 truncate">{{ analyticsData()?.hits || 0 | number }} Hits</span>
+                     </div>
+                     <div class="bg-app-card border border-app-border rounded-lg p-2.5 md:p-4 flex flex-col gap-1 min-w-0" *ngIf="project().firebase_config">
+                        <span class="text-[9px] md:text-xs font-bold uppercase tracking-wider text-app-muted truncate">Active Users</span>
+                        <span class="text-xs sm:text-sm md:text-xl font-bold font-mono text-orange-400 truncate">{{ firebaseAnalytics()?.activeUsers || 0 }} Users</span>
+                     </div>
+                     <div class="bg-app-card border border-app-border rounded-lg p-2.5 md:p-4 flex flex-col gap-1 min-w-0" *ngIf="project().firebase_config">
+                        <span class="text-[9px] md:text-xs font-bold uppercase tracking-wider text-app-muted truncate">Storage Space</span>
+                        <span class="text-xs sm:text-sm md:text-xl font-bold font-mono text-cyan-400 truncate">{{ firebaseStorage()?.storageUsedMb || 0 }} MB</span>
+                     </div>
                   </div>
                </div>
                
                <!-- Right combined logs terminal -->
-               <div class="col-span-3 bg-app-bg border border-app-border rounded-xl flex flex-col overflow-hidden shadow-sm">
+               <div class="col-span-3 bg-app-bg border border-app-border rounded-xl flex flex-col overflow-hidden shadow-sm h-[400px] lg:h-full">
                   <div class="p-4 border-b border-app-border flex items-center justify-between bg-app-bg">
                      <div class="flex items-center gap-3">
                         <div class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse relative shadow-[0_0_10px_rgba(16,185,129,0.7)]"></div>
@@ -103,37 +154,37 @@ const currentMonthLabel = `${monthNames[now.getMonth()]} ${now.getFullYear()}`;
 
          <!-- 2. Standard API Monitor Tab -->
          @case ('api') {
-            <div class="grid grid-cols-1 lg:grid-cols-5 gap-6 h-[600px] animate-in fade-in duration-200">
+            <div class="grid grid-cols-1 lg:grid-cols-5 gap-6 h-auto lg:h-[600px] animate-in fade-in duration-200">
                <!-- Endpoint Analysis -->
                <div class="col-span-2 bg-app-bg border border-app-border rounded-xl flex flex-col overflow-hidden shadow-sm">
-                  <div class="p-4 border-b border-app-border bg-app-bg/80 flex justify-between items-center">
+                  <div class="p-4 border-b border-app-border bg-app-bg/80 flex justify-between items-center bg-app-bg">
                      <h3 class="text-xs font-bold text-app-text uppercase tracking-widest">Routing Analysis</h3>
                      @if (analyticsData()) {
                         <span class="text-xs text-app-muted">Total Hits: {{ analyticsData().hits | number }}</span>
-                     }
+                      }
                   </div>
-                  <div class="flex-grow overflow-y-auto custom-scrollbar p-4 flex flex-col gap-4">
+                  <div class="flex-grow overflow-y-auto custom-scrollbar p-3 md:p-4 flex flex-row lg:flex-col gap-2.5 md:gap-4">
                      @if (analyticsData()) {
-                        <div class="bg-app-card border border-app-border rounded-lg p-4 flex flex-col gap-2">
-                           <span class="text-xs font-bold uppercase tracking-widest text-app-muted">Error Rate</span>
-                           <span class="text-2xl font-bold font-mono text-rose-400">{{ analyticsData().error_rate }}</span>
+                        <div class="bg-app-card border border-app-border rounded-lg p-2.5 md:p-4 flex flex-col gap-1 md:gap-2 flex-1 min-w-0">
+                           <span class="text-[9px] md:text-xs font-bold uppercase tracking-widest text-app-muted truncate">Error Rate</span>
+                           <span class="text-xs sm:text-sm md:text-2xl font-bold font-mono text-rose-400 truncate">{{ analyticsData().error_rate }}</span>
                         </div>
-                        <div class="bg-app-card border border-app-border rounded-lg p-4 flex flex-col gap-2">
-                           <span class="text-xs font-bold uppercase tracking-widest text-app-muted">Avg Latency</span>
-                           <span class="text-2xl font-bold font-mono text-amber-400">{{ analyticsData().avg_latency }}</span>
+                        <div class="bg-app-card border border-app-border rounded-lg p-2.5 md:p-4 flex flex-col gap-1 md:gap-2 flex-1 min-w-0">
+                           <span class="text-[9px] md:text-xs font-bold uppercase tracking-widest text-app-muted truncate">Avg Latency</span>
+                           <span class="text-xs sm:text-sm md:text-2xl font-bold font-mono text-amber-400 truncate">{{ analyticsData().avg_latency }}</span>
                         </div>
-                        <div class="bg-app-card border border-app-border rounded-lg p-4 flex flex-col gap-2">
-                           <span class="text-xs font-bold uppercase tracking-widest text-app-muted">Live Connections</span>
-                           <span class="text-2xl font-bold font-mono text-emerald-400">{{ analyticsData().live_connections }}</span>
+                        <div class="bg-app-card border border-app-border rounded-lg p-2.5 md:p-4 flex flex-col gap-1 md:gap-2 flex-1 min-w-0">
+                           <span class="text-[9px] md:text-xs font-bold uppercase tracking-widest text-app-muted truncate">Live Conns</span>
+                           <span class="text-xs sm:text-sm md:text-2xl font-bold font-mono text-emerald-400 truncate">{{ analyticsData().live_connections }}</span>
                         </div>
                      } @else {
-                        <div class="text-app-muted text-center italic mt-10">Loading analytics...</div>
+                        <div class="text-app-muted text-center italic mt-10 w-full">Loading analytics...</div>
                      }
                   </div>
                </div>
 
                <!-- Live Stream Console -->
-               <div class="col-span-3 bg-app-bg border border-app-border rounded-xl flex flex-col overflow-hidden shadow-sm">
+               <div class="col-span-3 bg-app-bg border border-app-border rounded-xl flex flex-col overflow-hidden shadow-sm h-[400px] lg:h-full">
                   <div class="p-4 border-b border-app-border flex items-center justify-between bg-app-bg">
                      <div class="flex items-center gap-3">
                         <div class="w-2.5 h-2.5 rounded-full bg-indigo-500 animate-pulse relative shadow-[0_0_10px_rgba(99,102,241,0.7)]"></div>
@@ -190,10 +241,22 @@ const currentMonthLabel = `${monthNames[now.getMonth()]} ${now.getFullYear()}`;
                            Your project's complete billing information can be viewed in <a [href]="'https://console.cloud.google.com/billing?project=' + (project().firebase_config?.projectId || '')" target="_blank" class="text-blue-400 hover:underline inline-flex items-center gap-1">Google Cloud Console <mat-icon class="!w-3 !h-3 !text-[11px] align-middle">open_in_new</mat-icon></a>
                         </p>
                      </div>
-                     <div class="flex items-center gap-2 bg-[#1f2937] border border-app-border rounded-lg px-3 py-1.5 cursor-pointer text-xs text-gray-200 font-sans">
-                        <mat-icon class="!w-4 !h-4 !text-[16px] text-gray-400 align-middle">calendar_month</mat-icon>
-                        <span class="font-bold">{{ currentMonth }}</span>
-                        <mat-icon class="!w-3 !h-3 !text-[12px] text-gray-400 align-middle">expand_more</mat-icon>
+                     <!-- Month dropdown selector -->
+                     <div class="relative">
+                        <button (click)="isMonthDropdownOpen.set(!isMonthDropdownOpen())" class="flex items-center gap-2 bg-[#1f2937] hover:bg-[#374151] border border-app-border rounded-lg px-3 py-1.5 cursor-pointer text-xs text-gray-200 font-sans transition-colors duration-200">
+                           <mat-icon class="!w-4 !h-4 !text-[16px] text-gray-400 align-middle">calendar_month</mat-icon>
+                           <span class="font-bold">{{ currentMonthLabel() }}</span>
+                           <mat-icon class="!w-3 !h-3 !text-[12px] text-gray-400 align-middle">expand_more</mat-icon>
+                        </button>
+                        @if (isMonthDropdownOpen()) {
+                           <div class="absolute right-0 mt-2 w-48 bg-[#1f2937] border border-app-border rounded-lg shadow-xl z-50 overflow-hidden py-1 max-h-60 overflow-y-auto custom-scrollbar">
+                              @for (m of availableMonths(); track m.value) {
+                                 <button (click)="selectMonth(m.value); isMonthDropdownOpen.set(false)" class="w-full text-left px-4 py-2 text-xs transition-colors duration-150 text-gray-300 hover:bg-[#374151]" [ngClass]="{'bg-blue-500/10 !text-blue-400 font-bold': selectedMonth() === m.value}">
+                                    {{ m.label }}
+                                 </button>
+                              }
+                           </div>
+                        }
                      </div>
                   </div>
 
@@ -326,22 +389,22 @@ const currentMonthLabel = `${monthNames[now.getMonth()]} ${now.getFullYear()}`;
                   </div>
 
                   <!-- Summary Table of hits & latency -->
-                  <div class="grid grid-cols-1 md:grid-cols-4 bg-[#1f2937]/30 border border-app-border rounded-xl p-4 text-center uppercase tracking-widest text-[10px] font-bold">
-                     <div class="flex flex-col gap-1 border-r border-app-border/40 py-2">
-                        <span class="text-app-muted">Triggered API Hits</span>
-                        <span class="text-lg font-black font-mono text-indigo-400 mt-1">{{ analyticsData()?.hits || 0 | number }} Hits</span>
+                  <div class="grid grid-cols-2 md:grid-cols-4 bg-[#1f2937]/30 border border-app-border rounded-xl p-3 md:p-4 text-center uppercase tracking-widest text-[9px] md:text-[10px] font-bold gap-y-4 md:gap-y-0">
+                     <div class="flex flex-col gap-1 border-r border-app-border/40 py-1 md:py-2 min-w-0">
+                        <span class="text-app-muted truncate">Triggered Hits</span>
+                        <span class="text-sm md:text-lg font-black font-mono text-indigo-400 mt-0.5 md:mt-1 truncate">{{ analyticsData()?.hits || 0 | number }} Hits</span>
                      </div>
-                     <div class="flex flex-col gap-1 border-r border-app-border/40 py-2">
-                        <span class="text-app-muted">Average Latency</span>
-                        <span class="text-lg font-black font-mono text-amber-400 mt-1">{{ analyticsData()?.avg_latency || '0ms' }}</span>
+                     <div class="flex flex-col gap-1 md:border-r border-app-border/40 py-1 md:py-2 min-w-0">
+                        <span class="text-app-muted truncate">Avg Latency</span>
+                        <span class="text-sm md:text-lg font-black font-mono text-amber-400 mt-0.5 md:mt-1 truncate">{{ analyticsData()?.avg_latency || '0ms' }}</span>
                      </div>
-                     <div class="flex flex-col gap-1 border-r border-app-border/40 py-2">
-                        <span class="text-app-muted">Overall Error Rate</span>
-                        <span class="text-lg font-black font-mono text-rose-400 mt-1">{{ analyticsData()?.error_rate || '0%' }}</span>
+                     <div class="flex flex-col gap-1 border-r border-app-border/40 py-1 md:py-2 min-w-0">
+                        <span class="text-app-muted truncate">Error Rate</span>
+                        <span class="text-sm md:text-lg font-black font-mono text-rose-400 mt-0.5 md:mt-1 truncate">{{ analyticsData()?.error_rate || '0%' }}</span>
                      </div>
-                     <div class="flex flex-col gap-1 py-2">
-                        <span class="text-app-muted">Project Cost (MTD)</span>
-                        <span class="text-lg font-black font-mono text-emerald-400 mt-1">₹{{ realProjectCost() }}</span>
+                     <div class="flex flex-col gap-1 py-1 md:py-2 min-w-0">
+                        <span class="text-app-muted truncate">Cost (MTD)</span>
+                        <span class="text-sm md:text-lg font-black font-mono text-emerald-400 mt-0.5 md:mt-1 truncate">₹{{ realProjectCost() }}</span>
                      </div>
                   </div>
 
@@ -352,29 +415,37 @@ const currentMonthLabel = `${monthNames[now.getMonth()]} ${now.getFullYear()}`;
          <!-- 3. Firebase Overview Tab -->
          @case ('firebase_overview') {
             <div class="space-y-6 animate-in fade-in duration-200" *ngIf="project().firebase_config">
-               <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+               <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
                   <!-- Project ID -->
-                  <div class="bg-app-bg border border-app-border rounded-xl p-5 shadow-sm">
-                     <div class="text-xs font-bold text-app-muted uppercase tracking-wider mb-1">Project ID</div>
-                     <div class="text-lg font-mono font-bold text-orange-400 truncate mt-2">{{ firebaseStatus()?.projectId || project().firebase_config?.projectId }}</div>
+                  <div class="bg-app-bg border border-app-border rounded-xl p-3 sm:p-4 md:p-5 shadow-sm flex flex-col justify-between">
+                     <div>
+                        <div class="text-[9px] md:text-xs font-bold text-app-muted uppercase tracking-wider mb-0.5 md:mb-1">Project ID</div>
+                        <div class="text-xs sm:text-sm md:text-lg font-mono font-bold text-orange-400 truncate mt-1 md:mt-2" [title]="firebaseStatus()?.projectId || project().firebase_config?.projectId">{{ firebaseStatus()?.projectId || project().firebase_config?.projectId }}</div>
+                     </div>
                   </div>
                   <!-- Status -->
-                  <div class="bg-app-bg border border-app-border rounded-xl p-5 shadow-sm">
-                     <div class="text-xs font-bold text-app-muted uppercase tracking-wider mb-1">Deployment Status</div>
-                     <div class="flex items-center gap-2 mt-2">
-                        <div class="w-2.5 h-2.5 rounded-full" [ngClass]="{'bg-emerald-400': firebaseStatus()?.status === 'LIVE', 'bg-rose-400': firebaseStatus()?.status !== 'LIVE'}"></div>
-                        <span class="text-lg font-bold text-app-text uppercase">{{ firebaseStatus()?.status || 'UNKNOWN' }}</span>
+                  <div class="bg-app-bg border border-app-border rounded-xl p-3 sm:p-4 md:p-5 shadow-sm flex flex-col justify-between">
+                     <div>
+                        <div class="text-[9px] md:text-xs font-bold text-app-muted uppercase tracking-wider mb-0.5 md:mb-1">Status</div>
+                        <div class="flex items-center gap-1.5 mt-1 md:mt-2">
+                           <div class="w-2 h-2 rounded-full shrink-0" [ngClass]="{'bg-emerald-400': firebaseStatus()?.status === 'LIVE', 'bg-rose-400': firebaseStatus()?.status !== 'LIVE'}"></div>
+                           <span class="text-xs sm:text-sm md:text-lg font-bold text-app-text uppercase truncate">{{ firebaseStatus()?.status || 'UNKNOWN' }}</span>
+                        </div>
                      </div>
                   </div>
                   <!-- Last Deploy -->
-                  <div class="bg-app-bg border border-app-border rounded-xl p-5 shadow-sm">
-                     <div class="text-xs font-bold text-app-muted uppercase tracking-wider mb-1">Last Deploy Time</div>
-                     <div class="text-xs font-semibold text-app-text mt-2.5 truncate">{{ firebaseStatus()?.lastDeployTime | date:'medium' }}</div>
+                  <div class="bg-app-bg border border-app-border rounded-xl p-3 sm:p-4 md:p-5 shadow-sm flex flex-col justify-between">
+                     <div>
+                        <div class="text-[9px] md:text-xs font-bold text-app-muted uppercase tracking-wider mb-0.5 md:mb-1">Last Deployed</div>
+                        <div class="text-[10px] md:text-xs font-semibold text-app-text mt-1 md:mt-2.5 truncate" [title]="firebaseStatus()?.lastDeployTime | date:'medium'">{{ firebaseStatus()?.lastDeployTime | date:'short' }}</div>
+                     </div>
                   </div>
                   <!-- Active Users -->
-                  <div class="bg-app-bg border border-app-border rounded-xl p-5 shadow-sm">
-                     <div class="text-xs font-bold text-app-muted uppercase tracking-wider mb-1">Active Users</div>
-                     <div class="text-2xl font-black text-cyan-400 mt-1 font-mono">{{ firebaseAnalytics()?.activeUsers || 0 | number }}</div>
+                  <div class="bg-app-bg border border-app-border rounded-xl p-3 sm:p-4 md:p-5 shadow-sm flex flex-col justify-between">
+                     <div>
+                        <div class="text-[9px] md:text-xs font-bold text-app-muted uppercase tracking-wider mb-0.5 md:mb-1">Active Users</div>
+                        <div class="text-sm sm:text-base md:text-2xl font-black text-cyan-400 mt-0.5 md:mt-1 font-mono truncate">{{ firebaseAnalytics()?.activeUsers || 0 | number }}</div>
+                     </div>
                   </div>
                </div>
 
@@ -430,26 +501,62 @@ const currentMonthLabel = `${monthNames[now.getMonth()]} ${now.getFullYear()}`;
             </div>
          }
 
+          <!-- 4b. Firebase API Hits Tab (RTDB) -->
+          @case ('firebase_api_hits') {
+             <div class="bg-app-bg border border-app-border rounded-xl flex flex-col overflow-hidden shadow-sm h-[500px] animate-in fade-in duration-200" *ngIf="project().firebase_config">
+                <div class="p-4 border-b border-app-border flex items-center justify-between bg-app-bg">
+                   <div class="flex items-center gap-3">
+                      <div class="w-2.5 h-2.5 rounded-full bg-orange-500 animate-pulse relative shadow-[0_0_10px_rgba(249,115,22,0.7)]"></div>
+                      <h3 class="text-xs font-bold text-app-text font-mono tracking-wider uppercase">Firebase RTDB API Hits Stream</h3>
+                   </div>
+                   <select (change)="updateApiHitsFilter($any($event.target).value)" class="bg-app-bg border border-app-border text-xs text-app-muted rounded px-3 py-1.5 outline-none hover:border-slate-600 transition cursor-pointer font-sans">
+                      <option value="ALL">All Methods</option>
+                      <option value="GET">GET Only</option>
+                      <option value="POST">POST Only</option>
+                      <option value="PUT">PUT Only</option>
+                      <option value="DELETE">DELETE Only</option>
+                   </select>
+                </div>
+                
+                <div class="p-5 flex-grow overflow-y-auto space-y-2 font-mono text-[12px] h-full custom-scrollbar" id="firebase-api-hits-console">
+                  @for (hit of filteredFirebaseApiHits(); track hit.id || hit.timestamp + hit.endpoint) {
+                    <div [class]="hit.statusCode >= 400 ? 'flex items-start gap-4 border border-rose-500/20 bg-rose-500/5 p-2 rounded -mx-1 mt-2 mb-2' : 'flex items-start gap-4 opacity-70 hover:bg-app-bg/50 p-1 -mx-1 rounded'">
+                      <span class="text-app-muted w-20 shrink-0">{{ hit.time }}</span>
+                      <span [class]="hit.method === 'GET' ? 'text-emerald-400 font-bold w-14 shrink-0' : hit.method === 'POST' ? 'text-indigo-400 font-bold w-14 shrink-0' : hit.method === 'PUT' ? 'text-amber-400 font-bold w-14 shrink-0' : 'text-rose-400 font-bold w-14 shrink-0'">{{ hit.method }}</span>
+                      <div class="flex-grow min-w-0">
+                          <span class="text-app-text break-all font-bold">{{ hit.endpoint }}</span>
+                      </div>
+                      <span [class]="hit.statusCode >= 400 ? 'text-rose-400 font-bold ml-auto shrink-0' : 'text-emerald-500 ml-auto shrink-0'">{{ hit.statusCode }}</span>
+                      <span class="text-app-muted shrink-0 w-16 text-right tabular-nums">{{ hit.responseTime }}ms</span>
+                    </div>
+                  } @empty {
+                    <div class="text-app-muted text-center py-10 italic">No API hits recorded in Realtime Database yet.</div>
+                  }
+                  <div class="text-app-muted animate-pulse mt-6 text-center italic">Listening to Firebase Realtime Database...</div>
+                </div>
+             </div>
+          }
+
          <!-- 5. Firebase Storage Tab -->
          @case ('storage') {
             <div class="space-y-6 animate-in fade-in duration-200" *ngIf="project().firebase_config">
-               <div class="grid grid-cols-1 md:grid-cols-2 gap-6" *ngIf="firebaseStorage()">
+               <div class="grid grid-cols-2 gap-3 md:gap-6" *ngIf="firebaseStorage()">
                   <!-- Storage MB used -->
-                  <div class="bg-app-bg border border-app-border rounded-xl p-6 flex flex-col justify-between shadow-sm min-h-[150px]">
+                  <div class="bg-app-bg border border-app-border rounded-xl p-3.5 sm:p-5 flex flex-col justify-between shadow-sm min-h-[120px] md:min-h-[150px] min-w-0">
                      <div>
-                        <h3 class="text-xs font-bold text-app-muted uppercase tracking-wider mb-2">Total Storage Used</h3>
-                        <div class="text-4xl font-black text-app-text font-mono">{{ firebaseStorage()?.storageUsedMb }} MB</div>
+                        <h3 class="text-[9px] md:text-xs font-bold text-app-muted uppercase tracking-wider mb-1 md:mb-2 truncate">Storage Used</h3>
+                        <div class="text-lg sm:text-2xl md:text-4xl font-black text-app-text font-mono truncate">{{ firebaseStorage()?.storageUsedMb }} MB</div>
                      </div>
-                     <div class="text-xs text-app-muted mt-4">Storage Bucket: <strong class="text-app-text font-mono">{{ firebaseStorage()?.bucketName }}</strong></div>
+                     <div class="text-[9px] md:text-xs text-app-muted mt-2 md:mt-4 truncate">Bucket: <strong class="text-app-text font-mono truncate" [title]="firebaseStorage()?.bucketName">{{ firebaseStorage()?.bucketName }}</strong></div>
                   </div>
                   
                   <!-- Files hosted -->
-                  <div class="bg-app-bg border border-app-border rounded-xl p-6 flex flex-col justify-between shadow-sm min-h-[150px]">
+                  <div class="bg-app-bg border border-app-border rounded-xl p-3.5 sm:p-5 flex flex-col justify-between shadow-sm min-h-[120px] md:min-h-[150px] min-w-0">
                      <div>
-                        <h3 class="text-xs font-bold text-app-muted uppercase tracking-wider mb-2">Total Files Hosted</h3>
-                        <div class="text-4xl font-black text-indigo-400 font-mono">{{ firebaseStorage()?.filesCount | number }} files</div>
+                        <h3 class="text-[9px] md:text-xs font-bold text-app-muted uppercase tracking-wider mb-1 md:mb-2 truncate">Files Hosted</h3>
+                        <div class="text-lg sm:text-2xl md:text-4xl font-black text-indigo-400 font-mono truncate">{{ firebaseStorage()?.filesCount | number }} files</div>
                      </div>
-                     <div class="text-xs text-app-muted mt-4">Last Synced: {{ firebaseStorage()?.lastUpdated | date:'mediumTime' }}</div>
+                     <div class="text-[9px] md:text-xs text-app-muted mt-2 md:mt-4 truncate">Synced: {{ firebaseStorage()?.lastUpdated | date:'mediumTime' }}</div>
                   </div>
                </div>
                
@@ -457,6 +564,9 @@ const currentMonthLabel = `${monthNames[now.getMonth()]} ${now.getFullYear()}`;
                   <div class="text-center py-6 text-app-muted italic">Loading storage metrics...</div>
                </div>
             </div>
+         }
+         @case ('observability') {
+            <app-observability-dashboard [project]="project()"></app-observability-dashboard>
          }
       }
     </div>
@@ -467,14 +577,45 @@ export class ProjectApiMonitorComponent implements OnInit, OnDestroy {
   apiService = inject(ApiService);
   cdr = inject(ChangeDetectorRef);
   
-  activeTab = signal<'combined' | 'api' | 'usage' | 'firebase_overview' | 'firebase_logs' | 'storage'>('combined');
+  activeTab = signal<'combined' | 'api' | 'usage' | 'firebase_overview' | 'firebase_logs' | 'storage' | 'firebase_api_hits' | 'observability'>('combined');
   streamFilter = signal<'all' | 'errors'>('all');
   firebaseFilter = signal<'ALL' | 'INFO' | 'WARNING' | 'ERROR'>('ALL');
+  apiHitsFilter = signal<'ALL' | 'GET' | 'POST' | 'PUT' | 'DELETE'>('ALL');
+  isMobileTabMenuOpen = signal(false);
+
+  getTabIcon(tab: string): string {
+    switch (tab) {
+      case 'combined': return 'shuffle';
+      case 'api': return 'sensors';
+      case 'usage': return 'bar_chart';
+      case 'firebase_overview': return 'sync';
+      case 'firebase_logs': return 'receipt_long';
+      case 'storage': return 'cloud_queue';
+      case 'firebase_api_hits': return 'bolt';
+      case 'observability': return 'cloud';
+      default: return 'menu';
+    }
+  }
+
+  getTabLabel(tab: string): string {
+    switch (tab) {
+      case 'combined': return 'Combined Stream';
+      case 'api': return 'Standard API Monitor';
+      case 'usage': return 'Usage & Billing';
+      case 'firebase_overview': return 'Firebase Overview';
+      case 'firebase_logs': return 'Firebase Logs';
+      case 'storage': return 'Storage Panel';
+      case 'firebase_api_hits': return 'Firebase API Hits (RTDB)';
+      case 'observability': return 'GCP Observability';
+      default: return 'Select Tab';
+    }
+  }
   
   analyticsData = signal<any>(null);
   feeds = signal<any[]>([]);
   combinedFeeds = signal<any[]>([]);
   firebaseLogs = signal<any[]>([]);
+  firebaseApiHits = signal<any[]>([]);
   billingData = signal<any>(null);
   
   firebaseStatus = signal<any>(null);
@@ -484,7 +625,16 @@ export class ProjectApiMonitorComponent implements OnInit, OnDestroy {
   isLoadingFirebaseOverview = signal(false);
   isLoadingStorage = signal(false);
 
-  readonly currentMonth = currentMonthLabel;
+  availableMonths = signal<{ label: string; value: string }[]>([]);
+  selectedMonth = signal<string>(''); // e.g. "2026-06"
+  isMonthDropdownOpen = signal(false);
+
+  currentMonthLabel = computed(() => {
+    const val = this.selectedMonth();
+    if (!val) return '';
+    const [y, m] = val.split('-');
+    return `${monthNames[parseInt(m) - 1]} ${y}`;
+  });
 
   // Computed: Real project cost (billing API first, fallback to analytics total_cost)
   realProjectCost = computed(() => {
@@ -590,15 +740,33 @@ export class ProjectApiMonitorComponent implements OnInit, OnDestroy {
   
   eventSource: EventSource | null = null;
   firebaseLogsSource: EventSource | null = null;
+  firebaseApiHitsSource: EventSource | null = null;
   refreshInterval: any;
-
+ 
   ngOnInit() {
+    // Generate months dynamically
+    const monthsList = [];
+    const d = new Date();
+    for (let i = 0; i < 12; i++) {
+       const m = d.getMonth() - i;
+       const date = new Date(d.getFullYear(), m, 1);
+       const monthStr = String(date.getMonth() + 1).padStart(2, '0');
+       const yearStr = String(date.getFullYear());
+       monthsList.push({
+          label: `${monthNames[date.getMonth()]} ${date.getFullYear()}`,
+          value: `${yearStr}-${monthStr}`
+       });
+    }
+    this.availableMonths.set(monthsList);
+    this.selectedMonth.set(monthsList[0].value); // default to current month
+
     this.loadAnalytics();
     this.startLiveStream();
     
     if (this.project().firebase_config) {
        this.loadFirebaseOverview();
        this.startFirebaseLiveLogs();
+       this.startFirebaseApiHitsStream();
        this.loadFirebaseStorage();
        this.loadBillingData();
     }
@@ -613,7 +781,7 @@ export class ProjectApiMonitorComponent implements OnInit, OnDestroy {
        }
     }, 30000);
   }
-
+ 
   ngOnDestroy() {
     if (this.eventSource) {
       this.eventSource.close();
@@ -621,18 +789,23 @@ export class ProjectApiMonitorComponent implements OnInit, OnDestroy {
     if (this.firebaseLogsSource) {
       this.firebaseLogsSource.close();
     }
+    if (this.firebaseApiHitsSource) {
+      this.firebaseApiHitsSource.close();
+    }
     if (this.refreshInterval) {
       clearInterval(this.refreshInterval);
     }
   }
-
+ 
   isFirebaseTab(): boolean {
      const tab = this.activeTab();
-     return tab === 'firebase_overview' || tab === 'firebase_logs' || tab === 'storage';
+     return tab === 'firebase_overview' || tab === 'firebase_logs' || tab === 'storage' || tab === 'firebase_api_hits';
   }
-
+ 
   loadAnalytics() {
-     this.apiService.get<any>(`/admin/apps/${this.project().id}/analytics`).subscribe({
+     const monthVal = this.selectedMonth();
+     const url = `/admin/apps/${this.project().id}/analytics` + (monthVal ? `?month=${monthVal}` : '');
+     this.apiService.get<any>(url).subscribe({
         next: (res) => {
            this.analyticsData.set(res);
            this.cdr.markForCheck();
@@ -640,11 +813,13 @@ export class ProjectApiMonitorComponent implements OnInit, OnDestroy {
         error: (err) => console.error('Failed to load analytics', err)
      });
   }
-
+ 
   loadBillingData() {
      const appId = this.project().id;
      if (!this.project().firebase_config) return;
-     this.apiService.get<any>(`/admin/apps/${appId}/firebase/billing`).subscribe({
+     const monthVal = this.selectedMonth();
+     const url = `/admin/apps/${appId}/firebase/billing` + (monthVal ? `?month=${monthVal}` : '');
+     this.apiService.get<any>(url).subscribe({
         next: (billing) => {
            this.billingData.set(billing);
            this.cdr.markForCheck();
@@ -698,7 +873,7 @@ export class ProjectApiMonitorComponent implements OnInit, OnDestroy {
      const url = `${environment.apiBaseUrl}/admin/apps/${this.project().id}/live-stream`;
      this.eventSource = new EventSource(url, { withCredentials: true });
      
-     this.eventSource.onmessage = (event) => {
+     this.eventSource.onmessage = (event: any) => {
         try {
            const data = JSON.parse(event.data);
            const isError = data.type === 'error';
@@ -733,7 +908,7 @@ export class ProjectApiMonitorComponent implements OnInit, OnDestroy {
         }
      };
 
-     this.eventSource.onerror = (err) => {
+     this.eventSource.onerror = (err: any) => {
         console.error('SSE Error', err);
      };
   }
@@ -777,7 +952,7 @@ export class ProjectApiMonitorComponent implements OnInit, OnDestroy {
      const url = `${environment.apiBaseUrl}/admin/apps/${appId}/firebase/live-logs`;
      this.firebaseLogsSource = new EventSource(url, { withCredentials: true });
      
-     this.firebaseLogsSource.onmessage = (event) => {
+     this.firebaseLogsSource.onmessage = (event: any) => {
         try {
            const data = JSON.parse(event.data);
            const isError = data.severity === 'ERROR';
@@ -809,7 +984,7 @@ export class ProjectApiMonitorComponent implements OnInit, OnDestroy {
         }
      };
 
-     this.firebaseLogsSource.onerror = (err) => {
+     this.firebaseLogsSource.onerror = (err: any) => {
         console.error('Firebase SSE Error', err);
      };
   }
@@ -828,17 +1003,88 @@ export class ProjectApiMonitorComponent implements OnInit, OnDestroy {
   updateFirebaseFilter(val: 'ALL' | 'INFO' | 'WARNING' | 'ERROR') {
      this.firebaseFilter.set(val);
   }
-
+ 
+  updateApiHitsFilter(val: 'ALL' | 'GET' | 'POST' | 'PUT' | 'DELETE') {
+     this.apiHitsFilter.set(val);
+  }
+ 
   filteredFeeds() {
     if (this.streamFilter() === 'errors') {
       return this.feeds().filter(f => f.isError);
     }
     return this.feeds();
   }
-
+ 
   filteredFirebaseLogs() {
      const filter = this.firebaseFilter();
      if (filter === 'ALL') return this.firebaseLogs();
      return this.firebaseLogs().filter(l => l.severity === filter);
+  }
+ 
+  filteredFirebaseApiHits() {
+     const filter = this.apiHitsFilter();
+     if (filter === 'ALL') return this.firebaseApiHits();
+     return this.firebaseApiHits().filter(h => h.method === filter);
+  }
+ 
+  selectMonth(value: string) {
+     this.selectedMonth.set(value);
+     this.loadAnalytics();
+     if (this.project().firebase_config) {
+        this.loadBillingData();
+     }
+  }
+ 
+  startFirebaseApiHitsStream() {
+     const appId = this.project().id;
+     
+     // 1. Fetch initial API hits
+     this.apiService.get<any[]>(`/admin/apps/${appId}/firebase/api-hits`).subscribe({
+        next: (hits) => {
+           const mappedHits = hits.map(h => ({
+              id: h.id,
+              time: new Date(h.timestamp).toLocaleTimeString(),
+              method: h.method,
+              endpoint: h.endpoint,
+              statusCode: h.statusCode,
+              responseTime: h.responseTime,
+              timestamp: new Date(h.timestamp).getTime()
+           }));
+           this.firebaseApiHits.set(mappedHits);
+           this.cdr.markForCheck();
+        },
+        error: (err) => console.error('Failed to load initial RTDB api hits', err)
+     });
+
+     // 2. SSE Live API Hits
+     const url = `${environment.apiBaseUrl}/admin/apps/${appId}/firebase/live-api-hits`;
+     this.firebaseApiHitsSource = new EventSource(url, { withCredentials: true });
+     
+     this.firebaseApiHitsSource.onmessage = (event: any) => {
+        try {
+           const data = JSON.parse(event.data);
+           const hitItem = {
+              id: data.id,
+              time: new Date(data.timestamp).toLocaleTimeString(),
+              method: data.method,
+              endpoint: data.endpoint,
+              statusCode: data.statusCode,
+              responseTime: data.responseTime,
+              timestamp: new Date(data.timestamp).getTime()
+           };
+           
+           this.firebaseApiHits.update(current => {
+              if (current.some(c => c.id === hitItem.id)) return current;
+              return [hitItem, ...current].slice(0, 100);
+           });
+           this.cdr.markForCheck();
+        } catch (e) {
+           console.error('Firebase RTDB API hits SSE parsing error', e);
+        }
+     };
+
+     this.firebaseApiHitsSource.onerror = (err: any) => {
+        console.error('Firebase RTDB API hits SSE Error', err);
+     };
   }
 }
