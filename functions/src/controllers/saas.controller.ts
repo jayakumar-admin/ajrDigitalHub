@@ -160,10 +160,10 @@ export const saasController = {
   async updateWhatsappConfig(req: Request, res: Response) {
     try {
       const { id } = req.params;
-      const { phone_number, api_key, enabled } = req.body;
+      const { phone_number, api_key, enabled, waba_id } = req.body;
       const result = await query(
-        `UPDATE whatsapp_config SET phone_number = COALESCE($1, phone_number), api_key = COALESCE($2, api_key), enabled = COALESCE($3, enabled) WHERE app_id = $4 RETURNING *`,
-        [phone_number, api_key, enabled, id]
+        `UPDATE whatsapp_config SET phone_number = COALESCE($1, phone_number), api_key = COALESCE($2, api_key), enabled = COALESCE($3, enabled), waba_id = COALESCE($4, waba_id) WHERE app_id = $5 RETURNING *`,
+        [phone_number, api_key, enabled, waba_id, id]
       );
       res.json(result.rows[0]);
     } catch (err: any) {

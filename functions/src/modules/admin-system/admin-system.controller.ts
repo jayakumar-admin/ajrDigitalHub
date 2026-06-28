@@ -365,6 +365,7 @@ async function fetchAppProjectData(appId: string, reqIp: string): Promise<any> {
       ],
       whatsapp: {
         phone_number: whatsapp.phone_number || '',
+        waba_id: whatsapp.waba_id || '',
         api_key: whatsapp.api_key || '',
         enabled: whatsapp.enabled || false
       },

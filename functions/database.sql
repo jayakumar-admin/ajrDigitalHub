@@ -128,6 +128,7 @@ CREATE TABLE IF NOT EXISTS billing (
 CREATE TABLE IF NOT EXISTS whatsapp_config (
     app_id UUID PRIMARY KEY REFERENCES apps(id) ON DELETE CASCADE,
     phone_number TEXT,
+    waba_id TEXT,
     api_key TEXT,
     enabled BOOLEAN DEFAULT false
 );
@@ -156,6 +157,9 @@ ALTER TABLE apps ADD COLUMN IF NOT EXISTS firebase_project_id TEXT;
 ALTER TABLE apps ADD COLUMN IF NOT EXISTS plan TEXT DEFAULT 'Spark';
 ALTER TABLE apps ADD COLUMN IF NOT EXISTS current_spend NUMERIC(12,4) DEFAULT 0;
 
+-- Add waba_id to whatsapp_config if missing
+ALTER TABLE whatsapp_config ADD COLUMN IF NOT EXISTS waba_id TEXT;
+
 -- Index for fast lookup by app_id
 CREATE INDEX IF NOT EXISTS idx_usage_logs_app_created ON usage_logs(app_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_usage_logs_status ON usage_logs(app_id, status_code, created_at DESC);
@@ -164,4 +168,5 @@ CREATE INDEX IF NOT EXISTS idx_usage_logs_endpoint ON usage_logs(app_id, endpoin
 CREATE INDEX IF NOT EXISTS idx_usage_logs_latency ON usage_logs(app_id, latency, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_analytics_logs_app_created ON analytics_logs(app_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_billing_app_status ON billing(app_id, status);
+
 

@@ -152,6 +152,7 @@ export interface ProjectData extends AdminApp {
   billing: BillingData;
   whatsapp?: {
     phone_number: string;
+    waba_id?: string;
     api_key: string;
     enabled: boolean;
   };
@@ -169,6 +170,10 @@ export interface ProjectData extends AdminApp {
     storageBucket: string;
     appId: string;
     measurementId?: string;
+    serviceAccount?: {
+      client_email: string;
+      private_key: string;
+    };
   } | null;
   cached_metrics?: {
     status?: any;

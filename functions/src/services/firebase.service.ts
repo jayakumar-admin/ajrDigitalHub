@@ -3,6 +3,7 @@ import * as path from 'path';
 import { query, isPostgresEnabled } from '../config/db';
 import { BaseService } from '../core/base.service';
 import axios from 'axios';
+import { JWT } from 'google-auth-library';
 
 export interface FirebaseConfig {
   projectId: string;
@@ -11,71 +12,57 @@ export interface FirebaseConfig {
   storageBucket: string;
   appId: string;
   measurementId?: string;
+  serviceAccount?: {
+    client_email: string;
+    private_key: string;
+  };
 }
 
 // ============================================================
-//  OAuth Token Management (via firebase-tools local token)
+//  Dynamic OAuth Token Management (via Service Account JWT)
 // ============================================================
 
-// firebase-tools client credentials (embedded in firebase-tools/lib/api.js)
-const FIREBASE_CLIENT_ID = '563584335869-fgrhgmd47bqnekij5i8b5pr03ho849e6.apps.googleusercontent.com';
-const FIREBASE_CLIENT_SECRET = 'j9iVZfS8kkCEFUPaAeJV0sAi';
+interface CachedToken {
+  accessToken: string;
+  expiresAt: number;
+}
+const tokenCache = new Map<string, CachedToken>();
 
-let _cachedToken: { access_token: string; expires_at: number } | null = null;
+async function getDynamicAccessToken(projectId: string, serviceAccount?: { client_email: string; private_key: string }): Promise<string | null> {
+  if (!serviceAccount || !serviceAccount.client_email || !serviceAccount.private_key) {
+    console.warn(`⚠️ No service account credentials provided for project ${projectId}.`);
+    return null;
+  }
 
-async function getGoogleAccessToken(): Promise<string | null> {
-  // Return cached token if still valid (with 5min buffer)
-  if (_cachedToken && Date.now() < _cachedToken.expires_at - 300000) {
-    return _cachedToken.access_token;
+  // Cache lookup with 5-minute buffer
+  const cached = tokenCache.get(projectId);
+  if (cached && Date.now() < cached.expiresAt - 300000) {
+    return cached.accessToken;
   }
 
   try {
-    const userProfile = process.env.USERPROFILE || process.env.HOME || '';
-    const configPath = path.join(userProfile, '.config', 'configstore', 'firebase-tools.json');
+    const jwtClient = new JWT({
+      email: serviceAccount.client_email,
+      key: serviceAccount.private_key.replace(/\\n/g, '\n'),
+      scopes: ['https://www.googleapis.com/auth/cloud-platform'],
+    });
 
-    if (!fs.existsSync(configPath)) {
-      console.warn('⚠️ firebase-tools.json not found. Real-time Google APIs will not work.');
-      return null;
+    const credentials = await jwtClient.getAccessToken();
+    const accessToken = credentials.token;
+    if (!accessToken) {
+      throw new Error('Failed to retrieve token from credentials');
     }
 
-    const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-    const tokens = config.tokens;
-    if (!tokens) return null;
+    const expiryTime = (credentials.res?.data as any)?.expiry_date || (Date.now() + 3600 * 1000);
 
-    // Use existing access_token if still valid
-    if (tokens.access_token && tokens.expires_at && Date.now() < tokens.expires_at - 300000) {
-      _cachedToken = { access_token: tokens.access_token, expires_at: tokens.expires_at };
-      return tokens.access_token;
-    }
+    tokenCache.set(projectId, {
+      accessToken,
+      expiresAt: expiryTime,
+    });
 
-    // Refresh via refresh_token
-    if (tokens.refresh_token) {
-      const res = await axios.post('https://oauth2.googleapis.com/token', {
-        grant_type: 'refresh_token',
-        refresh_token: tokens.refresh_token,
-        client_id: FIREBASE_CLIENT_ID,
-        client_secret: FIREBASE_CLIENT_SECRET,
-      }, { timeout: 10000 });
-
-      const newToken = res.data.access_token;
-      const expiresAt = Date.now() + (res.data.expires_in || 3600) * 1000;
-      _cachedToken = { access_token: newToken, expires_at: expiresAt };
-
-      // Update the stored token
-      try {
-        config.tokens.access_token = newToken;
-        config.tokens.expires_at = expiresAt;
-        fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
-      } catch (e) {
-        // Non-fatal: just use in-memory
-      }
-
-      return newToken;
-    }
-
-    return null;
+    return accessToken;
   } catch (err: any) {
-    console.warn('⚠️ Failed to get Google OAuth token:', err.message);
+    console.error(`❌ Failed to generate dynamic access token for project ${projectId}:`, err.message);
     return null;
   }
 }
@@ -84,8 +71,9 @@ async function getGoogleAccessToken(): Promise<string | null> {
 //  Firebase Service
 // ============================================================
 export class FirebaseService {
-  async getAccessToken(): Promise<string | null> {
-    return getGoogleAccessToken();
+  async getAccessToken(projectId?: string, serviceAccount?: { client_email: string; private_key: string }): Promise<string | null> {
+    if (!projectId) return null;
+    return getDynamicAccessToken(projectId, serviceAccount);
   }
 
   // ── DB Config CRUD ──────────────────────────────────────────
@@ -153,7 +141,7 @@ export class FirebaseService {
     const config = await this.getFirebaseConfig(appId);
     if (!config) throw new Error('Firebase integration not configured for this application');
 
-    const accessToken = await getGoogleAccessToken();
+    const accessToken = await getDynamicAccessToken(config.projectId, config.serviceAccount);
     const { projectId } = config;
 
     if (accessToken) {
@@ -220,7 +208,7 @@ export class FirebaseService {
     const config = await this.getFirebaseConfig(appId);
     if (!config) throw new Error('Firebase integration not configured for this application');
 
-    const accessToken = await getGoogleAccessToken();
+    const accessToken = await getDynamicAccessToken(config.projectId, config.serviceAccount);
     const { projectId } = config;
 
     if (accessToken) {
@@ -279,7 +267,7 @@ export class FirebaseService {
     const config = await this.getFirebaseConfig(appId);
     if (!config) throw new Error('Firebase integration not configured for this application');
 
-    const accessToken = await getGoogleAccessToken();
+    const accessToken = await getDynamicAccessToken(config.projectId, config.serviceAccount);
     const { projectId } = config;
 
     if (accessToken) {
@@ -350,7 +338,7 @@ export class FirebaseService {
     const config = await this.getFirebaseConfig(appId);
     if (!config) throw new Error('Firebase integration not configured for this application');
 
-    const accessToken = await getGoogleAccessToken();
+    const accessToken = await getDynamicAccessToken(config.projectId, config.serviceAccount);
     const { projectId, apiKey, storageBucket } = config;
 
     // Try multiple bucket name formats Firebase uses
@@ -413,8 +401,10 @@ export class FirebaseService {
     const config = await this.getFirebaseConfig(appId);
     if (!config) throw new Error('Firebase integration not configured for this application');
 
-    const accessToken = await getGoogleAccessToken();
+    const accessToken = await getDynamicAccessToken(config.projectId, config.serviceAccount);
     const { projectId } = config;
+    console.log("token********");
+    console.log(accessToken);
 
     if (accessToken) {
       try {
@@ -430,7 +420,7 @@ export class FirebaseService {
 
         let totalCost = 0;
         let totalExecutions = 0;
-
+        console.log(billingRes);
         // Query Cloud Monitoring for execution counts across all services
         if (billingEnabled) {
           let startOfMonth: string;
@@ -518,7 +508,7 @@ export class FirebaseService {
     const config = await this.getFirebaseConfig(appId);
     if (!config) return { history: [], totalCost: 0, totalHits: 0 };
 
-    const accessToken = await getGoogleAccessToken();
+    const accessToken = await getDynamicAccessToken(config.projectId, config.serviceAccount);
     const { projectId } = config;
 
     if (!accessToken) return { history: [], totalCost: 0, totalHits: 0 };
@@ -621,7 +611,7 @@ export class FirebaseService {
 
   async getFirebaseApiHits(appId: string): Promise<any[]> {
     const { rtdb } = require('../config/firebase');
-    
+
     // 1. Try Firebase Admin SDK RTDB
     if (rtdb) {
       try {
@@ -641,7 +631,7 @@ export class FirebaseService {
     try {
       const config = await this.getFirebaseConfig(appId);
       if (config && config.projectId) {
-        const token = await getGoogleAccessToken();
+        const token = await getDynamicAccessToken(config.projectId, config.serviceAccount);
         if (token) {
           const axios = require('axios');
           const urls = [

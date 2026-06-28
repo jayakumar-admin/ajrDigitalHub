@@ -167,6 +167,7 @@ export const seedDatabase = async () => {
       CREATE TABLE IF NOT EXISTS whatsapp_config (
         app_id UUID PRIMARY KEY REFERENCES apps(id) ON DELETE CASCADE,
         phone_number TEXT,
+        waba_id TEXT,
         api_key TEXT,
         enabled BOOLEAN DEFAULT false,
         created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
@@ -191,6 +192,16 @@ export const seedDatabase = async () => {
       console.log('🌱 Schema Migration: Renamed analytics_logs.timestamp to created_at');
     } catch (err: any) {
       // Ignore error if column RENAME failed (already renamed or doesn't exist)
+    }
+
+    // Migration: Add waba_id to whatsapp_config if missing
+    try {
+      await query(`
+        ALTER TABLE whatsapp_config ADD COLUMN IF NOT EXISTS waba_id TEXT;
+      `);
+      console.log('🌱 Schema Migration: Added waba_id to whatsapp_config');
+    } catch (err: any) {
+      // Ignore error
     }
 
     // 1c. Add UNIQUE constraint to app_integrations if somehow missing on exists

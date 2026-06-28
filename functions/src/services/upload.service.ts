@@ -1,8 +1,9 @@
 import { bucket } from '../config/firebase';
 import { randomUUID } from 'node:crypto';
+import * as fs from 'fs';
 
 export class UploadService {
-  async uploadImage(file: Express.Multer.File): Promise<string> {
+  async uploadImage(file: any): Promise<string> {
     if (!bucket) {
       throw new Error('Firebase Storage bucket not initialized');
     }
@@ -32,7 +33,13 @@ export class UploadService {
         }
       });
 
-      blobStream.end(file.buffer);
+      if (file.buffer) {
+        blobStream.end(file.buffer);
+      } else if (file.path) {
+        fs.createReadStream(file.path).pipe(blobStream);
+      } else {
+        reject(new Error('No file content found'));
+      }
     });
   }
 }

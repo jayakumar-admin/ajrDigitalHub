@@ -56,6 +56,9 @@ export interface WaTemplateDetail {
   status: string;
   language: string;
   qualityScore: string;
+  bodyText?: string;
+  headerText?: string;
+  footerText?: string;
   metrics: {
     sent: number;
     delivered: number;
@@ -98,6 +101,17 @@ export class WhatsappBillingService implements OnDestroy {
   private pollingSubscriptions: Subscription[] = [];
   private firestoreUnsub: (() => void) | null = null;
 
+  private selectedDays = 90; // Default to 90 days as in screenshot
+
+  setSelectedDays(days: number, appId: string): void {
+    this.selectedDays = days;
+    this.fetchAll(appId);
+  }
+
+  getSelectedDays(): number {
+    return this.selectedDays;
+  }
+
   // ── Start all polling for an app ──
   startPolling(appId: string): void {
     this.stopPolling();
@@ -106,7 +120,7 @@ export class WhatsappBillingService implements OnDestroy {
     // Summary: poll every 5 seconds
     const summarySub = interval(5000).pipe(
       switchMap(() =>
-        this.api.get<WaBillingSummary>(`/api/admin/apps/${appId}/whatsapp/realtime-summary`).pipe(
+        this.api.get<WaBillingSummary>(`/api/admin/apps/${appId}/whatsapp/realtime-summary?days=${this.selectedDays}`).pipe(
           catchError(() => of(null))
         )
       ),
@@ -123,7 +137,7 @@ export class WhatsappBillingService implements OnDestroy {
     // Templates: poll every 10 seconds
     const templatesSub = interval(10000).pipe(
       switchMap(() =>
-        this.api.get<WaTemplateStat[]>(`/api/admin/apps/${appId}/whatsapp/templates-live`).pipe(
+        this.api.get<WaTemplateStat[]>(`/api/admin/apps/${appId}/whatsapp/templates-live?days=${this.selectedDays}`).pipe(
           catchError(() => of([]))
         )
       )
@@ -134,7 +148,7 @@ export class WhatsappBillingService implements OnDestroy {
     // Graph: poll every 30 seconds
     const graphSub = interval(30000).pipe(
       switchMap(() =>
-        this.api.get<WaGraphData>(`/api/admin/apps/${appId}/whatsapp/realtime-graph`).pipe(
+        this.api.get<WaGraphData>(`/api/admin/apps/${appId}/whatsapp/realtime-graph?days=${this.selectedDays}`).pipe(
           catchError(() => of(null))
         )
       )
@@ -155,18 +169,18 @@ export class WhatsappBillingService implements OnDestroy {
   fetchAll(appId: string): void {
     this.loadingSubject.next(true);
 
-    this.api.get<WaBillingSummary>(`/api/admin/apps/${appId}/whatsapp/realtime-summary`).pipe(
+    this.api.get<WaBillingSummary>(`/api/admin/apps/${appId}/whatsapp/realtime-summary?days=${this.selectedDays}`).pipe(
       catchError(() => of(null))
     ).subscribe(data => {
       if (data) this.summarySubject.next(data);
       this.loadingSubject.next(false);
     });
 
-    this.api.get<WaTemplateStat[]>(`/api/admin/apps/${appId}/whatsapp/templates-live`).pipe(
+    this.api.get<WaTemplateStat[]>(`/api/admin/apps/${appId}/whatsapp/templates-live?days=${this.selectedDays}`).pipe(
       catchError(() => of([]))
     ).subscribe(data => this.templatesSubject.next(data || []));
 
-    this.api.get<WaGraphData>(`/api/admin/apps/${appId}/whatsapp/realtime-graph`).pipe(
+    this.api.get<WaGraphData>(`/api/admin/apps/${appId}/whatsapp/realtime-graph?days=${this.selectedDays}`).pipe(
       catchError(() => of(null))
     ).subscribe(data => { if (data) this.graphSubject.next(data); });
   }
@@ -174,7 +188,7 @@ export class WhatsappBillingService implements OnDestroy {
   // ── Get template detail (one-shot) ──
   getTemplateDetail(appId: string, templateName: string): Observable<WaTemplateDetail> {
     return this.api.get<WaTemplateDetail>(
-      `/api/admin/apps/${appId}/whatsapp/template/${encodeURIComponent(templateName)}`
+      `/api/admin/apps/${appId}/whatsapp/template/${encodeURIComponent(templateName)}?days=${this.selectedDays}`
     ).pipe(catchError(() => of(null as any)));
   }
 

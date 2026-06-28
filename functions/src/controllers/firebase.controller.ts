@@ -126,7 +126,7 @@ export const firebaseController = {
         // Try REST API RTDB Fallback
         const config = await firebaseService.getFirebaseConfig(id);
         if (config && config.projectId) {
-          const token = await firebaseService.getAccessToken();
+          const token = await firebaseService.getAccessToken(config.projectId, config.serviceAccount);
           if (token) {
             const axios = require('axios');
             const urls = [
@@ -225,7 +225,7 @@ export const firebaseController = {
   async saveConfig(req: Request, res: Response) {
     try {
       const { id } = req.params;
-      const { projectId, apiKey, authDomain, storageBucket, appId, measurementId } = req.body;
+      const { projectId, apiKey, authDomain, storageBucket, appId, measurementId, serviceAccount } = req.body;
       if (!projectId || !apiKey) {
         return res.status(400).json({ error: 'Project ID and API Key are required' });
       }
@@ -251,7 +251,8 @@ export const firebaseController = {
         authDomain: authDomain || `${projectId}.firebaseapp.com`,
         storageBucket: storageBucket || `${projectId}.firebasestorage.app`,
         appId,
-        measurementId: measurementId || ''
+        measurementId: measurementId || '',
+        serviceAccount
       });
       return res.json({ success: true, message: 'Firebase configuration saved successfully' });
     } catch (err: any) {
@@ -261,7 +262,7 @@ export const firebaseController = {
 
   async testConnection(req: Request, res: Response) {
     try {
-      const { projectId, apiKey, authDomain, storageBucket, appId } = req.body;
+      const { projectId, apiKey, authDomain, storageBucket, appId, serviceAccount } = req.body;
       if (!projectId || !apiKey) {
         return res.status(400).json({ error: 'Project ID and API Key are required for connection test' });
       }
@@ -270,7 +271,8 @@ export const firebaseController = {
         apiKey,
         authDomain: authDomain || '',
         storageBucket: storageBucket || '',
-        appId: appId || ''
+        appId: appId || '',
+        serviceAccount
       });
       return res.json({ success });
     } catch (err: any) {
